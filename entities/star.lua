@@ -4,6 +4,9 @@ local GRAVITY_CONSTANT = 5000
 
 return function(xpos,ypos,radius,mass)
   local star = {}
+  star.x = xpos
+  star.y = ypos
+  star.radius = radius
   star.body = love.physics.newBody(world, xpos, ypos, 'static')
   star.shape = love.physics.newCircleShape(radius)
   star.fixture = love.physics.newFixture(star.body, star.shape)

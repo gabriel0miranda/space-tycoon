@@ -3,6 +3,9 @@ local input = require('input')
 
 return function(xpos,ypos,linearAcceleration,angularAcceleration)
   local ship = {}
+  ship.x = xpos
+  ship.y = ypos
+  ship.mass = 100
   ship.linearAcceleration = linearAcceleration
   ship.angularAcceleration = angularAcceleration
   ship.strafeAcceleration = angularAcceleration/2
@@ -16,16 +19,16 @@ return function(xpos,ypos,linearAcceleration,angularAcceleration)
   ship.fixture = love.physics.newFixture(ship.body, ship.shape)
   ship.fixture:setRestitution(0.75)
   ship.fixture:setUserData(ship)
+  ship.rcs_text = "true"
 
   ship.draw = function(self)
-    local rcs_text
-    if input.rcs == true then
-      rcs_text = "true"
+    if input.rcs == false then
+      ship.rcs_text = "false"
     else
-      rcs_text = "false"
+      ship.rcs_text = "true"
     end
-    love.graphics.setColor(131, 192, 240)
-    love.graphics.polygon('line', self.body:getWorldPoints(self.shape:getPoints()))
+    love.graphics.setColor(255/255, 200/255, 48/255)
+    love.graphics.polygon('fill', self.body:getWorldPoints(self.shape:getPoints()))
   end
 
   ship.update = function(self,dt)
@@ -73,8 +76,24 @@ return function(xpos,ypos,linearAcceleration,angularAcceleration)
 
   ship.landOn = function(self, landable)
     self.landedAt = landable
-    ship.body:setLinearVelocity(0,0)
+    self.body:setLinearVelocity(0,0)
+    input.paused = true
     print("Landed on "..landable.name.."!")
+  end
+
+  ship.launch = function(self, landable)
+    local angle = math.rad(love.math.random(360))
+    local fx = math.cos(angle)
+    local fy = math.sin(angle)
+    local lx = math.sin(angle)
+    local ly = -math.cos(angle)
+    local thrust = self.linearAcceleration * 2
+    self.landedAt = nil
+    input.paused = false
+    self.body:setAngle(angle)
+    self.body:setPosition(love.math.random(-landable.radius,landable.radius)+landable.x,love.math.random(-landable.radius,landable.radius)+landable.y)
+    self.body:setLinearVelocity(fx * thrust, fy * thrust)
+    print("Launched from "..landable.name.."!")
   end
 
   ship.getTag = function(self)

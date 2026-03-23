@@ -25,6 +25,8 @@ input.land = false
 
 input.paused = false
 
+input.launch = false
+
 input.press = function(pressed_key)
   if press_functions[pressed_key] then
     press_functions[pressed_key]()
@@ -73,6 +75,9 @@ end
 press_functions["kpenter"] = function()
   input.land = true
 end
+press_functions["return"] = function()
+  input.launch = true
+end
 press_functions.escape = function()
   love.event.quit()
 end
@@ -107,6 +112,9 @@ release_functions["kp-"] = function()
 end
 release_functions["kpenter"] = function()
   input.land = false
+end
+release_functions["return"] = function()
+  input.launch = false
 end
 
 

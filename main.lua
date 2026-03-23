@@ -25,6 +25,16 @@ love.load = function()
     if tag == "planet" or tag == "station" then
       table.insert(landables,entity)
     end
+    for _, star in ipairs(stars) do
+      for _, entity in ipairs(landables) do
+        local tag = entity:getTag()
+        if tag == "station" or tag == "planet" then
+          entity.orbitRadius = math.sqrt((entity.x - star.x)^2 + (entity.y - star.y)^2)
+          entity.orbitAngle = math.atan2(entity.y - star.y, entity.x - star.x)
+          entity.orbitSpeed = 0.0008
+        end
+      end
+    end
   end
 end
 
@@ -65,16 +75,16 @@ end
 
 love.draw = function()
   camera1:attach()
-  ship:draw()
   for _, entity in pairs(asteroids) do
     if entity.draw then entity:draw() end
   end
   for _, entity in pairs(stars) do
     if entity.draw then entity:draw() end
   end
-  for _, entity in pairs(landables) do
+  for _, entity in ipairs(landables) do
     if entity.draw then entity:draw() end
   end
+  ship:draw()
   camera1:detach()
   if ship.landedAt ~= nil then
     love.graphics.setColor(0,0,0,0.85)
@@ -82,13 +92,25 @@ love.draw = function()
     love.graphics.setColor(0.9, 0.9, 1)
     love.graphics.print("Docked at " .. ship.landedAt.name, 250, 180)
 
-    love.graphics.setFont(normalFont)
-    love.graphics.print("Press ESC to launch", 250, 260)
+    love.graphics.print("Press Return to launch", 250, 260)
 
-    if ship.landedAt.type == "station" then
-        love.graphics.print("• Trade • Repair • Missions • Quit to Space", 280, 320)
+    if ship.landedAt:getTag() == "station" then
+        love.graphics.print("• Trade • Repair • Missions • Market", 280, 320)
     else
-        love.graphics.print("• Surface Info • Refuel • Talk to Locals • Quit to Space", 280, 320)
+        love.graphics.print("• Surface Info • Refuel • Talk to Locals • Missions", 280, 320)
+    end
+    if input.launch then
+      ship:launch(ship.landedAt)
     end
   end
+
+  love.graphics.print(
+                      {{0.2,1,0.2,1},
+                      "Ship mass:"..ship.mass..
+                      "\nShip X:"..ship.body:getX()..
+                      "\nShip Y:"..ship.body:getY()..
+                      "\nShip angle:"..ship.body:getAngle()..
+                      "\nShip angular velocity:"..ship.body:getAngularVelocity()..
+                      "\nShip RCS:"..ship.rcs_text},
+                      0,0,0,1,1)
 end

@@ -19,14 +19,14 @@ return function(x_pos, y_pos, radius, name, type)
     love.graphics.setColor(1,1,1)
     love.graphics.circle("line",self.x,self.y,self.radius+6)
     love.graphics.setColor(1,1,1)
-    love.graphics.print(self.name,self.x-40,self.y-self.radius-25)
+    love.graphics.print(self.name,self.x-80,self.y-self.radius-50,0,2,2)
   end
 
   station.update = function(self,ship,dt)
     if self.orbitSpeed > 0 then
       self.orbitAngle = self.orbitAngle + self.orbitSpeed *dt
       self.x = 400 + self.orbitRadius * math.cos(self.orbitAngle)
-      self.y = 300 * self.orbitRadius * math.sin(self.orbitAngle)
+      self.y = 300 + self.orbitRadius * math.sin(self.orbitAngle)
     end
 
     local sx, sy = ship.body:getX(),ship.body:getY()
