@@ -40,6 +40,7 @@ return function(xpos,ypos,radius,mass)
 
     local pullStrength = force / 2000
     body.glow = math.min(1,pullStrength)
+    print("Applying force")
     body.body:applyForce(fx, fy)
   end
 

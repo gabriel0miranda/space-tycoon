@@ -27,6 +27,8 @@ input.paused = false
 
 input.launch = false
 
+input.debug = false
+
 input.press = function(pressed_key)
   if press_functions[pressed_key] then
     press_functions[pressed_key]()
@@ -78,11 +80,11 @@ end
 press_functions["return"] = function()
   input.launch = true
 end
-press_functions.escape = function()
-  love.event.quit()
-end
 press_functions.space = function()
   input.paused = not input.paused
+end
+press_functions.f1 = function()
+  input.debug = not input.debug
 end
 
 

@@ -1,41 +1,86 @@
-local entities = require('entities')
-local input = require('input')
-local camera = require('camera')
-local world = require('world')
+Entities = require('entities')
+GameState = require('states/init')
+input = require('input')
+world = require('world')
 
 
-local stars = {}
-local asteroids = {}
-local ship
-local landables = {}
-local entity_list = entities(20,1)
-local camera1 = camera()
 
 love.load = function()
-  for _, entity in ipairs(entity_list) do
-    local tag = entity:getTag()
-    if tag == 'star' then
-      table.insert(stars, entity)
-    elseif tag == 'asteroid' then
-      table.insert(asteroids, entity)
-    end
-    if tag == 'ship' then
-      ship = entity
-    end
-    if tag == "planet" or tag == "station" then
-      table.insert(landables,entity)
-    end
-    for _, star in ipairs(stars) do
-      for _, entity in ipairs(landables) do
-        local tag = entity:getTag()
-        if tag == "station" or tag == "planet" then
-          entity.orbitRadius = math.sqrt((entity.x - star.x)^2 + (entity.y - star.y)^2)
-          entity.orbitAngle = math.atan2(entity.y - star.y, entity.x - star.x)
-          entity.orbitSpeed = 0.0008
-        end
-      end
-    end
-  end
+  bigFont   = love.graphics.newFont(48)
+  normalFont = love.graphics.newFont(24)
+  smallFont  = love.graphics.newFont(14)
+  ASTEROID_MIN_RADIUS = 2000
+  ASTEROID_MAX_RADIUS = 4000
+  GRAVITY_CONSTANT = 5000
+  MAX_ORBIT_RADIUS = 6000
+  MIN_DISTANCE = 1500
+  GameState.register("mainmenu", require("states.mainmenu"))
+  GameState.register("playing", require("states.playing"))
+  GameState.register("landed", require("states.landed"))
+
+  local rigidBody = {}
+  rigidBody.body = love.physics.newBody(world, 400, 200, "dynamic")
+  rigidBody.shape = love.physics.newPolygonShape(0, -25, 50, 0, 0, 25)
+  rigidBody.fixture = love.physics.newFixture(rigidBody.body, rigidBody.shape)
+  rigidBody.color = {255/255, 200/255, 48/255}
+  rigidBody.body:setAngle(0)
+  Entities.create("ship", {
+    rigidbody = require("components.rigidbody")(rigidBody.body),
+    sprite = require("components.sprite")(rigidBody.color, rigidBody.shape,"Polygon"),
+    movement = require("components.movement")(800,600,1200),
+    landedAt = nil,
+    inertiaDampeners = true,
+    rcs = true,
+    mass = 1000,
+    restitution = 0.75,
+  })
+
+  require("managers.world_manager").systems = {
+    [1] = { name = "Sol",
+            starX = 0,
+            starY = 0,
+            starMass = 65000,
+            asteroidCount = 30,
+            landables = {
+              {
+                name="Trading Station",
+                x = -900,
+                y = -400,
+                orbitRadius = 0,
+                orbitAngle = 0,
+                orbitSpeed = 0,
+                radius = 60,
+                type = "station",
+                sprite = require("components.sprite")({1,0,0},love.physics.newCircleShape(-900,-400,60),"Circle")
+              },
+              {
+                name="Mining Depot",
+                x = 1200,
+                y = 600,
+                orbitRadius = 0,
+                orbitAngle = 0,
+                orbitSpeed = 0,
+                radius = 80,
+                type = "station",
+                sprite = require("components.sprite")({1,0,0},love.physics.newCircleShape(1200,600,80),"Circle")
+              },
+              {
+                name="Merle's Refuge",
+                x = 200,
+                y = -1100,
+                orbitRadius = 0,
+                orbitAngle = 0,
+                orbitSpeed = 0,
+                radius = 300,
+                type = "planet",
+                sprite = require("components.sprite")({0,0,1},love.physics.newCircleShape(200,-1100,300),"Circle")
+              }
+            },
+          },
+  }
+
+  GameState.switch("mainmenu")
+
 end
 
 love.focus = function(focused)
@@ -43,74 +88,22 @@ love.focus = function(focused)
 end
 
 love.keypressed = function(pressed_key)
+  GameState.keypressed(pressed_key)
   input.press(pressed_key)
 end
 
 love.keyreleased = function(released_key)
+  GameState.keyreleased(released_key)
   input.release(released_key)
 end
 
 love.update = function(dt)
-  if not input.paused then
-    ship:update(dt)
-    for _, entity in pairs(asteroids) do
-      if entity.update then entity:update(dt) end
-    end
-    for _, entity in pairs(stars) do
-      if entity.update then entity:update(dt) end
-    end
-    for _, entity in pairs(landables) do
-      if entity.update then entity:update(ship,dt) end
-    end
-    camera1:follow(ship.body:getX(), ship.body:getY())
-    camera1:update(dt)
-    for _, star in ipairs(stars) do
-      for _, asteroid in ipairs(asteroids) do
-        star:gravitationalPull(asteroid)
-      end
-    end
-    world:update(dt)
-  end
+  GameState.update(dt)
 end
 
 love.draw = function()
-  camera1:attach()
-  for _, entity in pairs(asteroids) do
-    if entity.draw then entity:draw() end
+  GameState.draw()
+  if debugMode then
+    love.graphics.print("State: "..GameState.current,10,10)
   end
-  for _, entity in pairs(stars) do
-    if entity.draw then entity:draw() end
-  end
-  for _, entity in ipairs(landables) do
-    if entity.draw then entity:draw() end
-  end
-  ship:draw()
-  camera1:detach()
-  if ship.landedAt ~= nil then
-    love.graphics.setColor(0,0,0,0.85)
-    love.graphics.rectangle("fill",200,150,love.graphics.getWidth()-400,love.graphics.getHeight()-300)
-    love.graphics.setColor(0.9, 0.9, 1)
-    love.graphics.print("Docked at " .. ship.landedAt.name, 250, 180)
-
-    love.graphics.print("Press Return to launch", 250, 260)
-
-    if ship.landedAt:getTag() == "station" then
-        love.graphics.print("• Trade • Repair • Missions • Market", 280, 320)
-    else
-        love.graphics.print("• Surface Info • Refuel • Talk to Locals • Missions", 280, 320)
-    end
-    if input.launch then
-      ship:launch(ship.landedAt)
-    end
-  end
-
-  love.graphics.print(
-                      {{0.2,1,0.2,1},
-                      "Ship mass:"..ship.mass..
-                      "\nShip X:"..ship.body:getX()..
-                      "\nShip Y:"..ship.body:getY()..
-                      "\nShip angle:"..ship.body:getAngle()..
-                      "\nShip angular velocity:"..ship.body:getAngularVelocity()..
-                      "\nShip RCS:"..ship.rcs_text},
-                      0,0,0,1,1)
 end

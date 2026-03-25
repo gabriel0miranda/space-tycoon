@@ -23,6 +23,7 @@ return function()
     if input.zoomOut then
       self.scale = self.scale - 0.8 * dt
     end
+    self.scale = math.max(0.1, math.min(3.0, self.scale))
     self.x = self.x + (self.targetX - self.x) * self.smoothSpeed * dt
     self.y = self.y + (self.targetY - self.y) * self.smoothSpeed * dt
   end
