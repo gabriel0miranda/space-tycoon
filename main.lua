@@ -1,5 +1,6 @@
 Entities = require('entities')
 GameState = require('states/init')
+Weapons = require("data/weapons")
 input = require('input')
 world = require('world')
 
@@ -25,14 +26,17 @@ love.load = function()
   rigidBody.color = {255/255, 200/255, 48/255}
   rigidBody.body:setAngle(0)
   Entities.create("ship", {
-    rigidbody = require("components.rigidbody")(rigidBody.body),
+    name = "Your Ship",
+    rigidbody = require("components.rigidbody")(rigidBody.body,rigidBody.fixture),
     sprite = require("components.sprite")(rigidBody.color, rigidBody.shape,"Polygon"),
     movement = require("components.movement")(800,600,1200),
+    weapon = require("components.weapon")(Weapons.laser),
     landedAt = nil,
     inertiaDampeners = true,
     rcs = true,
     mass = 1000,
     restitution = 0.75,
+    inventory = require("components.inventory")(500),
   })
 
   require("managers.world_manager").systems = {

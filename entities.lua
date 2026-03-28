@@ -28,7 +28,7 @@ function Entities.with(...)
       if not (
         entity.tag == req or
         (entity.components and entity.components[req]) or
-        entity[req] == true
+        entity[req] ~= nil
       ) then
           matches = false
           break

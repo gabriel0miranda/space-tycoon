@@ -1,3 +1,4 @@
-return function(body)
-  return { body = body }
+return function(body, fixture)
+  return { body = body,
+           fixture = fixture}
 end

@@ -17,7 +17,7 @@ function GameState.switch(newState, extraData)
   GameState.data = extraData or {}
 
   local new = stateModules[newState]
-  if new and new.onEnter then new.onEnter() end
+  if new and new.onEnter then new.onEnter(extraData) end
 end
 
 function GameState.update(dt)

@@ -3,6 +3,10 @@ local input = {}
 local press_functions = {}
 local release_functions = {}
 
+input.inventory = false
+
+input.fire_primary = false
+
 input.left = false
 
 input.right = false
@@ -28,6 +32,8 @@ input.paused = false
 input.launch = false
 
 input.debug = false
+
+input.weapon_type = 1
 
 input.press = function(pressed_key)
   if press_functions[pressed_key] then
@@ -80,11 +86,32 @@ end
 press_functions["return"] = function()
   input.launch = true
 end
-press_functions.space = function()
+press_functions.p = function()
   input.paused = not input.paused
 end
 press_functions.f1 = function()
   input.debug = not input.debug
+end
+press_functions.space = function()
+  input.fire_primary = true
+end
+press_functions["1"] = function()
+  input.weapon_type = 1
+end
+press_functions["2"] = function()
+  input.weapon_type = 2
+end
+press_functions["3"] = function()
+  input.weapon_type = 3
+end
+press_functions["4"] = function()
+  input.weapon_type = 4
+end
+press_functions["i"] = function()
+  input.inventory = not input.inventory
+end
+press_functions["escape"] = function()
+  input.mainmenu = true
 end
 
 
@@ -117,6 +144,12 @@ release_functions["kpenter"] = function()
 end
 release_functions["return"] = function()
   input.launch = false
+end
+release_functions.space = function()
+  input.fire_primary = false
+end
+release_functions["escape"] = function()
+  input.mainmenu = false
 end
 
 

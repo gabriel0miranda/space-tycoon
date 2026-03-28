@@ -2,6 +2,40 @@ local WorldManager = {}
 
 WorldManager.currentSystemId = 1
 WorldManager.systems = {}
+WorldManager.snapshot = nil
+
+function WorldManager.freeze()
+  WorldManager.snapshot = {}
+  for _, e in ipairs(Entities.all) do
+    if e.tag ~= "ship" and e.rigidbody and e.rigidbody.body then
+      local vx, vy = e.rigidbody.body:getLinearVelocity()
+      table.insert(WorldManager.snapshot, {
+        entity = e,
+        x      = e.rigidbody.body:getX(),
+        y      = e.rigidbody.body:getY(),
+        vx     = vx,
+        vy     = vy,
+        angle  = e.rigidbody.body:getAngle(),
+        av     = e.rigidbody.body:getAngularVelocity(),
+      })
+      e.rigidbody.body:setActive(false)
+    end
+  end
+end
+
+function WorldManager.unfreeze()
+  if not WorldManager.snapshot then return end
+  for _, s in ipairs(WorldManager.snapshot) do
+    if s.entity.rigidbody and s.entity.rigidbody.body then
+      s.entity.rigidbody.body:setPosition(s.x, s.y)
+      s.entity.rigidbody.body:setLinearVelocity(s.vx, s.vy)
+      s.entity.rigidbody.body:setAngle(s.angle)
+      s.entity.rigidbody.body:setAngularVelocity(s.av)
+      s.entity.rigidbody.body:setActive(true)
+    end
+  end
+  WorldManager.snapshot = nil
+end
 
 function WorldManager.loadSystem(systemId)
   for i = #Entities.all, 1, -1 do
@@ -69,8 +103,12 @@ function WorldManager.loadSystem(systemId)
     Entities.create("asteroid", {
       x = x or 0,
       y = y or 0,
-      rigidbody = require("components.rigidbody")(rigidBody.body),
+      rigidbody = require("components.rigidbody")(rigidBody.body,rigidBody.fixture),
       sprite = require("components.sprite")(rigidBody.color,rigidBody.shape,"Circle"),
+      mineable = require("components.mineable")(rigidBody.body:getMass(),size, 100, {
+        {item="Iron Ore", min=2, max=5, weight=1},
+        {item="Silver Ore", min=1, max=2, weight=2},
+      }),
       glow = 0,
     })
   end

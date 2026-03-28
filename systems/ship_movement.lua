@@ -66,6 +66,16 @@ function ShipMovement.update(dt)
       -- Gentle opposing force (you can tweak the 0.8 multiplier)
       body:applyForce(-vx * 0.2, -vy * 0.2)
     end
+
+    if ship.weapon then
+      ship.weapon.angle = body:getAngle()
+      ship.weapon.firing = input.fire_primary
+
+    if input.weapon_type == 1 then ship.weapon.def = Weapons.laser end
+    if input.weapon_type == 2 then ship.weapon.def = Weapons.machinegun end
+    if input.weapon_type == 3 then ship.weapon.def = Weapons.missile end
+    if input.weapon_type == 4 then ship.weapon.def = Weapons.drill end
+    end
   end
 end
 

@@ -1,7 +1,7 @@
 local Landed = {}
 
+local ship = Entities.with("ship")[1]
 function Landed.onEnter()
-  local ship = Entities.with("ship")[1]
   print("Docked at " .. (ship.landedAt and ship.landedAt.name or "unknown"))
   if ship.body then
     ship.body:setLinearVelocity(0, 0)
@@ -10,7 +10,6 @@ function Landed.onEnter()
 end
 
 function Landed.onExit()
-  local ship = Entities.with("ship")[1]
   if ship.body then
     local angle = ship.body:getAngle()
     ship.body:applyLinearImpulse(
@@ -23,10 +22,15 @@ function Landed.onExit()
 end
 
 function Landed.update(dt)
+  if input.escape then
+    GameState.switch("playing", {resuming = true})
+  end
+  if input.inventory then
+    InventoryUI.open(ship, {title = "Your Ship"})
+  end
 end
 
 function Landed.draw()
-  local ship = Entities.with("ship")[1]
   -- Semi-transparent menu background
   love.graphics.setColor(0, 0, 0, 0.85)
   love.graphics.rectangle("fill",
@@ -53,15 +57,6 @@ function Landed.draw()
   end
 
   -- Future: you can add menu selection with arrow keys here
-end
-
-function Landed.keypressed(key)
-  if key == "escape" then
-    GameState.switch("playing")
-  end
-
-  -- Example future menu navigation:
-  -- if key == "1" then ... open trade menu, etc.
 end
 
 return Landed
