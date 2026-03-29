@@ -94,8 +94,12 @@ end
 
 function InventoryUI.toggle(entity, config)
     if InventoryUI.isOpen(entity) then
+        love.mouse.setVisible(false)
+        love.mouse.setRelativeMode(true)
         InventoryUI.close(entity)
     else
+        love.mouse.setVisible(true)
+        love.mouse.setRelativeMode(false)
         InventoryUI.open(entity, config)
     end
 end

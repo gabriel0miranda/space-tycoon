@@ -48,4 +48,18 @@ function GameState.keyreleased(key)
   end
 end
 
+function GameState.mousepressed(x, y, button)
+  local state = stateModules[GameState.current]
+  if state and state.mousepressed then
+    state:mousepressed(x, y, button)
+  end
+end
+
+function GameState.wheelmoved(dx, dy)
+  local state = stateModules[GameState.current]
+  if state and state.mousepressed then
+    state:wheelmoved(dx, dy)
+  end
+end
+
 return GameState

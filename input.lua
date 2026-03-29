@@ -111,7 +111,7 @@ press_functions["i"] = function()
   input.inventory = not input.inventory
 end
 press_functions["escape"] = function()
-  input.mainmenu = true
+  input.escape = true
 end
 
 
@@ -149,7 +149,7 @@ release_functions.space = function()
   input.fire_primary = false
 end
 release_functions["escape"] = function()
-  input.mainmenu = false
+  input.escape = false
 end
 
 

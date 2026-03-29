@@ -3,7 +3,10 @@ local WorldManager = require("managers.world_manager")
 local InventoryUI  = require("ui.inventory_ui")
 local camera = require("camera")()
 
+local ship = nil
+
 function Playing.onEnter(params)
+  ship = Entities.with("ship")[1]
   InventoryUI.load()
   if params and params.resuming then
     print("Unfreezing")
@@ -26,7 +29,6 @@ function Playing.onExit()
 end
 
 function Playing.update(dt)
-  local ship = Entities.with("ship")[1]
   if input.paused then return end
 
   require("systems.ship_movement").update(dt)
@@ -55,6 +57,7 @@ function Playing.update(dt)
   end
 
   if input.escape then
+    input.escape = false
     GameState.switch("mainmenu")
   end
   if input.inventory then

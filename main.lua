@@ -5,8 +5,8 @@ input = require('input')
 world = require('world')
 
 
-
 love.load = function()
+  love.mouse.setVisible(true)
   bigFont   = love.graphics.newFont(48)
   normalFont = love.graphics.newFont(24)
   smallFont  = love.graphics.newFont(14)
@@ -99,6 +99,14 @@ end
 love.keyreleased = function(released_key)
   GameState.keyreleased(released_key)
   input.release(released_key)
+end
+
+function love.mousepressed(x, y, button)
+    GameState.mousepressed(x, y, button)
+end
+
+function love.wheelmoved(dx, dy)
+    GameState.wheelmoved(dx, dy)
 end
 
 love.update = function(dt)

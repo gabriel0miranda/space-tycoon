@@ -62,6 +62,88 @@ local function drawInventory()
   InventoryUI.draw()
 end
 
+local function drawMinimap(camera)
+    local ship = Entities.with("ship")[1]
+    if not ship then return end
+
+    local sw = love.graphics.getWidth()
+    local sh = love.graphics.getHeight()
+
+    local size   = 160
+    local margin = 16
+    local cx     = sw - margin - size / 2
+    local cy     = sh - margin - size / 2
+
+    -- Campo de visão da câmera em unidades de mundo
+    local viewW  = sw / camera.scale
+    local viewH  = sh / camera.scale
+
+    -- Minimapa mostra um pouco além do que a câmera vê
+    local viewRange  = math.max(viewW, viewH) * 0.7
+    local mapScale   = (size / 2) / viewRange
+
+    -- Fundo
+    love.graphics.setColor(0.04, 0.05, 0.10, 0.85)
+    love.graphics.circle("fill", cx, cy, size / 2)
+    love.graphics.setColor(0.17, 0.21, 0.32)
+    love.graphics.circle("line", cx, cy, size / 2)
+
+    -- Stencil circular
+    love.graphics.stencil(function()
+        love.graphics.circle("fill", cx, cy, size / 2 - 1)
+    end, "replace", 1)
+    love.graphics.setStencilTest("greater", 0)
+
+    local shipX, shipY = ship.rigidbody.body:getPosition()
+
+    -- Estrela central
+    for _, star in ipairs(Entities.with("star")) do
+        local dx = (star.x - shipX) * mapScale
+        local dy = (star.y - shipY) * mapScale
+        love.graphics.setColor(0.91, 0.75, 0.37)
+        love.graphics.circle("fill", cx + dx, cy + dy, 5)
+    end
+
+    -- Planetas e estações
+    for _, e in ipairs(Entities.with("landable")) do
+        local dx = (e.x - shipX) * mapScale
+        local dy = (e.y - shipY) * mapScale
+        local color = e.type == "station"
+            and {0.48, 0.67, 0.87}
+            or  {0.33, 0.55, 0.33}
+        love.graphics.setColor(color)
+        love.graphics.circle("fill", cx + dx, cy + dy, 4)
+    end
+
+    -- Asteroides
+    for _, ast in ipairs(Entities.with("asteroid")) do
+        if ast.rigidbody and ast.rigidbody.body then
+            local ax, ay = ast.rigidbody.body:getPosition()
+            local dx = (ax - shipX) * mapScale
+            local dy = (ay - shipY) * mapScale
+            love.graphics.setColor(0.55, 0.45, 0.35, 0.7)
+            love.graphics.circle("fill", cx + dx, cy + dy, 1.5)
+        end
+    end
+
+    -- Retângulo do campo de visão atual
+    local fovW = (viewW / 2) * mapScale
+    local fovH = (viewH / 2) * mapScale
+    love.graphics.setColor(0.78, 0.81, 0.88, 0.12)
+    love.graphics.rectangle("fill", cx - fovW, cy - fovH, fovW * 2, fovH * 2)
+    love.graphics.setColor(0.78, 0.81, 0.88, 0.25)
+    love.graphics.rectangle("line", cx - fovW, cy - fovH, fovW * 2, fovH * 2)
+
+    -- Nave (sempre no centro)
+    love.graphics.setColor(0.48, 0.87, 0.67)
+    love.graphics.circle("fill", cx, cy, 3)
+
+    love.graphics.setStencilTest()
+    love.graphics.setColor(0.17, 0.21, 0.32)
+    love.graphics.circle("line", cx, cy, size / 2)
+    love.graphics.setColor(1, 1, 1, 1)
+end
+
 local function drawDebugOverlay()
   if not input.debug then return end
   local ship = Entities.with("ship")[1]
@@ -86,6 +168,7 @@ function Rendering.draw(camera)
         drawDrillEffect()
     camera:detach()
     drawInventory()
+    drawMinimap(camera)
     drawDebugOverlay()
 end
 

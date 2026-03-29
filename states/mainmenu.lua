@@ -49,7 +49,7 @@ function MainMenu.keypressed(key)
   if key == "1" or key == "return" then
     GameState.switch("playing")
   elseif key == "2" then
-    love.grapics.setColor(1,1,1)
+    love.graphics.setColor(1,1,1)
     love.graphics.print("LOAD NOT IMPLEMENTED YET",400,300)
   elseif key == "4" or key == "escape" then
     love.event.quit()
