@@ -1,6 +1,6 @@
 local WorldManager = {}
 
-WorldManager.currentSystemId = 2
+WorldManager.currentSystemId = 1
 WorldManager.systems = {}
 WorldManager.snapshot = nil
 
@@ -37,40 +37,21 @@ function WorldManager.unfreeze()
   WorldManager.snapshot = nil
 end
 
-function WorldManager.loadSystem(systemId)
-  for i = #Entities.all, 1, -1 do
-    local e = Entities.all[i]
-    if e.tag ~= "ship" then
-      if e.rigidbody and e.rigidbody.body then
-        e.rigidbody.body:destroy()
-      end
-      Entities.remove(e)
-    end
-  end
-
-  WorldManager.currentSystemId = systemId
-
-  local sys = WorldManager.systems[systemId]
-  if not sys then
-    print("WARNING: System "..systemId.." not defined!")
-    return
-  end
-
+local function createStars(starX,starY,starMass,starRadius)
   Entities.create("star", {
-    x = sys.starX or 0,
-    y = sys.starY or 0,
-    mass = sys.starMass or 50000,
-    radius = sys.starRadius or 30,
-    sprite = require("components.sprite")({1,1,1},love.physics.newCircleShape(sys.starRadius or 30), "Circle")
+    x = starX or 0,
+    y = starY or 0,
+    mass = starMass or 50000,
+    radius = starRadius or 30,
+    sprite = require("components.sprite")({1,1,1},love.physics.newCircleShape(starRadius or 30), "Circle")
   })
+end
 
-  local starList = Entities.with("star")
-  local star = starList[1]
+local function createAsteroids(star,asteroidCount,asteroidOres)
   local MIN_ASTEROID_SIZE   = 10
   local MAX_ASTEROID_SIZE   = 100
   local MAX_STAGES = 6
-
-  for i =1, sys.asteroidCount or 30 do
+  for i =1, asteroidCount or 30 do
     local theta = love.math.random() * 2 * math.pi
     local r_min_sq = ASTEROID_MIN_RADIUS^2
     local r_max_sq = ASTEROID_MAX_RADIUS^2
@@ -111,20 +92,62 @@ function WorldManager.loadSystem(systemId)
       y = y or 0,
       rigidbody = require("components.rigidbody")(rigidBody.body,rigidBody.fixture),
       sprite = require("components.sprite")(rigidBody.color,rigidBody.shape,"Circle"),
-      mineable = require("components.mineable")(stages,rigidBody.body:getMass(),size, 100, sys.asteroidOres),
+      mineable = require("components.mineable")(stages,rigidBody.body:getMass(),size, 100, asteroidOres),
       glow = 0,
     })
   end
+end
 
-  for _, data in ipairs(sys.landables or {}) do
+local function createLandables(star,landables)
+  for _, data in ipairs(landables or {}) do
     data.orbitRadius = math.sqrt((data.x - star.x)^2 + (data.y - star.y)^2)
     data.orbitAngle = math.atan2(data.y - star.y, data.x - star.x)
     data.sprite = require("components.sprite")(data.type == "station" and {1,0,0} or {0,1,0},love.physics.newCircleShape(data.x,data.y,data.radius),"Circle")
     data.orbitSpeed = 0.0008
     Entities.create("landable", data)
   end
+end
+
+local function createWormholes(wormholes)
+  for _, data in ipairs(wormholes or {}) do
+    data.sprite = require("components.sprite")({0.5, 0.8, 1}, love.physics.newCircleShape(data.x, data.y, 120), "Circle")
+    data.radius = 100
+    Entities.create("landable", data)
+  end
+end
+
+function WorldManager.loadSystem(systemId)
+  for i = #Entities.all, 1, -1 do
+    local e = Entities.all[i]
+    if e.tag ~= "ship" then
+      if e.rigidbody and e.rigidbody.body then
+        e.rigidbody.body:destroy()
+      end
+      Entities.remove(e)
+    end
+  end
+
+  WorldManager.currentSystemId = systemId
+
+  local sys = WorldManager.systems[systemId]
+  if not sys then
+    print("WARNING: System "..systemId.." not defined!")
+    return
+  end
+
+  createStars(sys.starX,sys.starY,sys.starMass,sys.starRadius)
+
+  local starList = Entities.with("star")
+  local star = starList[1]
+
+  createAsteroids(star,sys.asteroidCount,sys.asteroidOres)
+
+  createLandables(star,sys.landables)
+
+  createWormholes(sys.wormholes)
 
   print("Loaded star system: " ..(sys.name or systemId))
 end
+
 
 return WorldManager

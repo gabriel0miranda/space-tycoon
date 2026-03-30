@@ -1,3 +1,4 @@
+local WorldManager = require("managers.world_manager")
 local InventoryUI = require("ui.inventory_ui")
 
 local Landed = {}
@@ -574,14 +575,33 @@ function Landed.onEnter()
     love.mouse.setVisible(true)
     love.mouse.setRelativeMode(false)
     ship = Entities.with("ship")[1]
-    activePanel = "trade"
-    recalcGeometry()
 
-    print("Docked at " .. (ship.landedAt and ship.landedAt.name or "unknown"))
+    if ship.landedAt.toSystem then
+      local targetSystem = ship.landedAt.toSystem
+      local currentSystemName = WorldManager.systems[WorldManager.currentSystemId].name
+      WorldManager.loadSystem(targetSystem)
+      local entries = WorldManager.systems[targetSystem].wormholes
+      local entryX = 0
+      local entryY = 0
+      for _, entry in ipairs(entries) do
+        if entry.name == "To "..currentSystemName then
+          entryX = entry.x
+          entryY = entry.y
+        end
+      end
+      ship.rigidbody.body:setPosition(entryX, entryY)
+      ship.rigidbody.body:setLinearVelocity(0,0)
+      GameState.switch("playing")
+    else
+      activePanel = "trade"
+      recalcGeometry()
 
-    if ship.rigidbody and ship.rigidbody.body then
-        ship.rigidbody.body:setLinearVelocity(0, 0)
-        ship.rigidbody.body:setAngularVelocity(0)
+      print("Docked at " .. (ship.landedAt and ship.landedAt.name or "unknown"))
+
+      if ship.rigidbody and ship.rigidbody.body then
+          ship.rigidbody.body:setLinearVelocity(0, 0)
+          ship.rigidbody.body:setAngularVelocity(0)
+      end
     end
 end
 
