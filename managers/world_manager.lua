@@ -1,6 +1,6 @@
 local WorldManager = {}
 
-WorldManager.currentSystemId = 1
+WorldManager.currentSystemId = 2
 WorldManager.systems = {}
 WorldManager.snapshot = nil
 
@@ -66,6 +66,9 @@ function WorldManager.loadSystem(systemId)
 
   local starList = Entities.with("star")
   local star = starList[1]
+  local MIN_ASTEROID_SIZE   = 10
+  local MAX_ASTEROID_SIZE   = 100
+  local MAX_STAGES = 6
 
   for i =1, sys.asteroidCount or 30 do
     local theta = love.math.random() * 2 * math.pi
@@ -86,7 +89,10 @@ function WorldManager.loadSystem(systemId)
     local vx = -math.sin(theta) * orbital_speed
     local vy = math.cos(theta) * orbital_speed
 
-    local size = love.math.random(10,100)
+    local size = love.math.random(MIN_ASTEROID_SIZE,MAX_ASTEROID_SIZE)
+    local stages = math.max(1, math.round and math.round or math.floor(
+      ((size - MIN_ASTEROID_SIZE) / (MAX_ASTEROID_SIZE - MIN_ASTEROID_SIZE)) * MAX_STAGES
+    ))
 
     local rigidBody = {}
     rigidBody.body = love.physics.newBody(world, x, y, "dynamic")
@@ -105,10 +111,7 @@ function WorldManager.loadSystem(systemId)
       y = y or 0,
       rigidbody = require("components.rigidbody")(rigidBody.body,rigidBody.fixture),
       sprite = require("components.sprite")(rigidBody.color,rigidBody.shape,"Circle"),
-      mineable = require("components.mineable")(rigidBody.body:getMass(),size, 100, {
-        {item="Iron Ore", min=2, max=5, weight=1},
-        {item="Silver Ore", min=1, max=2, weight=2},
-      }),
+      mineable = require("components.mineable")(stages,rigidBody.body:getMass(),size, 100, sys.asteroidOres),
       glow = 0,
     })
   end
@@ -116,6 +119,7 @@ function WorldManager.loadSystem(systemId)
   for _, data in ipairs(sys.landables or {}) do
     data.orbitRadius = math.sqrt((data.x - star.x)^2 + (data.y - star.y)^2)
     data.orbitAngle = math.atan2(data.y - star.y, data.x - star.x)
+    data.sprite = require("components.sprite")(data.type == "station" and {1,0,0} or {0,1,0},love.physics.newCircleShape(data.x,data.y,data.radius),"Circle")
     data.orbitSpeed = 0.0008
     Entities.create("landable", data)
   end

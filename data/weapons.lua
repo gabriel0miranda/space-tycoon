@@ -37,7 +37,7 @@ return {
     cooldown    = 0.5,
     speed       = 0,
     lifetime    = 0,
-    range       = 80,
+    range       = 200,
     color       = {0.6, 0.9, 1},
     size        = 8,
   },

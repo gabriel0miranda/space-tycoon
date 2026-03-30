@@ -50,7 +50,7 @@ local function drawDrillEffect()
       -- Pulsa com base no cooldown restante
       local alpha = weapon.timer / weapon.def.cooldown
       love.graphics.setColor(weapon.def.color[1], weapon.def.color[2], weapon.def.color[3], alpha)
-      love.graphics.setLineWidth(3)
+      love.graphics.setLineWidth(weapon.def.size * alpha)
       love.graphics.line(x, y, tx, ty)
       love.graphics.circle("fill", tx, ty, weapon.def.size * alpha)
       love.graphics.setLineWidth(1)

@@ -30,24 +30,33 @@ local function fire_projectile(owner, weapon, x, y, angle)
 end
 
 local function fire_drill(owner, weapon, x, y, angle)
-  local def = weapon.def
-  local asteroids = Entities.with("asteroid")
-  for _, ast in ipairs(asteroids) do
-    if ast.rigidbody and ast.rigidbody.body then
-      local ax, ay = ast.rigidbody.body:getPosition()
-      local dx, dy = ax - x, ay - y
-      local len = def.range
-      local dot = (dx * math.cos(angle) + dy * math.sin(angle))
-      if dot > 0 and dot < len then
-        local px = dot * math.cos(angle)
-        local py = dot * math.sin(angle)
-        local perpDist = math.sqrt((dx-px)^2 + (dy-py)^2)
-        if perpDist < (ast.rigidbody.shape and ast.rigidbody.shape:getRadius() or 20) then
-          require("systems.mining").damage(ast, def.damage)
+    local def = weapon.def
+    local dirX = math.cos(angle)
+    local dirY = math.sin(angle)
+
+    for _, ast in ipairs(Entities.with("asteroid")) do
+        if ast.rigidbody and ast.rigidbody.body then
+            local ax, ay = ast.rigidbody.body:getPosition()
+            local dx, dy = ax - x, ay - y
+            local radius = ast.sprite.shape and ast.sprite.shape:getRadius() or 20
+
+            -- projeção sobre a direção do drill (já normalizada)
+            local dot = dx * dirX + dy * dirY
+
+            if dot > -radius and dot < def.range then
+                -- ponto mais próximo na linha do drill
+                local px = dot * dirX
+                local py = dot * dirY
+
+                -- distância perpendicular do asteroide ao raio
+                local perpDist = math.sqrt((dx - px)^2 + (dy - py)^2)
+
+                if perpDist < radius then
+                    require("systems.mining").damage(ast, def.damage)
+                end
+            end
         end
-      end
     end
-  end
 end
 
 function WeaponSystem.update(dt)

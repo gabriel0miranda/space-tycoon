@@ -53,7 +53,7 @@ function ProjectileSystem.update(dt)
       for _, ast in ipairs(Entities.with("asteroid")) do
         if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
           local ax, ay = ast.rigidbody.body:getPosition()
-          local r = ast.rigidbody.shape and ast.rigidbody.shape:getRadius() or 20
+          local r = ast.sprite.shape and ast.sprite.shape:getRadius() or 20
           local dx = proj.x - ax
           local dy = proj.y - ay
           if dx*dx + dy*dy < (r + proj.size)^2 then

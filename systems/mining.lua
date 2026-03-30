@@ -1,5 +1,7 @@
 local Mining = {}
 
+local STAGES = 4
+
 function Mining.damage(asteroid, damage)
     local mineable = asteroid.mineable
     if not mineable then return end
@@ -7,14 +9,19 @@ function Mining.damage(asteroid, damage)
     mineable.health = mineable.health - damage
 
     -- Reduz escala visual proporcionalmente
-    local pct = mineable.health / mineable.max_health
-    local newRadius = asteroid.mineable.originalRadius * pct
-    asteroid.sprite.shape:setRadius(newRadius)
-    -- Recria o fixture para a hitbox bater com o visual
-    asteroid.rigidbody.fixture:destroy()
-    asteroid.rigidbody.fixture = love.physics.newFixture(asteroid.rigidbody.body, asteroid.sprite.shape)
-    asteroid.rigidbody.body:setMass(asteroid.mineable.originalMass)
-    asteroid.rigidbody.fixture:setRestitution(0.3)
+    local pct = math.max(0, mineable.health / mineable.max_health)
+    local currentStage = math.ceil(pct * STAGES)
+    if currentStage ~= mineable.stage then
+      mineable.stage = currentStage
+      local visualPct = currentStage / STAGES
+      local newRadius = mineable.originalRadius * visualPct
+      asteroid.sprite.shape:setRadius(newRadius)
+      -- Recria o fixture para a hitbox bater com o visual
+      asteroid.rigidbody.fixture:destroy()
+      asteroid.rigidbody.fixture = love.physics.newFixture(asteroid.rigidbody.body, asteroid.sprite.shape)
+      asteroid.rigidbody.body:setMass(asteroid.mineable.originalMass)
+      asteroid.rigidbody.fixture:setRestitution(0.3)
+    end
 
     -- Dropa uma parte dos minérios proporcionalmente ao dano
     Mining.drop_loot(asteroid, damage / mineable.max_health)
@@ -38,7 +45,7 @@ function Mining.drop_loot(asteroid, fraction)
         local ore = Entities.create("ore", {
           type = entry.item,
           qty = qty,
-          weight = 5,
+          volume = require("data.items")[entry.item].volume or 1,
           x = asteroid.rigidbody.body:getX() + math.cos(angle)*offset,
           y = asteroid.rigidbody.body:getY() + math.cos(angle)*offset,
           vx = avx + math.cos(angle) * speed,

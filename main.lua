@@ -39,49 +39,7 @@ love.load = function()
     inventory = require("components.inventory")(500),
   })
 
-  require("managers.world_manager").systems = {
-    [1] = { name = "Sol",
-            starX = 0,
-            starY = 0,
-            starMass = 65000,
-            asteroidCount = 30,
-            landables = {
-              {
-                name="Trading Station",
-                x = -900,
-                y = -400,
-                orbitRadius = 0,
-                orbitAngle = 0,
-                orbitSpeed = 0,
-                radius = 60,
-                type = "station",
-                sprite = require("components.sprite")({1,0,0},love.physics.newCircleShape(-900,-400,60),"Circle")
-              },
-              {
-                name="Mining Depot",
-                x = 1200,
-                y = 600,
-                orbitRadius = 0,
-                orbitAngle = 0,
-                orbitSpeed = 0,
-                radius = 80,
-                type = "station",
-                sprite = require("components.sprite")({1,0,0},love.physics.newCircleShape(1200,600,80),"Circle")
-              },
-              {
-                name="Merle's Refuge",
-                x = 200,
-                y = -1100,
-                orbitRadius = 0,
-                orbitAngle = 0,
-                orbitSpeed = 0,
-                radius = 300,
-                type = "planet",
-                sprite = require("components.sprite")({0,0,1},love.physics.newCircleShape(200,-1100,300),"Circle")
-              }
-            },
-          },
-  }
+  require("managers.world_manager").systems = require("data.systems")
 
   GameState.switch("mainmenu")
 
