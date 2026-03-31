@@ -1,26 +1,23 @@
 local Playing = {}
-local WorldManager = require("managers.world_manager")
-local InventoryUI  = require("ui.inventory_ui")
-local camera = require("camera")()
 
 local ship = nil
 
 function Playing.onEnter(params)
-  ship = Entities.with("ship")[1]
-  InventoryUI.load()
+  ship = config.Entities.with("ship")[1]
+  config.InventoryUI.load()
   if params and params.resuming then
     print("Unfreezing")
-    WorldManager:unfreeze()
+    config.WorldManager:unfreeze()
   else
-    WorldManager.loadSystem(WorldManager.currentSystemId)
+    config.WorldManager.loadSystem(config.WorldManager.currentSystemId)
     print("Started playing")
-    camera.x = 0
-    camera.y = 0
-    camera.scale = 0.2
-    camera.rotation = 0
-    camera.smoothSpeed = 8
-    camera.targetX = 0
-    camera.targetY = 0
+    config.Camera.x = 0
+    config.Camera.y = 0
+    config.Camera.scale = 0.2
+    config.Camera.rotation = 0
+    config.Camera.smoothSpeed = 8
+    config.Camera.targetX = 0
+    config.Camera.targetY = 0
   end
 end
 
@@ -29,48 +26,47 @@ function Playing.onExit()
 end
 
 function Playing.update(dt)
-  if input.paused then return end
+  if config.Input.paused then return end
 
-  require("systems.ship_movement").update(dt)
-  require("systems.gravity_pull").update(dt)
-  require("systems.landable_movement").update(dt)
-  require("systems.weapon_system").update(dt)
-  require("systems.pickup").update(dt,ship,Entities.getByTag("ore"))
-  require("systems.projectile_system").update(dt)
+  config.ShipMovementSystem.update(dt)
+  config.GravityPullSystem.update(dt)
+  config.LandableMovementSystem.update(dt)
+  config.WeaponSystem.update(dt)
+  config.PickupSystem.update(dt,ship,config.Entities.getByTag("floatsome"))
+  config.ProjectileSystem.update(dt)
 
-  -- Camera follow
-  camera:follow(ship.rigidbody.body:getX(), ship.rigidbody.body:getY())
-  camera:update(dt)
+  -- config.Camera follow
+  config.Camera:follow(ship.rigidbody.body:getX(), ship.rigidbody.body:getY())
+  config.Camera:update(dt)
 
   -- Landing check
-  for _, l in ipairs(Entities.with("landable")) do
+  for _, l in ipairs(config.Entities.with("landable")) do
     local sx, sy = ship.rigidbody.body:getX(), ship.rigidbody.body:getY()
     local dx = sx - l.x
     local dy = sy - l.y
-    if dx*dx + dy*dy < (l.radius + 40)^2 and input.land then
+    if dx*dx + dy*dy < (l.radius + 40)^2 and config.Input.land then
         ship.landedAt = l
-        WorldManager:freeze()
-        GameState.switch("landed")
-        input.land = false
+        config.WorldManager:freeze()
+        config.GameState.switch("landed")
+        config.Input.land = false
         return
     end
   end
 
-  if input.escape then
-    input.escape = false
-    GameState.switch("mainmenu")
+  if config.Input.escape then
+    config.Input.escape = false
+    config.GameState.switch("mainmenu")
   end
-  if input.inventory then
-    InventoryUI.toggle(ship,{title = "Your Ship"} )
-    input.inventory = false
+  if config.Input.inventory then
+    config.InventoryUI.toggle(ship,{title = "Your Ship"} )
+    config.Input.inventory = false
   end
-  InventoryUI.update(dt)
-  world:update(dt)
+  config.InventoryUI.update(dt)
+  config.World:update(dt)
 end
 
 function Playing.draw()
-  local Rendering = require("systems.rendering")
-  Rendering.draw(camera)
+  config.RenderingSystem.draw(config.Camera)
 end
 
 return Playing

@@ -1,13 +1,12 @@
-local InventoryUI = require("ui.inventory_ui")
 local Rendering = {}
 
 local function drawWorldLayer()
   -- Draw all entities that have a draw method
-  for _, entity in ipairs(Entities.all) do
+  for _, entity in ipairs(config.Entities.all) do
     if entity.draw then
       entity:draw()
     elseif entity.sprite then
-      love.graphics.setColor(entity.sprite.color)
+      love.graphics.setColor((entity.sprite.color or {0,1,0}))
       if entity.sprite.shapeType == "Polygon" then
         love.graphics.polygon("fill",entity.rigidbody.body:getWorldPoints(entity.sprite.shape:getPoints()))
       elseif entity.sprite.shapeType == "Circle" then
@@ -22,7 +21,7 @@ local function drawWorldLayer()
 end
 
 local function drawProjectiles()
-  for _, proj in ipairs(Entities.with("projectile")) do
+  for _, proj in ipairs(config.Entities.with("projectile")) do
     love.graphics.setColor(proj.color)
     if proj.projType == "missile" then
       -- Míssil: um retângulo orientado na direção do movimento
@@ -40,7 +39,7 @@ local function drawProjectiles()
 end
 
 local function drawDrillEffect()
-  local armed = Entities.with("weapon")
+  local armed = config.Entities.with("weapon")
   for _, e in ipairs(armed) do
     local weapon = e.weapon
     if weapon.def.type == "drill" and weapon.firing and weapon.timer > 0 then
@@ -59,11 +58,11 @@ local function drawDrillEffect()
 end
 
 local function drawInventory()
-  InventoryUI.draw()
+  config.InventoryUI.draw()
 end
 
 local function drawMinimap(camera)
-    local ship = Entities.with("ship")[1]
+    local ship = config.Entities.with("ship")[1]
     if not ship then return end
 
     local sw = love.graphics.getWidth()
@@ -97,7 +96,7 @@ local function drawMinimap(camera)
     local shipX, shipY = ship.rigidbody.body:getPosition()
 
     -- Estrela central
-    for _, star in ipairs(Entities.with("star")) do
+    for _, star in ipairs(config.Entities.with("star")) do
         local dx = (star.x - shipX) * mapScale
         local dy = (star.y - shipY) * mapScale
         love.graphics.setColor(0.91, 0.75, 0.37)
@@ -105,7 +104,7 @@ local function drawMinimap(camera)
     end
 
     -- Planetas e estações
-    for _, e in ipairs(Entities.with("landable")) do
+    for _, e in ipairs(config.Entities.with("landable")) do
         local dx = (e.x - shipX) * mapScale
         local dy = (e.y - shipY) * mapScale
         local color = e.type == "station"
@@ -116,7 +115,7 @@ local function drawMinimap(camera)
     end
 
     -- Asteroides
-    for _, ast in ipairs(Entities.with("asteroid")) do
+    for _, ast in ipairs(config.Entities.with("asteroid")) do
         if ast.rigidbody and ast.rigidbody.body then
             local ax, ay = ast.rigidbody.body:getPosition()
             local dx = (ax - shipX) * mapScale
@@ -145,8 +144,8 @@ local function drawMinimap(camera)
 end
 
 local function drawDebugOverlay()
-  if not input.debug then return end
-  local ship = Entities.with("ship")[1]
+  if not config.Input.debug then return end
+  local ship = config.Entities.with("ship")[1]
   love.graphics.setColor(0, 1, 0)
   love.graphics.setFont(smallFont)
   love.graphics.print(

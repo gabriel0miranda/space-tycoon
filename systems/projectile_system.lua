@@ -2,16 +2,16 @@ local ProjectileSystem = {}
 
 local function handle_hit(proj, target)
   if target.mineable then
-    require("systems.mining").damage(target, proj.damage)
+    config.MiningSystem.damage(target, proj.damage)
   end
   -- Futuramente: target.health, shields, etc.
-  Entities.remove(proj)
+  config.Entities.remove(proj)
 end
 
 local function update_homing(proj, dt)
   -- Míssil: busca o asteroide mais próximo
   local best, bestDist = nil, math.huge
-  for _, ast in ipairs(Entities.with("asteroid")) do
+  for _, ast in ipairs(config.Entities.with("asteroid")) do
     if ast.rigidbody and ast.rigidbody.body then
       local ax, ay = ast.rigidbody.body:getPosition()
       local d = (ax-proj.x)^2 + (ay-proj.y)^2
@@ -35,7 +35,7 @@ local function update_homing(proj, dt)
 end
 
 function ProjectileSystem.update(dt)
-  local projectiles = Entities.with("projectile")
+  local projectiles = config.Entities.with("projectile")
   for _, proj in ipairs(projectiles) do
     -- Homing
     if proj.homing then
@@ -47,10 +47,10 @@ function ProjectileSystem.update(dt)
     -- Lifetime
     proj.lifetime = proj.lifetime - dt
     if proj.lifetime <= 0 then
-      Entities.remove(proj)
+      config.Entities.remove(proj)
     else
       -- Colisão com asteroides
-      for _, ast in ipairs(Entities.with("asteroid")) do
+      for _, ast in ipairs(config.Entities.with("asteroid")) do
         if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
           local ax, ay = ast.rigidbody.body:getPosition()
           local r = ast.sprite.shape and ast.sprite.shape:getRadius() or 20

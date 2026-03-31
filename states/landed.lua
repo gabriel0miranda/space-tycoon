@@ -1,6 +1,3 @@
-local WorldManager = require("managers.world_manager")
-local InventoryUI = require("ui.inventory_ui")
-
 local Landed = {}
 
 -- ─────────────────────────────────────────
@@ -14,144 +11,25 @@ local hoveredBtn   = nil
 -- ─────────────────────────────────────────
 -- Dados dos painéis
 -- ─────────────────────────────────────────
+local buttonLabels = {
+    trade     = "Trading",
+    bar       = "Bar",
+    bank      = "Bank",
+    shipyard  = "Shipyard",
+    outfitter = "Outfitter",
+    contracts = "Contracts",
+    spaceport = "Spaceport",
+}
 
-local panels = {
-    trade = {
-        title = "Trading",
-        scene = "station",
-        text  = {
-            "Esta estação orbital é um dos maiores entrepostos",
-            "comerciais do sistema. Mercadores de dezenas de",
-            "mundos trazem seus carregamentos aqui.",
-            "",
-            "Os preços flutuam conforme as frotas de mineração",
-            "chegam dos cinturões de asteroides.",
-        },
-    },
-    contracts = {
-        title = "Contracts",
-        scene = "contracts",
-        text  = {
-            "Contratos disponíveis no momento:",
-            "",
-            "[ URGENTE ] Entrega médica para Colônia Vega",
-            "  Prazo: 5 dias · Pagamento: 8.400 cr",
-            "",
-            "[ PATRULHA ] Escolta de comboio pela Rota 7",
-            "  Risco moderado · Pagamento: 12.000 cr",
-            "",
-            "[ EXPLORAÇÃO ] Mapeamento do setor Delta-9",
-            "  Sem prazo · Pagamento: 5.200 cr",
-        },
-        textColors = {
-            [3] = {0.48, 0.67, 0.87},
-            [6] = {0.91, 0.75, 0.37},
-            [9] = {0.54, 0.79, 0.48},
-        },
-    },
-    bank = {
-        title = "Bank",
-        scene = "bank",
-        text  = {
-            "Banco Interestelar da Coalização · Kepler-7",
-            "",
-            "Saldo atual: 14.320 créditos",
-            "Empréstimo ativo: 32.000 cr · 2,1% a.m.",
-            "Próximo vencimento: 12 dias",
-            "",
-            "Serviços: transferências, empréstimos de capital,",
-            "seguros de carga e seguro de casco (até classe M).",
-        },
-        textColors = {
-            [3] = {0.48, 0.67, 0.87},
-            [4] = {0.87, 0.43, 0.37},
-        },
-    },
-    spaceport = {
-        title = "Spaceport",
-        scene = "station",
-        text  = {
-            "Baia 14-C · Acesso completo a combustível",
-            "e manutenção básica disponível.",
-            "",
-            "Combustível:        87%",
-            "Integridade do casco: 100%",
-            "Status dos motores: Nominal",
-            "",
-            "Próxima janela de decolagem: aberta.",
-        },
-        textColors = {
-            [4] = {0.54, 0.79, 0.48},
-            [5] = {0.54, 0.79, 0.48},
-            [6] = {0.54, 0.79, 0.48},
-        },
-    },
-    shipyard = {
-        title = "Shipyard",
-        scene = "shipyard",
-        text  = {
-            "O estaleiro Kepler oferece naves usadas e um",
-            "modelo novo em estoque.",
-            "",
-            "Naves disponíveis para compra ou troca.",
-            "Avaliação da sua nave pode ser solicitada",
-            "ao balcão principal.",
-            "",
-            "Em estoque: Hauler MK2, Scout Viper,",
-            "Patrol Corvette (usado).",
-        },
-    },
-    outfitter = {
-        title = "Outfitter",
-        scene = "station",
-        text  = {
-            "Equipamentos e extensões para sua nave.",
-            "",
-            "Estoque atual: sistemas de armas leves,",
-            "scanners de mineração, drives de salto de",
-            "curto alcance, blindagem reforçada classe 2.",
-            "",
-            "Descontos para membros da Guilda.",
-            "Instalação inclusa no preço de todos os itens.",
-        },
-    },
-    bar = {
-        title = "Bar",
-        scene = "bar",
-        text  = {
-            "Candidatos disponíveis:",
-            "",
-            "Mira Solano  · Engenheira de Propulsão",
-            "  800 cr/semana",
-            "Taro Vex     · Artilheiro experiente",
-            "  650 cr/semana",
-            "Dr. Halene   · Médica de bordo",
-            "  700 cr/semana",
-            "",
-            "Tripulação atual: 1/6 slots ocupados.",
-        },
-        textColors = {
-            [3] = {0.78, 0.81, 0.88},
-            [5] = {0.78, 0.81, 0.88},
-            [7] = {0.78, 0.81, 0.88},
-        },
-    },
-    depart = {
-        title = "Pronto para partir?",
-        scene = "space",
-        text  = {
-            "Todos os sistemas verificados.",
-            "Janela de decolagem aberta.",
-            "",
-            "Ao partir você deixará a zona de atracamento",
-            "protegida. Conflitos foram relatados no setor.",
-            "",
-            "ATENÇÃO: empréstimo com vencimento em 12 dias.",
-        },
-        textColors = {
-            [7] = {0.87, 0.43, 0.37},
-        },
-    },
+local buttonScenes = {
+    trade     = "station",
+    bar       = "bar",
+    bank      = "bank",
+    shipyard  = "shipyard",
+    outfitter = "station",
+    contracts = "contracts",
+    spaceport = "station",
+    depart    = "space",
 }
 
 -- ─────────────────────────────────────────
@@ -534,7 +412,7 @@ local function drawButton(x, y, w, h, label, isActive, isHovered, isDanger)
     end
 
     setColor(text)
-    love.graphics.setFont(smallFont)
+    love.graphics.setFont(config.smallFont)
     love.graphics.print(label, x + 10, y + h / 2 - 6)
 end
 
@@ -574,13 +452,13 @@ end
 function Landed.onEnter()
     love.mouse.setVisible(true)
     love.mouse.setRelativeMode(false)
-    ship = Entities.with("ship")[1]
+    ship = config.Entities.with("ship")[1]
 
     if ship.landedAt.toSystem then
       local targetSystem = ship.landedAt.toSystem
-      local currentSystemName = WorldManager.systems[WorldManager.currentSystemId].name
-      WorldManager.loadSystem(targetSystem)
-      local entries = WorldManager.systems[targetSystem].wormholes
+      local currentSystemName = config.WorldManager.systems[config.WorldManager.currentSystemId].name
+      config.WorldManager.loadSystem(targetSystem)
+      local entries = config.WorldManager.systems[targetSystem].wormholes
       local entryX = 0
       local entryY = 0
       for _, entry in ipairs(entries) do
@@ -591,9 +469,31 @@ function Landed.onEnter()
       end
       ship.rigidbody.body:setPosition(entryX, entryY)
       ship.rigidbody.body:setLinearVelocity(0,0)
-      GameState.switch("playing")
+      config.GameState.switch("playing")
     else
-      activePanel = "trade"
+      -- Constrói os botões a partir dos dados do landable
+      local allBtns = {}
+      for key, _ in pairs(ship.landedAt.buttons or {}) do
+          table.insert(allBtns, { key = key, label = buttonLabels[key] or key })
+      end
+      -- ordena para consistência visual
+      table.sort(allBtns, function(a, b) return a.key < b.key end)
+
+      -- divide entre esquerda e direita
+      leftButtons  = {}
+      rightButtons = {}
+      for i, btn in ipairs(allBtns) do
+          if i % 2 == 1 then
+              table.insert(leftButtons, btn)
+          else
+              table.insert(rightButtons, btn)
+          end
+      end
+      -- depart sempre na direita
+      table.insert(rightButtons, { key = "depart", label = "Depart", danger = true })
+
+      -- painel ativo começa no primeiro botão disponível
+      activePanel = allBtns[1] and allBtns[1].key or "depart"
       recalcGeometry()
 
       print("Docked at " .. (ship.landedAt and ship.landedAt.name or "unknown"))
@@ -617,16 +517,16 @@ function Landed.onExit()
     end
     ship.landedAt = nil
     ship = nil
-    InventoryUI.closeAll()
+    config.InventoryUI.closeAll()
     print("Launched into space")
 end
 
 function Landed.update(dt)
-    InventoryUI.update(dt)
+    config.InventoryUI.update(dt)
 
-    if input.inventory then
-        InventoryUI.toggle(ship, { title = "Freight Bay" })
-        input.inventory = false
+    if config.Input.inventory then
+        config.InventoryUI.toggle(ship, { title = "Freight Bay" })
+        config.Input.inventory = false
     end
 
     -- Hover dos botões
@@ -640,13 +540,13 @@ function Landed.update(dt)
         end
     end
 
-    if input.escape or activePanel == "depart" and input.launch then
-        GameState.switch("playing", { resuming = true })
+    if config.Input.escape or activePanel == "depart" and config.Input.launch then
+        config.GameState.switch("playing", { resuming = true })
     end
 end
 
 function Landed.mousepressed(_, mx, my, button)
-    InventoryUI.mousepressed(mx, my, button)
+    config.InventoryUI.mousepressed(mx, my, button)
 
 
     if button == 1 then
@@ -661,18 +561,44 @@ function Landed.mousepressed(_, mx, my, button)
 end
 
 function Landed.wheelmoved(dx, dy)
-    InventoryUI.wheelmoved(dx, dy)
+    config.InventoryUI.wheelmoved(dx, dy)
+end
+
+local function wrapText(text, maxChars)
+    local lines = {}
+    for line in (text .. "\n"):gmatch("(.-)\n") do
+        while #line > maxChars do
+            local cut = line:sub(1, maxChars):match("^(.+)%s")
+            table.insert(lines, cut or line:sub(1, maxChars))
+            line = line:sub(#(cut or line:sub(1, maxChars)) + 2)
+        end
+        table.insert(lines, line)
+    end
+    return lines
 end
 
 function Landed.draw()
-    local panel = panels[activePanel]
+    local landedData  = ship.landedAt
+    local panelData   = landedData.buttons and landedData.buttons[activePanel]
+    local panelTitle  = panelData and (buttonLabels[activePanel] or activePanel) or activePanel
+    local panelText   = {}
+    local panelScene  = buttonScenes[activePanel] or "station"
+
+    -- descrição vem do objeto de dados
+    if activePanel == "depart" then
+        panelText = { "Todos os sistemas verificados.", "Janela de decolagem aberta." }
+        panelScene = "space"
+    elseif panelData then
+        -- quebra a description em linhas de ~50 chars
+        panelText = wrapText(panelData.description or "", 50)
+    end
 
     -- Fundo geral
     drawRect(G.x, G.y, G.w, G.h, C.bg)
     drawRect(G.x, G.y, G.w, G.h, C.border, "line")
 
     -- ── Cena ──
-    local drawer = sceneDrawers[panel.scene] or drawSceneStation
+    local drawer = sceneDrawers[panelScene] or drawSceneStation
     drawer()
 
     -- Overlay suave na base da cena
@@ -681,7 +607,7 @@ function Landed.draw()
 
     -- Nome do local (canto inferior da cena)
     setColor(C.textBright)
-    love.graphics.setFont(smallFont)
+    love.graphics.setFont(config.smallFont)
     love.graphics.print(
         ship and ship.landedAt and ship.landedAt.name or "Estação Desconhecida",
         G.sceneX + 10,
@@ -719,17 +645,15 @@ function Landed.draw()
 
     -- Título do painel
     setColor(C.textActive)
-    love.graphics.setFont(normalFont)
-    love.graphics.print(panel.title, G.centerX + L.padX, G.contentY + L.padY)
+    love.graphics.setFont(config.normalFont)
+    love.graphics.print(panelTitle, G.centerX + L.padX, G.contentY + L.padY)
 
     -- Linha abaixo do título
     drawRect(G.centerX + L.padX, G.contentY + L.padY + 18, G.centerW - L.padX * 2, 1, C.border)
 
     -- Texto do painel
-    love.graphics.setFont(smallFont)
-    for j, line in ipairs(panel.text) do
-        local color = (panel.textColors and panel.textColors[j]) or C.textNormal
-        setColor(color)
+    love.graphics.setFont(config.smallFont)
+    for j, line in ipairs(panelText) do
         love.graphics.print(line, G.textX, G.textY + (j - 1) * L.lineH)
     end
 
@@ -738,7 +662,7 @@ function Landed.draw()
     drawRect(G.x, statusY, G.w, 18, {0.03, 0.04, 0.07, 1})
     drawRect(G.x, statusY, G.w, 1, C.border)
     setColor(C.textMuted)
-    love.graphics.setFont(smallFont)
+    love.graphics.setFont(config.smallFont)
     local locName = ship and ship.landedAt and ship.landedAt.name or "?"
     love.graphics.print("ATRACADO · " .. string.upper(locName), G.x + 10, statusY + 3)
 
@@ -749,7 +673,7 @@ function Landed.draw()
     end
 
     -- ── Inventory UI por cima de tudo ──
-    InventoryUI.draw()
+    config.InventoryUI.draw()
 
     -- Reseta cor
     love.graphics.setColor(1, 1, 1, 1)

@@ -1,8 +1,8 @@
 local LandableMovement = {}
 
 function LandableMovement.update(dt)
-  local starList = Entities.with("star")
-  local landableList = Entities.with("landable")
+  local starList = config.Entities.with("star")
+  local landableList = config.Entities.with("landable")
   for _, landable in ipairs(landableList) do
     if not landable.toSystem then
       if landable.orbitSpeed > 0 then

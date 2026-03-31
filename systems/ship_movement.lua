@@ -1,7 +1,7 @@
 local ShipMovement = {}
 
 function ShipMovement.update(dt)
-  local ships = Entities.with("ship")
+  local ships = config.Entities.with("ship")
 
   for _, ship in ipairs(ships) do
     if not ship.rigidbody or not ship.rigidbody.body then
@@ -21,12 +21,12 @@ function ShipMovement.update(dt)
     local ly = -math.cos(angle)
 
     -- ====================== THRUST ======================
-    if input.up then
+    if config.Input.up then
       body:applyForce(
         fx * mov.linearAcceleration,
         fy * mov.linearAcceleration
       )
-    elseif input.down then
+    elseif config.Input.down then
       body:applyForce(
         -fx * mov.linearAcceleration,
         -fy * mov.linearAcceleration
@@ -34,13 +34,13 @@ function ShipMovement.update(dt)
     end
 
     -- ====================== STRAFE ======================
-    if input.left then
+    if config.Input.left then
       body:applyForce(
         lx * mov.strafeAcceleration,
         ly * mov.strafeAcceleration
       )
     end
-    if input.right then
+    if config.Input.right then
       body:applyForce(
         -lx * mov.strafeAcceleration,
         -ly * mov.strafeAcceleration
@@ -48,13 +48,13 @@ function ShipMovement.update(dt)
     end
 
     -- ====================== ROTATION ======================
-    if input.rotateLeft then
+    if config.Input.rotateLeft then
       ship.rcs = false
       body:applyTorque(-mov.angularAcceleration)
-    elseif input.rotateRight then
+    elseif config.Input.rotateRight then
       ship.rcs = false
       body:applyTorque(mov.angularAcceleration)
-    elseif input.rcs then
+    elseif config.Input.rcs then
       ship.rcs = true
       local I_approx = body:getMass() * (5 * 5 / 2)   -- approximate moment of inertia
       body:applyAngularImpulse(-I_approx * body:getAngularVelocity())
@@ -69,12 +69,12 @@ function ShipMovement.update(dt)
 
     if ship.weapon then
       ship.weapon.angle = body:getAngle()
-      ship.weapon.firing = input.fire_primary
+      ship.weapon.firing = config.Input.fire_primary
 
-    if input.weapon_type == 1 then ship.weapon.def = Weapons.laser end
-    if input.weapon_type == 2 then ship.weapon.def = Weapons.machinegun end
-    if input.weapon_type == 3 then ship.weapon.def = Weapons.missile end
-    if input.weapon_type == 4 then ship.weapon.def = Weapons.drill end
+    if config.Input.weapon_type == 1 then ship.weapon.def = config.Weapons.laser end
+    if config.Input.weapon_type == 2 then ship.weapon.def = config.Weapons.machinegun end
+    if config.Input.weapon_type == 3 then ship.weapon.def = config.Weapons.missile end
+    if config.Input.weapon_type == 4 then ship.weapon.def = config.Weapons.drill end
     end
   end
 end

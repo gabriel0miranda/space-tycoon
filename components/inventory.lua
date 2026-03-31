@@ -21,8 +21,8 @@ return function(capacity, items)
       end
       self.items[item] = self.items[item] - quantity
       if self.items[item] == 0 then self.items[item] = nil end
-      if require("data.items")[item].volume then
-        self.capacityUsed = self.capacityUsed - (quantity * require("data.items")[item].volume)
+      if config.Items[item].volume then
+        self.capacityUsed = self.capacityUsed - (quantity * config.Items[item].volume)
       end
       self.capacityUsed = self.capacityUsed - quantity
       return true

@@ -1,8 +1,8 @@
 local GravityPull = {}
 
 function GravityPull.update(dt)
-  local starsList = Entities.with("star")
-  local asteroidsList = Entities.with("asteroid")
+  local starsList = config.Entities.with("star")
+  local asteroidsList = config.Entities.with("asteroid")
   for _, star in ipairs(starsList) do
     for _, ast in ipairs(asteroidsList) do
       if not ast.rigidbody or not ast.rigidbody.body or ast.rigidbody.body:isDestroyed() then
@@ -15,11 +15,11 @@ function GravityPull.update(dt)
       local dy = sy - ay
       local distSq = dx*dx + dy*dy
 
-      if distSq < MIN_DISTANCE * MIN_DISTANCE then
+      if distSq < config.MIN_DISTANCE * config.MIN_DISTANCE then
         goto continue
       end
 
-      local force = GRAVITY_CONSTANT * star.mass * ast.rigidbody.body:getMass() / distSq
+      local force = config.GRAVITY_CONSTANT * star.mass * ast.rigidbody.body:getMass() / distSq
 
       local dist = math.sqrt(distSq)
       local fx = (dx/dist) * force
@@ -30,8 +30,8 @@ function GravityPull.update(dt)
       ast.rigidbody.body:applyForce(fx, fy)
 
       local distFromStar = dist
-      if distFromStar > MAX_ORBIT_RADIUS then
-        local excess = distFromStar - MAX_ORBIT_RADIUS
+      if distFromStar > config.MAX_ORBIT_RADIUS then
+        local excess = distFromStar - config.MAX_ORBIT_RADIUS
         local returnForce = excess * ast.rigidbody.body:getMass()
         local returnFX = (dx / dist) * returnForce
         local returnFY = (dy / dist) * returnForce

@@ -14,9 +14,9 @@ function Pickup.update(dt, player, entities)
             local dist = math.sqrt(dx*dx + dy*dy)
 
             if dist < e.radius + 50 then
-                local ok, _ = player.inventory:add(e.type, e.qty, require("data.items")[e.type].volume or 1)
+                local ok, _ = player.inventory:add(e.item, e.qty, config.Items[e.item].volume or 1)
                 if ok then
-                    Entities.remove(e)
+                    config.Entities.remove(e)
                 end
             end
         end

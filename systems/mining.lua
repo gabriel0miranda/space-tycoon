@@ -36,22 +36,21 @@ function Mining.drop_loot(asteroid, fraction)
         local qty = math.random(entry.min, entry.max)
         qty = math.max(1, math.floor(qty * fraction))
         local radius = math.max(5,math.floor(qty))
-        local color = entry.item == "Iron Ore" and {208/255, 207/255, 203/255} or {123/255, 28/255, 41/255}
+        local color = config.Items[entry.item].color and config.Items[entry.item].color or {1,1,1}
         -- Cria entidade de minério flutuando na posição do asteroide
         local avx, avy = asteroid.rigidbody.body:getLinearVelocity()
         local angle = love.math.random() * 2 * math.pi
         local speed = love.math.random(10, 40)
         local offset = asteroid.mineable.originalRadius * 0.5
-        local ore = Entities.create("ore", {
-          type = entry.item,
+        local ore = config.Entities.create("floatsome", {
+          item = entry.item,
           qty = qty,
-          volume = require("data.items")[entry.item].volume or 1,
           x = asteroid.rigidbody.body:getX() + math.cos(angle)*offset,
           y = asteroid.rigidbody.body:getY() + math.cos(angle)*offset,
           vx = avx + math.cos(angle) * speed,
           vy = avy + math.sin(angle) * speed,
           radius = radius,
-          sprite = require("components.sprite")(color,
+          sprite = config.SpriteComponent(color,
             love.physics.newCircleShape(radius),
             "Circle"
             )
@@ -64,7 +63,7 @@ end
 function Mining.destroy(asteroid)
     -- Remove o asteroide e deixa todo o loot restante
     Mining.drop_loot(asteroid, 1.0)
-    Entities.remove(asteroid)
+    config.Entities.remove(asteroid)
 end
 
 return Mining

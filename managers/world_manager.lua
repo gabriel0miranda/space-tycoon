@@ -6,7 +6,7 @@ WorldManager.snapshot = nil
 
 function WorldManager.freeze()
   WorldManager.snapshot = {}
-  for _, e in ipairs(Entities.all) do
+  for _, e in ipairs(config.Entities.all) do
     if e.tag ~= "ship" and e.rigidbody and e.rigidbody.body then
       local vx, vy = e.rigidbody.body:getLinearVelocity()
       table.insert(WorldManager.snapshot, {
@@ -37,31 +37,28 @@ function WorldManager.unfreeze()
   WorldManager.snapshot = nil
 end
 
-local function createStars(starX,starY,starMass,starRadius)
-  Entities.create("star", {
+local function createStars(starX,starY,starMass,starRadius,starColor)
+  config.Entities.create("star", {
     x = starX or 0,
     y = starY or 0,
     mass = starMass or 50000,
     radius = starRadius or 30,
-    sprite = require("components.sprite")({1,1,1},love.physics.newCircleShape(starRadius or 30), "Circle")
+    sprite = config.SpriteComponent(starColor,love.physics.newCircleShape(starRadius or 30), "Circle")
   })
 end
 
 local function createAsteroids(star,asteroidCount,asteroidOres)
-  local MIN_ASTEROID_SIZE   = 10
-  local MAX_ASTEROID_SIZE   = 100
-  local MAX_STAGES = 6
   for i =1, asteroidCount or 30 do
     local theta = love.math.random() * 2 * math.pi
-    local r_min_sq = ASTEROID_MIN_RADIUS^2
-    local r_max_sq = ASTEROID_MAX_RADIUS^2
+    local r_min_sq = config.ASTEROID_MIN_RADIUS^2
+    local r_max_sq = config.ASTEROID_MAX_RADIUS^2
     local r_sq = r_min_sq + love.math.random() * (r_max_sq - r_min_sq)
     local r = math.sqrt(r_sq)
 
     local x = star.x + r * math.cos(theta)
-    local y = star.x + r * math.sin(theta)
+    local y = star.y + r * math.sin(theta)
 
-    local GM = GRAVITY_CONSTANT * star.mass
+    local GM = config.GRAVITY_CONSTANT * star.mass
     local circular_v = math.sqrt(GM/r)
 
     --local speed_factor = 0.72 + love.math.random() * 0.38
@@ -70,16 +67,16 @@ local function createAsteroids(star,asteroidCount,asteroidOres)
     local vx = -math.sin(theta) * orbital_speed
     local vy = math.cos(theta) * orbital_speed
 
-    local size = love.math.random(MIN_ASTEROID_SIZE,MAX_ASTEROID_SIZE)
+    local size = love.math.random(config.MIN_ASTEROID_SIZE,config.MAX_ASTEROID_SIZE)
     local stages = math.max(1, math.round and math.round or math.floor(
-      ((size - MIN_ASTEROID_SIZE) / (MAX_ASTEROID_SIZE - MIN_ASTEROID_SIZE)) * MAX_STAGES
+      ((size - config.MIN_ASTEROID_SIZE) / (config.MAX_ASTEROID_SIZE - config.MIN_ASTEROID_SIZE)) * config.MAX_STAGES
     ))
 
     local rigidBody = {}
-    rigidBody.body = love.physics.newBody(world, x, y, "dynamic")
+    rigidBody.body = love.physics.newBody(config.World, x, y, "dynamic")
     rigidBody.shape = love.physics.newCircleShape(size)
     rigidBody.fixture = love.physics.newFixture(rigidBody.body,rigidBody.shape)
-    rigidBody.color = {70/100, 80/100, 59/100}
+    local color = {99/100, 87/100, 67/100}
 
     rigidBody.body:setMass(((4/3)*math.pi*(size)^3)*170)
     rigidBody.body:setLinearVelocity(vx,vy)
@@ -87,43 +84,52 @@ local function createAsteroids(star,asteroidCount,asteroidOres)
     --rigidBody.body:setLinearDamping(0.12)
     rigidBody.body:setAngularDamping(0.8)
 
-    Entities.create("asteroid", {
+    config.Entities.create("asteroid", {
       x = x or 0,
       y = y or 0,
-      rigidbody = require("components.rigidbody")(rigidBody.body,rigidBody.fixture),
-      sprite = require("components.sprite")(rigidBody.color,rigidBody.shape,"Circle"),
-      mineable = require("components.mineable")(stages,rigidBody.body:getMass(),size, 100, asteroidOres),
+      rigidbody = config.RigidbodyComponent(rigidBody.body,rigidBody.fixture),
+      sprite = config.SpriteComponent(color,rigidBody.shape,"Circle"),
+      mineable = config.MineableComponent(stages,rigidBody.body:getMass(),size, 100, asteroidOres),
       glow = 0,
     })
   end
 end
 
 local function createLandables(star,landables)
-  for _, data in ipairs(landables or {}) do
-    data.orbitRadius = math.sqrt((data.x - star.x)^2 + (data.y - star.y)^2)
-    data.orbitAngle = math.atan2(data.y - star.y, data.x - star.x)
-    data.sprite = require("components.sprite")(data.type == "station" and {1,0,0} or {0,1,0},love.physics.newCircleShape(data.x,data.y,data.radius),"Circle")
-    data.orbitSpeed = 0.0008
-    Entities.create("landable", data)
+  for _, landable in ipairs(landables or {}) do
+    local orbitRadius = math.sqrt((config.Landables[landable].x - star.x)^2 + (config.Landables[landable].y - star.y)^2)
+    local orbitAngle = math.atan2(config.Landables[landable].y - star.y, config.Landables[landable].x - star.x)
+    local sprite = config.SpriteComponent(config.Landables[landable].color,love.physics.newCircleShape(config.Landables[landable].x,config.Landables[landable].y,config.Landables[landable].radius),"Circle")
+    local orbitSpeed = 0.0008
+    config.Entities.create("landable",{
+          name=landable,
+          x=config.Landables[landable].x,
+          y=config.Landables[landable].y,
+          radius=config.Landables[landable].radius,
+          sprite=sprite,
+          orbitRadius=orbitRadius,
+          orbitAngle=orbitAngle,
+          orbitSpeed=orbitSpeed
+    })
   end
 end
 
 local function createWormholes(wormholes)
   for _, data in ipairs(wormholes or {}) do
-    data.sprite = require("components.sprite")({0.5, 0.8, 1}, love.physics.newCircleShape(data.x, data.y, 120), "Circle")
+    data.sprite = config.SpriteComponent({0.5, 0.8, 1}, love.physics.newCircleShape(data.x, data.y, 120), "Circle")
     data.radius = 100
-    Entities.create("landable", data)
+    config.Entities.create("landable", data)
   end
 end
 
 function WorldManager.loadSystem(systemId)
-  for i = #Entities.all, 1, -1 do
-    local e = Entities.all[i]
+  for i = #config.Entities.all, 1, -1 do
+    local e = config.Entities.all[i]
     if e.tag ~= "ship" then
       if e.rigidbody and e.rigidbody.body then
         e.rigidbody.body:destroy()
       end
-      Entities.remove(e)
+      config.Entities.remove(e)
     end
   end
 
@@ -135,9 +141,9 @@ function WorldManager.loadSystem(systemId)
     return
   end
 
-  createStars(sys.starX,sys.starY,sys.starMass,sys.starRadius)
+  createStars(sys.starX,sys.starY,sys.starMass,sys.starRadius,sys.starColor)
 
-  local starList = Entities.with("star")
+  local starList = config.Entities.with("star")
   local star = starList[1]
 
   createAsteroids(star,sys.asteroidCount,sys.asteroidOres)

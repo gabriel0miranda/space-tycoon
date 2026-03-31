@@ -1,4 +1,3 @@
-local itemData = require("data.items")
 local InventoryUI = {}
 
 -- Cores por categoria de item
@@ -213,7 +212,7 @@ end
 function getGoods(inv)
     local list = {}
     for itemName, quantity in pairs(inv.items) do
-        local meta = itemData[itemName] or {}
+        local meta = config.Items[itemName] or {}
         if meta.category ~= "extension" then
             table.insert(list, {
                 name   = itemName,
@@ -229,7 +228,7 @@ end
 function getExtensions(inv)
     local list = {}
     for itemName, quantity in pairs(inv.items) do
-        local meta = itemData[itemName] or {}
+        local meta = config.Items[itemName] or {}
         if meta.category == "extension" then
             table.insert(list, {
                 name   = itemName,

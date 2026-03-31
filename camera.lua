@@ -1,5 +1,3 @@
-local input = require("input")
-
 return function()
 
   local camera = {}
@@ -17,10 +15,10 @@ return function()
   end
 
   camera.update = function(self,dt)
-    if input.zoomIn then
+    if config.Input.zoomIn then
       self.scale = self.scale + 0.8 * dt
     end
-    if input.zoomOut then
+    if config.Input.zoomOut then
       self.scale = self.scale - 0.8 * dt
     end
     self.scale = math.max(0.1, math.min(3.0, self.scale))

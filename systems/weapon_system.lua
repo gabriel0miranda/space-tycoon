@@ -13,7 +13,7 @@ local function fire_projectile(owner, weapon, x, y, angle)
     vy = vy + ovy
   end
 
-  Entities.create("projectile", {
+  config.Entities.create("projectile", {
     x        = x,
     y        = y,
     vx       = vx,
@@ -34,7 +34,7 @@ local function fire_drill(owner, weapon, x, y, angle)
     local dirX = math.cos(angle)
     local dirY = math.sin(angle)
 
-    for _, ast in ipairs(Entities.with("asteroid")) do
+    for _, ast in ipairs(config.Entities.with("asteroid")) do
         if ast.rigidbody and ast.rigidbody.body then
             local ax, ay = ast.rigidbody.body:getPosition()
             local dx, dy = ax - x, ay - y
@@ -52,7 +52,7 @@ local function fire_drill(owner, weapon, x, y, angle)
                 local perpDist = math.sqrt((dx - px)^2 + (dy - py)^2)
 
                 if perpDist < radius then
-                    require("systems.mining").damage(ast, def.damage)
+                    config.MiningSystem.damage(ast, def.damage)
                 end
             end
         end
@@ -60,7 +60,7 @@ local function fire_drill(owner, weapon, x, y, angle)
 end
 
 function WeaponSystem.update(dt)
-  local armed = Entities.with("weapon")
+  local armed = config.Entities.with("weapon")
   for _, e in ipairs(armed) do
     local weapon = e.weapon
     -- Faz o cooldown regredir
