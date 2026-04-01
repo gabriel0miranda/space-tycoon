@@ -62,6 +62,14 @@ end
 function WeaponSystem.update(dt)
   local armed = config.Entities.with("weapon")
   for _, e in ipairs(armed) do
+    if e.weapon and e.tag == "ship" then
+        e.weapon.angle  = e.rigidbody.body:getAngle()
+        e.weapon.firing = config.Input.state.fire_primary
+        if config.Input.state.weapon_type == 1 then e.weapon.def = config.Weapons.laser      end
+        if config.Input.state.weapon_type == 2 then e.weapon.def = config.Weapons.machinegun end
+        if config.Input.state.weapon_type == 3 then e.weapon.def = config.Weapons.missile    end
+        if config.Input.state.weapon_type == 4 then e.weapon.def = config.Weapons.drill      end
+    end
     local weapon = e.weapon
     -- Faz o cooldown regredir
     if weapon.timer > 0 then

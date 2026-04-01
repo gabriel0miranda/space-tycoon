@@ -15,6 +15,10 @@ function Mining.damage(asteroid, damage)
       mineable.stage = currentStage
       local visualPct = currentStage / STAGES
       local newRadius = mineable.originalRadius * visualPct
+      if newRadius < config.MIN_ASTEROID_SIZE then
+        Mining.destroy(asteroid)
+        return
+      end
       asteroid.sprite.shape:setRadius(newRadius)
       -- Recria o fixture para a hitbox bater com o visual
       asteroid.rigidbody.fixture:destroy()
@@ -29,6 +33,7 @@ function Mining.damage(asteroid, damage)
     if mineable.health <= 0 then
         Mining.destroy(asteroid)
     end
+
 end
 
 function Mining.drop_loot(asteroid, fraction)

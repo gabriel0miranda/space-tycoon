@@ -1,7 +1,7 @@
 return {
   laser = {
     type        = "laser",
-    damage      = 15,
+    damage      = 20,
     cooldown    = 0.2,
     speed       = 800,
     lifetime    = 1.2,
@@ -11,7 +11,7 @@ return {
   },
   machinegun = {
     type        = "bullet",
-    damage      = 8,
+    damage      = 10,
     cooldown    = 0.08,
     speed       = 600,
     lifetime    = 1.5,
@@ -33,11 +33,11 @@ return {
   },
   drill = {
     type        = "drill",
-    damage      = 30,
+    damage      = 35,
     cooldown    = 0.5,
     speed       = 0,
     lifetime    = 0,
-    range       = 200,
+    range       = 300,
     color       = {0.6, 0.9, 1},
     size        = 8,
   },

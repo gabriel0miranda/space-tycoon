@@ -14,16 +14,17 @@ love.load = function()
   rigidBody.body:setAngle(0)
   config.Entities.create("ship", {
     name = "Your Ship",
-    rigidbody = require("components.rigidbody")(rigidBody.body,rigidBody.fixture),
-    sprite = require("components.sprite")(rigidBody.color, rigidBody.shape,"Polygon"),
-    movement = require("components.movement")(800,600,1200),
-    weapon = require("components.weapon")(config.Weapons.laser),
+    rigidbody = config.RigidbodyComponent(rigidBody.body,rigidBody.fixture),
+    sprite = config.SpriteComponent(rigidBody.color, rigidBody.shape,"Polygon"),
+    movement = config.MovementComponent(800,600,1200,0.6),
+    weapon = config.WeaponComponent(config.Weapons.laser),
     landedAt = nil,
     inertiaDampeners = true,
     rcs = true,
     mass = 1000,
     restitution = 0.75,
-    inventory = require("components.inventory")(500),
+    credits = config.CreditsComponent(1500),
+    inventory = config.InventoryComponent(500),
   })
 
   config.WorldManager.systems = config.Systems
@@ -33,7 +34,9 @@ love.load = function()
 end
 
 love.focus = function(focused)
-  config.Input.toggle_focus(focused)
+  if not focused then
+    config.Input.state.paused = true
+  end
 end
 
 love.keypressed = function(pressed_key)

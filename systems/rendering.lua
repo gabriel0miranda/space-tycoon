@@ -144,10 +144,10 @@ local function drawMinimap(camera)
 end
 
 local function drawDebugOverlay()
-  if not config.Input.debug then return end
+  if not config.Input.state.debugFlag then return end
   local ship = config.Entities.with("ship")[1]
   love.graphics.setColor(0, 1, 0)
-  love.graphics.setFont(smallFont)
+  love.graphics.setFont(config.smallFont)
   love.graphics.print(
     "Ship mass:"..ship.mass..
     "\nShip X:"..ship.rigidbody.body:getX()..
@@ -157,6 +157,7 @@ local function drawDebugOverlay()
     "\nShip RCS:"..tostring(ship.rcs)..
     "\nShip weapon:"..ship.weapon.def.type
   )
+  love.graphics.setColor(1,1,1)
 end
 
 function Rendering.draw(camera)
