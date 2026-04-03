@@ -26,15 +26,41 @@ function Playing.onExit()
   print("Exiting playing state")
 end
 
+local function obj_pos(obj)
+  return obj.x, obj.y
+end
+
+local function obj_radius(obj)
+  return obj.radius or 10
+end
+
+local function ast_pos(ast)
+  return ast.rigidbody.body:getPosition()
+end
+
+local function ast_radius(ast)
+  return (ast.sprite.shape and ast.sprite.shape:getRadius()) or 20
+end
+
 function Playing.update(dt)
   if config.Input.state.paused then return end
+
+  local valid_asteroids = {}
+  for _, ast in ipairs(config.Entities.with("asteroid")) do
+    if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
+      valid_asteroids[#valid_asteroids+1] = ast
+    end
+  end
+  local ast_hash = config.SpatialHash.build(valid_asteroids,ast_pos,ast_radius,config.CELL_SIZE)
+
+  local floatsome_hash = config.SpatialHash.build(config.Entities.getByTag("floatsome"),obj_pos,obj_radius,config.CELL_SIZE)
 
   config.ShipMovementSystem.update(dt)
   config.GravityPullSystem.update(dt)
   config.LandableMovementSystem.update(dt)
   config.WeaponSystem.update(dt)
-  config.PickupSystem.update(dt,ship,config.Entities.getByTag("floatsome"))
-  config.ProjectileSystem.update(dt)
+  config.PickupSystem.update(dt,ship,floatsome_hash)
+  config.ProjectileSystem.update(ast_hash, dt)
 
   -- config.Camera follow
   config.Camera:follow(ship.rigidbody.body:getX(), ship.rigidbody.body:getY())

@@ -8,16 +8,16 @@ local function handle_hit(proj, target)
   config.Entities.remove(proj)
 end
 
-local function update_homing(proj, dt)
+local function update_homing(proj, ast_hash, dt)
   -- Míssil: busca o asteroide mais próximo
   local best, bestDist = nil, math.huge
-  for _, ast in ipairs(config.Entities.with("asteroid")) do
-    if ast.rigidbody and ast.rigidbody.body then
-      local ax, ay = ast.rigidbody.body:getPosition()
-      local d = (ax-proj.x)^2 + (ay-proj.y)^2
-      if d < bestDist then bestDist = d; best = ast end
-    end
+  local candidates = config.SpatialHash.query(ast_hash, config.CELL_SIZE, proj.x, proj.y, proj.size + 20)
+  for _, ast in ipairs(candidates) do
+    local ax, ay = ast.rigidbody.body:getPosition()
+    local d = (ax-proj.x)^2 + (ay-proj.y)^2
+    if d < bestDist then bestDist = d; best = ast end
   end
+
   if not best then return end
   local ax, ay = best.rigidbody.body:getPosition()
   local targetAngle = math.atan2(ay - proj.y, ax - proj.x)
@@ -34,12 +34,13 @@ local function update_homing(proj, dt)
   proj.vy = math.sin(newAngle) * speed
 end
 
-function ProjectileSystem.update(dt)
+function ProjectileSystem.update(ast_hash, dt)
   local projectiles = config.Entities.with("projectile")
+
   for _, proj in ipairs(projectiles) do
     -- Homing
     if proj.homing then
-      update_homing(proj, dt)
+      update_homing(proj, ast_hash, dt)
     end
     -- Move (projéteis simples não têm rigidbody, só posição)
     proj.x = proj.x + proj.vx * dt
@@ -50,16 +51,14 @@ function ProjectileSystem.update(dt)
       config.Entities.remove(proj)
     else
       -- Colisão com asteroides
-      for _, ast in ipairs(config.Entities.with("asteroid")) do
-        if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
-          local ax, ay = ast.rigidbody.body:getPosition()
-          local r = ast.sprite.shape and ast.sprite.shape:getRadius() or 20
-          local dx = proj.x - ax
-          local dy = proj.y - ay
-          if dx*dx + dy*dy < (r + proj.size)^2 then
-            handle_hit(proj, ast)
-            break
-          end
+      local candidates = config.SpatialHash.query(ast_hash, config.CELL_SIZE, proj.x, proj.y, proj.size + 20)
+      for _, ast in ipairs(candidates) do
+        local ax, ay = ast.rigidbody.body:getPosition()
+        local r = (ast.sprite.shape and ast.sprite.shape:getRadius()) or 20
+        local dx, dy = proj.x - ax, proj.y - ay
+        if dx*dx + dy*dy < (r + proj.size)^2 then
+          handle_hit(proj, ast)
+          break
         end
       end
     end

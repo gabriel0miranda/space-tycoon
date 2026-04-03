@@ -407,6 +407,7 @@ local function activateButton(key)
     if key == "trade" and ship.landedAt and config.Landables[ship.landedAt.name].market then
         config.MarketUI.open(ship, ship.landedAt)
     elseif key == "depart" then
+        config.Input.state.paused = false
         config.GameState.switch("playing", { resuming = true })
     else
         activePanel = key
