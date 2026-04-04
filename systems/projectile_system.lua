@@ -13,9 +13,11 @@ local function update_homing(proj, ast_hash, dt)
   local best, bestDist = nil, math.huge
   local candidates = config.SpatialHash.query(ast_hash, config.CELL_SIZE, proj.x, proj.y, proj.size + 20)
   for _, ast in ipairs(candidates) do
-    local ax, ay = ast.rigidbody.body:getPosition()
-    local d = (ax-proj.x)^2 + (ay-proj.y)^2
-    if d < bestDist then bestDist = d; best = ast end
+    if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
+      local ax, ay = ast.rigidbody.body:getPosition()
+      local d = (ax-proj.x)^2 + (ay-proj.y)^2
+      if d < bestDist then bestDist = d; best = ast end
+    end
   end
 
   if not best then return end
@@ -53,12 +55,14 @@ function ProjectileSystem.update(ast_hash, dt)
       -- Colisão com asteroides
       local candidates = config.SpatialHash.query(ast_hash, config.CELL_SIZE, proj.x, proj.y, proj.size + 20)
       for _, ast in ipairs(candidates) do
-        local ax, ay = ast.rigidbody.body:getPosition()
-        local r = (ast.sprite.shape and ast.sprite.shape:getRadius()) or 20
-        local dx, dy = proj.x - ax, proj.y - ay
-        if dx*dx + dy*dy < (r + proj.size)^2 then
-          handle_hit(proj, ast)
-          break
+        if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
+          local ax, ay = ast.rigidbody.body:getPosition()
+          local r = (ast.sprite.shape and ast.sprite.shape:getRadius()) or 20
+          local dx, dy = proj.x - ax, proj.y - ay
+          if dx*dx + dy*dy < (r + proj.size)^2 then
+            handle_hit(proj, ast)
+            break
+          end
         end
       end
     end

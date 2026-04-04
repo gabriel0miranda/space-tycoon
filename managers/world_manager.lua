@@ -43,7 +43,8 @@ local function createStars(starX,starY,starMass,starRadius,starColor)
     y = starY or 0,
     mass = starMass or 50000,
     radius = starRadius or 30,
-    sprite = config.SpriteComponent(starColor,love.physics.newCircleShape(starRadius or 30), "Circle")
+    sprite = config.SpriteComponent(starColor,love.physics.newCircleShape(starRadius or 30), "Circle"),
+    layer = 0
   })
 end
 
@@ -76,6 +77,7 @@ local function createAsteroids(star,asteroidCount,asteroidOres)
     rigidBody.body = love.physics.newBody(config.World, x, y, "dynamic")
     rigidBody.shape = love.physics.newCircleShape(size)
     rigidBody.fixture = love.physics.newFixture(rigidBody.body,rigidBody.shape)
+    rigidBody.fixture:setUserData("asteroid")
     local color = {99/100, 87/100, 67/100}
 
     rigidBody.body:setMass(((4/3)*math.pi*(size)^3)*170)
@@ -91,6 +93,7 @@ local function createAsteroids(star,asteroidCount,asteroidOres)
       sprite = config.SpriteComponent(color,rigidBody.shape,"Circle"),
       mineable = config.MineableComponent(stages,rigidBody.body:getMass(),size, 100, asteroidOres),
       glow = 0,
+      layer = 1
     })
   end
 end
@@ -106,15 +109,16 @@ local function createLandables(star,landables)
       inventory = config.InventoryComponent(config.Landables[landable].market.capacity)
     end
     config.Entities.create("landable",{
-          name=landable,
-          x=config.Landables[landable].x,
-          y=config.Landables[landable].y,
-          radius=config.Landables[landable].radius,
-          sprite=sprite,
-          inventory=inventory,
-          orbitRadius=orbitRadius,
-          orbitAngle=orbitAngle,
-          orbitSpeed=orbitSpeed
+      name=landable,
+      x=config.Landables[landable].x,
+      y=config.Landables[landable].y,
+      radius=config.Landables[landable].radius,
+      sprite=sprite,
+      inventory=inventory,
+      orbitRadius=orbitRadius,
+      orbitAngle=orbitAngle,
+      orbitSpeed=orbitSpeed,
+      layer = 0
     })
   end
 end
@@ -123,8 +127,32 @@ local function createWormholes(wormholes)
   for _, data in ipairs(wormholes or {}) do
     data.sprite = config.SpriteComponent({0.5, 0.8, 1}, love.physics.newCircleShape(data.x, data.y, 120), "Circle")
     data.radius = 100
+    data.layer = 0
     config.Entities.create("landable", data)
   end
+end
+
+local function createNPC(x, y, faction)
+  local rigidBody = {}
+  rigidBody.body = love.physics.newBody(config.World, 400, 200, "dynamic")
+  rigidBody.shape = love.physics.newPolygonShape(0, -25, 50, 0, 0, 25)
+  rigidBody.fixture = love.physics.newFixture(rigidBody.body, rigidBody.shape)
+  rigidBody.color = {95/255, 117/255, 94/255}
+  rigidBody.body:setAngle(math.random())
+
+  return config.Entities.add({
+    x = x, y = y,
+    tags = { "npc", faction },  -- "passive" ou "hostile"
+    rigidbody = config.RigidbodyComponent(rigidBody.body,rigidBody.fixture),
+    sprite = config.SpriteComponent(rigidBody.color, rigidBody.shape,"Polygon"),
+    ai = {
+      state = "idle",           -- estado atual da FSM
+      target = nil,             -- entidade alvo
+      timer = 0,                -- timer genérico (patrol, cooldown)
+      faction = faction,
+    },
+    weapon = config.WeaponComponent(config.Weapons.laser),
+  })
 end
 
 function WorldManager.loadSystem(systemId)
@@ -157,7 +185,12 @@ function WorldManager.loadSystem(systemId)
 
   createWormholes(sys.wormholes)
 
+  createNPC(500,300)
+
+  config.Entities.sort()
+
   print("Loaded star system: " ..(sys.name or systemId))
+  return sorted
 end
 
 

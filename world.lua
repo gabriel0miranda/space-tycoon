@@ -1,4 +1,7 @@
 local begin_contact_callback = function(fixture_a, fixture_b, contact)
+--  if ( fixture_a:getUserData() == "ship" and fixture_b:getUserData() == "asteroid" ) or ( fixture_a:getUserData() == "asteroid" and fixture_b:getUserData() == "ship" ) then
+--    print("bump")
+--  end
 end
 
 local end_contact_callback = function(fixture_a, fixture_b, contact)

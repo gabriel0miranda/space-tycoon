@@ -9,6 +9,9 @@ end
 function Entities.remove(entity)
   for i = #Entities.all, 1, -1 do
     if Entities.all[i] == entity then
+      if entity.rigidbody and entity.rigidbody.body and not entity.rigidbody.body:isDestroyed() then
+        entity.rigidbody.body:destroy()
+      end
       table.remove(Entities.all, i)
       break
     end
@@ -49,6 +52,17 @@ function Entities.getByTag(tag)
     end
   end
   return result
+end
+
+function Entities.sort()
+  local sorted = {}
+  for _, e in ipairs(Entities.all) do
+    sorted[#sorted + 1] = e
+  end
+  table.sort(sorted, function(a,b)
+    return (a.layer or 0) < (b.layer or 0)
+  end)
+  Entities.all = sorted
 end
 
 function Entities.create(tag, data)

@@ -23,6 +23,7 @@ function Mining.damage(asteroid, damage)
       -- Recria o fixture para a hitbox bater com o visual
       asteroid.rigidbody.fixture:destroy()
       asteroid.rigidbody.fixture = love.physics.newFixture(asteroid.rigidbody.body, asteroid.sprite.shape)
+      asteroid.rigidbody.fixture:setUserData("asteroid")
       asteroid.rigidbody.body:setMass(asteroid.mineable.originalMass)
       asteroid.rigidbody.fixture:setRestitution(0.3)
     end
@@ -55,6 +56,7 @@ function Mining.drop_loot(asteroid, fraction)
           vx = avx + math.cos(angle) * speed,
           vy = avy + math.sin(angle) * speed,
           radius = radius,
+          layer = 0,
           sprite = config.SpriteComponent(color,
             love.physics.newCircleShape(radius),
             "Circle"

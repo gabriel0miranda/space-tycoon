@@ -131,6 +131,10 @@ function ShipMovement.update(dt)
 
         applyIntent(ship, dt)
     end
+    for _, npc in ipairs(config.Entities.with("npc")) do
+      if not npc.intent then npc.intent = ShipMovement.newIntent() end
+      applyIntent(npc, dt)
+    end
 end
 
 return ShipMovement

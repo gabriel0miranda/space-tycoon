@@ -56,6 +56,7 @@ function Playing.update(dt)
   local floatsome_hash = config.SpatialHash.build(config.Entities.getByTag("floatsome"),obj_pos,obj_radius,config.CELL_SIZE)
 
   config.ShipMovementSystem.update(dt)
+  config.NpcAISystem.update(dt)
   config.GravityPullSystem.update(dt)
   config.LandableMovementSystem.update(dt)
   config.WeaponSystem.update(dt)

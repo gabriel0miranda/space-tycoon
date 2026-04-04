@@ -10,6 +10,7 @@ love.load = function()
   rigidBody.body = love.physics.newBody(config.World, 400, 200, "dynamic")
   rigidBody.shape = love.physics.newPolygonShape(0, -25, 50, 0, 0, 25)
   rigidBody.fixture = love.physics.newFixture(rigidBody.body, rigidBody.shape)
+  rigidBody.fixture:setUserData("ship")
   rigidBody.color = {255/255, 200/255, 48/255}
   rigidBody.body:setAngle(0)
   config.Entities.create("ship", {
@@ -25,6 +26,7 @@ love.load = function()
     restitution = 0.75,
     credits = config.CreditsComponent(1500),
     inventory = config.InventoryComponent(500),
+    layer = 1
   })
 
   config.WorldManager.systems = config.Systems

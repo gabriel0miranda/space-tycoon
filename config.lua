@@ -32,6 +32,7 @@ return {
   MarketSystem = require("systems.market"),
   LandableMovementSystem = require("systems.landable_movement"),
   GravityPullSystem = require("systems.gravity_pull"),
+  NpcAISystem = require("systems.npc_ai"),
   SpriteComponent = require("components.sprite"),
   CreditsComponent = require("components.credits"),
   InventoryComponent = require("components.inventory"),
@@ -43,5 +44,5 @@ return {
   Systems = require("data.systems"),
   Weapons = require("data.weapons"),
   Landables = require("data.landables"),
-
+  NpcEntity = require("entities.npc"),
 }

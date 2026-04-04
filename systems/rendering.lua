@@ -7,14 +7,14 @@ local function drawWorldLayer()
       entity:draw()
     elseif entity.sprite then
       love.graphics.setColor((entity.sprite.color or {0,1,0}))
-      if entity.sprite.shapeType == "Polygon" then
-        love.graphics.polygon("fill",entity.rigidbody.body:getWorldPoints(entity.sprite.shape:getPoints()))
-      elseif entity.sprite.shapeType == "Circle" then
+      if entity.sprite.shapeType == "Circle" then
         if entity.rigidbody then
           love.graphics.circle('fill', entity.rigidbody.body:getX(), entity.rigidbody.body:getY(), entity.sprite.shape:getRadius())
         else
           love.graphics.circle('fill', entity.x, entity.y, entity.sprite.shape:getRadius())
         end
+      elseif entity.sprite.shapeType == "Polygon" then
+        love.graphics.polygon("fill",entity.rigidbody.body:getWorldPoints(entity.sprite.shape:getPoints()))
       end
     end
   end
