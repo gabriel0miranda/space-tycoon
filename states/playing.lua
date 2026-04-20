@@ -84,10 +84,11 @@ function Playing.update(dt)
     end
   end
 
-  if config.Input.state.escape then
-    config.Input.state.escape = false
+  if config.Input.state.mainmenu then
+    config.Input.state.mainmenu = false
     config.GameState.switch("mainmenu")
   end
+
   if config.Input.state.inventory then
     config.InventoryUI.toggle(playerFlagShip,{title = "Your Ship"} )
     config.Input.state.inventory = false
@@ -96,11 +97,47 @@ function Playing.update(dt)
 
   if config.Input.state.properties then
     config.PropertyUI.toggle()
-    config.Input.state.PropertyUI = false
+    config.Input.state.properties = false
   end
   config.PropertyUI.update(dt)
-  config.InventoryUI.update(dt)
+
   config.World:update(dt)
+end
+
+function Playing.keypressed(key)
+    --if config.PropertyUI.isOpen() then
+    --  config.PropertyUI.keypressed(key)
+    --  return
+    --end
+
+    if config.InventoryUI.isOpen() then
+      config.InventoryUI.keypressed(key)
+      return
+    end
+end
+
+function Playing.mousepressed(_, mx, my, button)
+    if config.PropertyUI.isOpen() then
+      config.PropertyUI.mousepressed(mx, my, button)
+      return
+    end
+
+    if config.InventoryUI.isOpen() then
+      config.InventoryUI.mousepressed(mx, my, button)
+      return
+    end
+end
+
+function Playing.wheelmoved(dx, dy)
+    if config.PropertyUI.isOpen() then
+      config.PropertyUI.wheelmoved(dx, dy)
+      return
+    end
+
+    if config.InventoryUI.isOpen() then
+      config.InventoryUI.wheelmoved(dx, dy)
+      return
+    end
 end
 
 function Playing.draw()

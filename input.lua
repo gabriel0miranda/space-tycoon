@@ -7,7 +7,7 @@ local input = {
         fire_primary = false, rcs = true, paused = false,
         weapon_type = 1, inventory = false, zoomIn = false,
         zoomOut = false, launch = false, debugFlag = false,
-        properties = false
+        properties = false, mainmenu = false,
     },
     --
     -- Mapeamento: Tecla -> Ação contínua (segurar)
@@ -24,19 +24,20 @@ local input = {
         ["kpenter"] = "land",
         ["return"] = "land",
         ["l"] = "launch",
+        ["escape"] = "mainmenu",
     },
     --
     -- Mapeamento: Tecla -> Ação de toggle (apertar uma vez)
     bindings_toggle = {
         ["kp0"] = function(s) s.rcs = not s.rcs end,
         ["r"] = function(s) s.rcs = not s.rcs end,
-        ["escape"] = function(s) s.paused = not s.paused end,
+        ["p"] = function(s) s.paused = not s.paused end,
         ["1"] = function(s) s.weapon_type = 1 end,
         ["2"] = function(s) s.weapon_type = 2 end,
         ["3"] = function(s) s.weapon_type = 3 end,
         ["4"] = function(s) s.weapon_type = 4 end,
         ["i"] = function(s) s.inventory = not s.inventory end,
-        ["p"] = function(s) s.properties = not s.properties end,
+        ["o"] = function(s) s.properties = not s.properties end,
         ["f1"] = function(s) s.debugFlag = not s.debugFlag end,
     }
 }
