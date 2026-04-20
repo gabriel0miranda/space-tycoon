@@ -76,7 +76,7 @@ local function getStationItems()
     local list = {}
     local demanded = station.market and station.market.demanded or {}
     for item, qty in pairs(station.inventory.items) do
-        local price = station.prices and station.prices[item]
+        local price = station.market.prices and station.market.prices[item]
         table.insert(list, {
             item     = item,
             qty      = qty,
@@ -96,7 +96,7 @@ local function getShipItems()
     if not ship or not ship.inventory then return {} end
     local list = {}
     for item, qty in pairs(ship.inventory.items) do
-        local price = station.prices and station.prices[item]
+        local price = station.market.prices and station.market.prices[item]
         table.insert(list, {
             item = item,
             qty  = qty,
@@ -108,16 +108,11 @@ local function getShipItems()
 end
 
 local function calcBalance()
-    local balance = 0
-    for item, qty in pairs(offering) do
-        local price = station.prices and station.prices[item]
-        balance = balance + (price and price.buy or 0) * qty
-    end
-    for item, qty in pairs(requesting) do
-        local price = station.prices and station.prices[item]
-        balance = balance - (price and price.sell or 0) * qty
-    end
-    return balance
+  local offeringList  = {}
+  local requestingList = {}
+  for item, qty in pairs(offering)   do offeringList[#offeringList+1]     = {item=item, qty=qty} end
+  for item, qty in pairs(requesting) do requestingList[#requestingList+1] = {item=item, qty=qty} end
+  return config.MarketSystem.calculateBalance(station, offeringList, requestingList)
 end
 
 local function showMsg(text, color)
@@ -224,45 +219,20 @@ end
 -- ─────────────────────────────────────────
 
 function MarketUI.executeTrade()
-    local balance = calcBalance()
+  local offeringList   = {}
+  local requestingList = {}
+  for item, qty in pairs(offering)   do offeringList[#offeringList+1]     = {item=item, qty=qty} end
+  for item, qty in pairs(requesting) do requestingList[#requestingList+1] = {item=item, qty=qty} end
 
-    -- Validações
-    if balance < 0 and (not ship.credits or ship.credits.amount < -balance) then
-        showMsg("Insufficient credits!", C.textSell)
-        return
-    end
-    for item, qty in pairs(requesting) do
-        if not station.inventory:has(item, qty) then
-            showMsg("Station doesn't have enough " .. item, C.textSell)
-            return
-        end
-    end
-    for item, qty in pairs(offering) do
-        if not ship.inventory:has(item, qty) then
-            showMsg("You don't have enough " .. item, C.textSell)
-            return
-        end
-    end
-
-    -- Executa
-    for item, qty in pairs(offering) do
-        ship.inventory:remove(item, qty)
-        station.inventory:add(item, qty, 1)
-    end
-    for item, qty in pairs(requesting) do
-        station.inventory:remove(item, qty)
-        ship.inventory:add(item, qty, 1)
-    end
-    if ship.credits then
-        print("before:", ship.credits.amount)
-        ship.credits:add(balance)
-        print("after:", ship.credits.amount)
-    end
-
-    local sign = balance >= 0 and "+" or ""
-    showMsg("Trade complete! " .. sign .. balance .. " cr", balance >= 0 and C.balPos or C.textBright)
-    offering  = {}
-    requesting= {}
+  local ok, result = config.MarketSystem.executeTrade(station, ship, offeringList, requestingList)
+  if ok then
+    local sign = result >= 0 and "+" or ""
+    showMsg("Trade complete! " .. sign .. result .. " cr", result >= 0 and C.balPos or C.textBright)
+    offering   = {}
+    requesting = {}
+  else
+    showMsg(result, C.textSell)  -- result é a mensagem de erro quando ok=false
+  end
 end
 
 -- ─────────────────────────────────────────

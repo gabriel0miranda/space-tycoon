@@ -5,23 +5,36 @@ local function drawWorldLayer()
   for _, entity in ipairs(config.Entities.all) do
     if entity.draw then
       entity:draw()
+    elseif entity.fixtures then
+      -- Nave multi-part: desenha cada fixture com sua própria cor
+      for _, part in ipairs(entity.fixtures) do
+        love.graphics.setColor(part.color)
+        love.graphics.polygon("fill",
+          entity.rigidbody.body:getWorldPoints(part.shape:getPoints()))
+      end
+
     elseif entity.sprite then
-      love.graphics.setColor((entity.sprite.color or {0,1,0}))
+      love.graphics.setColor(entity.sprite.color or {0,1,0})
       if entity.sprite.shapeType == "Circle" then
         if entity.rigidbody then
-          love.graphics.circle('fill', entity.rigidbody.body:getX(), entity.rigidbody.body:getY(), entity.sprite.shape:getRadius())
+          love.graphics.circle("fill",
+            entity.rigidbody.body:getX(),
+            entity.rigidbody.body:getY(),
+            entity.sprite.shape:getRadius())
         else
-          love.graphics.circle('fill', entity.x, entity.y, entity.sprite.shape:getRadius())
+          love.graphics.circle("fill", entity.x, entity.y,
+            entity.sprite.shape:getRadius())
         end
       elseif entity.sprite.shapeType == "Polygon" then
-        love.graphics.polygon("fill",entity.rigidbody.body:getWorldPoints(entity.sprite.shape:getPoints()))
+        love.graphics.polygon("fill",
+          entity.rigidbody.body:getWorldPoints(entity.sprite.shape:getPoints()))
       end
     end
   end
 end
 
 local function drawProjectiles()
-  for _, proj in ipairs(config.Entities.with("projectile")) do
+  for _, proj in ipairs(config.Entities.getByTag("projectile")) do
     love.graphics.setColor(proj.color)
     if proj.projType == "missile" then
       -- Míssil: um retângulo orientado na direção do movimento
@@ -38,11 +51,10 @@ local function drawProjectiles()
   end
 end
 
-local function drawDrillEffect()
-  local armed = config.Entities.with("weapon")
-  for _, e in ipairs(armed) do
+local function drawDrillEffect(armedEntities)
+  for _, e in ipairs(armedEntities) do
     local weapon = e.weapon
-    if weapon.def.type == "drill" and weapon.firing and weapon.timer > 0 then
+    if weapon.def.type == "drill" and weapon.intent and weapon.intent.firing and weapon.timer > 0 then
       local x, y = e.rigidbody.body:getPosition()
       local tx = x + math.cos(weapon.angle) * weapon.def.range
       local ty = y + math.sin(weapon.angle) * weapon.def.range
@@ -61,9 +73,12 @@ local function drawInventory()
   config.InventoryUI.draw()
 end
 
-local function drawMinimap(camera)
-    local ship = config.Entities.with("ship")[1]
-    if not ship then return end
+local function drawProperty()
+  config.PropertyUI.draw()
+end
+
+local function drawMinimap(playerFlagShip, camera)
+    if not playerFlagShip then return end
 
     local sw = love.graphics.getWidth()
     local sh = love.graphics.getHeight()
@@ -93,20 +108,20 @@ local function drawMinimap(camera)
     end, "replace", 1)
     love.graphics.setStencilTest("greater", 0)
 
-    local shipX, shipY = ship.rigidbody.body:getPosition()
+    local playerX, playerY = playerFlagShip.rigidbody.body:getPosition()
 
     -- Estrela central
     for _, star in ipairs(config.Entities.with("star")) do
-        local dx = (star.x - shipX) * mapScale
-        local dy = (star.y - shipY) * mapScale
+        local dx = (star.x - playerX) * mapScale
+        local dy = (star.y - playerY) * mapScale
         love.graphics.setColor(0.91, 0.75, 0.37)
         love.graphics.circle("fill", cx + dx, cy + dy, 5)
     end
 
     -- Planetas e estações
     for _, e in ipairs(config.Entities.with("landable")) do
-        local dx = (e.x - shipX) * mapScale
-        local dy = (e.y - shipY) * mapScale
+        local dx = (e.x - playerX) * mapScale
+        local dy = (e.y - playerY) * mapScale
         local color = e.type == "station"
             and {0.48, 0.67, 0.87}
             or  {0.33, 0.55, 0.33}
@@ -118,8 +133,8 @@ local function drawMinimap(camera)
     for _, ast in ipairs(config.Entities.with("asteroid")) do
         if ast.rigidbody and ast.rigidbody.body then
             local ax, ay = ast.rigidbody.body:getPosition()
-            local dx = (ax - shipX) * mapScale
-            local dy = (ay - shipY) * mapScale
+            local dx = (ax - playerX) * mapScale
+            local dy = (ay - playerY) * mapScale
             love.graphics.setColor(0.55, 0.45, 0.35, 0.7)
             love.graphics.circle("fill", cx + dx, cy + dy, 1.5)
         end
@@ -143,33 +158,33 @@ local function drawMinimap(camera)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-local function drawDebugOverlay()
+local function drawDebugOverlay(playerFlagShip)
   if not config.Input.state.debugFlag then return end
-  local ship = config.Entities.with("ship")[1]
   love.graphics.setColor(0, 1, 0)
   love.graphics.setFont(config.smallFont)
   love.graphics.print(
-    "Ship mass:"..ship.mass..
-    "\nShip X:"..ship.rigidbody.body:getX()..
-    "\nShip Y:"..ship.rigidbody.body:getY()..
-    "\nShip angle:"..ship.rigidbody.body:getAngle()..
-    "\nShip angular velocity:"..ship.rigidbody.body:getAngularVelocity()..
-    "\nShip RCS:"..tostring(ship.rcs)..
-    "\nShip weapon:"..ship.weapon.def.type
+    "Ship mass:"..playerFlagShip.mass..
+    "\nShip X:"..playerFlagShip.rigidbody.body:getX()..
+    "\nShip Y:"..playerFlagShip.rigidbody.body:getY()..
+    "\nShip angle:"..playerFlagShip.rigidbody.body:getAngle()..
+    "\nShip angular velocity:"..playerFlagShip.rigidbody.body:getAngularVelocity()..
+    "\nShip RCS:"..tostring(playerFlagShip.rcs)..
+    "\nShip weapon:"..playerFlagShip.weapon.def.type
   )
   love.graphics.setColor(1,1,1)
 end
 
-function Rendering.draw(camera)
+function Rendering.draw(playerFlagShip, armedEntities, camera)
     camera:attach()
         drawWorldLayer()
         -- drawParallaxBackground()
         drawProjectiles()
-        drawDrillEffect()
+        drawDrillEffect(armedEntities)
     camera:detach()
     drawInventory()
-    drawMinimap(camera)
-    drawDebugOverlay()
+    drawProperty()
+    drawMinimap(playerFlagShip, camera)
+    drawDebugOverlay(playerFlagShip)
 end
 
 

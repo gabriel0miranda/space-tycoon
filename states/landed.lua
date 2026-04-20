@@ -4,7 +4,7 @@ local Landed = {}
 -- Estado local
 -- ─────────────────────────────────────────
 
-local ship        = nil
+local playerFlagShip        = nil
 local activePanel = "trade"
 local allButtonsFlat = {}
 local hoveredBtn  = nil
@@ -330,11 +330,11 @@ function Landed.onEnter()
     mousedx, mousedy = love.mouse.getPosition()
     love.mouse.setVisible(true)
     love.mouse.setRelativeMode(false)
-    ship = config.Entities.with("ship")[1]
+    playerFlagShip = config.Entities.with("isFlagShip")[1]
 
     -- Transição de wormhole
-    if ship.landedAt and ship.landedAt.toSystem then
-        local targetSystem      = ship.landedAt.toSystem
+    if playerFlagShip.landedAt and playerFlagShip.landedAt.toSystem then
+        local targetSystem      = playerFlagShip.landedAt.toSystem
         local currentSystemName = config.WorldManager.systems[config.WorldManager.currentSystemId].name
         config.WorldManager.loadSystem(targetSystem)
         local entries = config.WorldManager.systems[targetSystem].wormholes or {}
@@ -344,22 +344,22 @@ function Landed.onEnter()
                 entryX, entryY = entry.x, entry.y
             end
         end
-        ship.rigidbody.body:setPosition(entryX, entryY)
-        ship.rigidbody.body:setLinearVelocity(0, 0)
+        playerFlagShip.rigidbody.body:setPosition(entryX, entryY)
+        playerFlagShip.rigidbody.body:setLinearVelocity(0, 0)
         config.GameState.switch("playing")
         return
     end
 
     -- Gera estoque do mercado na primeira visita
-    print(ship.landedAt.name)
-    if ship.landedAt and config.Landables[ship.landedAt.name].market then
-        config.MarketSystem.generateStock(ship.landedAt)
+    print(playerFlagShip.landedAt.name)
+    if playerFlagShip.landedAt and config.Landables[playerFlagShip.landedAt.name].market then
+        config.MarketSystem.generateStock(playerFlagShip.landedAt)
     end
 
     -- Constrói botões a partir dos dados do landable
     local allBtns = {}
     allButtonsFlat = {}
-    for key in pairs(config.Landables[ship.landedAt.name].buttons or {}) do
+    for key in pairs(config.Landables[playerFlagShip.landedAt.name].buttons or {}) do
         table.insert(allBtns, { key = key, label = buttonLabels[key] or key })
     end
     table.sort(allBtns, function(a, b) return a.key < b.key end)
@@ -378,34 +378,34 @@ function Landed.onEnter()
     hoveredBtn = allButtonsFlat[1].key
     recalcGeometry()
 
-    if ship.rigidbody and ship.rigidbody.body then
-        ship.rigidbody.body:setLinearVelocity(0, 0)
-        ship.rigidbody.body:setAngularVelocity(0)
+    if playerFlagShip.rigidbody and playerFlagShip.rigidbody.body then
+        playerFlagShip.rigidbody.body:setLinearVelocity(0, 0)
+        playerFlagShip.rigidbody.body:setAngularVelocity(0)
     end
 
-    print("Docked at " .. (ship.landedAt and config.Landables[ship.landedAt.name].name or "unknown"))
+    print("Docked at " .. (playerFlagShip.landedAt and config.Landables[playerFlagShip.landedAt.name].name or "unknown"))
 end
 
 function Landed.onExit()
     love.mouse.setVisible(false)
     love.mouse.setRelativeMode(true)
-    if ship and ship.rigidbody and ship.rigidbody.body then
-        local angle = ship.rigidbody.body:getAngle()
-        ship.rigidbody.body:applyLinearImpulse(
+    if playerFlagShip and playerFlagShip.rigidbody and playerFlagShip.rigidbody.body then
+        local angle = playerFlagShip.rigidbody.body:getAngle()
+        playerFlagShip.rigidbody.body:applyLinearImpulse(
             math.cos(angle) * 400,
             math.sin(angle) * 400
         )
     end
-    ship.landedAt = nil
-    ship = nil
+    playerFlagShip.landedAt = nil
+    playerFlagShip = nil
     config.MarketUI.close()
     config.InventoryUI.closeAll()
     print("Launched into space")
 end
 
 local function activateButton(key)
-    if key == "trade" and ship.landedAt and config.Landables[ship.landedAt.name].market then
-        config.MarketUI.open(ship, ship.landedAt)
+    if key == "trade" and playerFlagShip.landedAt and config.Landables[playerFlagShip.landedAt.name].market then
+        config.MarketUI.open(playerFlagShip, playerFlagShip.landedAt)
     elseif key == "depart" then
         config.Input.state.paused = false
         config.GameState.switch("playing", { resuming = true })
@@ -419,7 +419,7 @@ function Landed.update(dt)
     config.MarketUI.update(dt)
 
     if config.Input.state.inventory then
-        config.InventoryUI.toggle(ship, { title = "Freight Bay" })
+        config.InventoryUI.toggle(playerFlagShip, { title = "Freight Bay" })
         config.Input.state.inventory = false
     end
 
@@ -519,7 +519,7 @@ end
 -- ─────────────────────────────────────────
 
 function Landed.draw()
-    local landedData = config.Landables[ship.landedAt.name]
+    local landedData = config.Landables[playerFlagShip.landedAt.name]
     local panelData  = landedData.buttons and landedData.buttons[activePanel]
     local panelTitle = buttonLabels[activePanel] or activePanel
     local panelScene = buttonScenes[activePanel] or "station"
@@ -609,12 +609,12 @@ function Landed.draw()
     love.graphics.setFont(config.smallFont)
     love.graphics.print("DOCKED · " .. string.upper(landedData.name or "?"), G.x + 10, statusY + 3)
 
-    if ship and ship.credits then
-        love.graphics.print("CR: " .. ship.credits.amount, G.x + G.w / 2 - 30, statusY + 3)
+    if playerFlagShip and playerFlagShip.credits then
+        love.graphics.print("CR: " .. playerFlagShip.credits.amount, G.x + G.w / 2 - 30, statusY + 3)
     end
-    if ship and ship.inventory then
+    if playerFlagShip and playerFlagShip.inventory then
         love.graphics.print(
-            "CARGO: " .. ship.inventory.capacityUsed .. "/" .. ship.inventory.capacity,
+            "CARGO: " .. playerFlagShip.inventory.capacityUsed .. "/" .. playerFlagShip.inventory.capacity,
             G.x + G.w - 130, statusY + 3
         )
     end

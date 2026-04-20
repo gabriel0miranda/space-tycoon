@@ -169,6 +169,8 @@ function executeAction(action)
         config.GameState.switch("playing")
     elseif action == "cont" then
         -- TODO: implementar save/load
+    elseif action == "control" then
+        -- TODO: implementar tela de controles
     elseif action == "quit" then
         love.event.quit()
     end

@@ -1,6 +1,8 @@
 local Entities = {}
 Entities.all = {}
 
+local byTag = {}
+
 function Entities.add(entity)
   table.insert(Entities.all,entity)
   return entity
@@ -16,10 +18,22 @@ function Entities.remove(entity)
       break
     end
   end
+  local list = byTag[entity.tag]
+  if list then
+    for i = #list, 1, -1 do
+      if list[i] == entity then table.remove(list, i); break end
+    end
+  end
 end
 
 function Entities.clear()
+  for _, e in ipairs(Entities.all) do
+    if e.rigidbody and e.rigidbody.body and not e.rigidbody.body:isDestroyed() then
+      e.rigidbody.body:destroy()
+    end
+  end
   Entities.all = {}
+  byTag = {}
 end
 
 function Entities.with(...)
@@ -45,16 +59,10 @@ function Entities.with(...)
   end
 
 function Entities.getByTag(tag)
-  local result = {}
-  for _, e in ipairs(Entities.all) do
-    if e.tag == tag then
-      table.insert(result, e)
-    end
-  end
-  return result
+  return byTag[tag] or {}
 end
 
-function Entities.sort()
+function Entities.sortByLayer()
   local sorted = {}
   for _, e in ipairs(Entities.all) do
     sorted[#sorted + 1] = e
@@ -69,6 +77,8 @@ function Entities.create(tag, data)
   local entity = data or {}
   entity.tag = tag
   Entities.add(entity)
+  if not byTag[tag] then byTag[tag] = {} end
+  byTag[tag][#byTag[tag]+1] = entity
   return entity
 end
 

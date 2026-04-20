@@ -123,13 +123,12 @@ return {
     spaceport = { description = "An amazing green field extends in every direction around the crowded spaceport From here you can take the electric bullet train straight to the planet's capital, Noobinori." },
     bar       = { description = "The smell of fresh mowed grass fills the air around the bar's open area. It's a nice place to read a book and sip on a drink." },
     bank      = { description = "A very small Galaxy Bank unit. There's one sad attendant behind a glass pane calling people's tickets."},
-    trade     = {},
+    shipyard  = {},
   },
-  market = {
-    capacity = 20000,
-    demanded = {
+  shipyard = {
+    stock = {
+    "PP-2340","NN-Interceptor","NN-Gunship","NN-Dreadnought"
     },
-    stock = {},
   },
 },
 ["Golden Fortress"] = {
@@ -144,13 +143,6 @@ return {
     spaceport = { description = "An amazing green field extends in every direction around the crowded spaceport From here you can take the electric bullet train straight to the planet's capital, Noobinori." },
     bar       = { description = "The smell of fresh mowed grass fills the air around the bar's open area. It's a nice place to read a book and sip on a drink." },
     bank      = { description = "A very small Galaxy Bank unit. There's one sad attendant behind a glass pane calling people's tickets."},
-    trade     = {},
-  },
-  market = {
-    capacity = 20000,
-    demanded = {
-    },
-    stock = {},
   },
   },
 }

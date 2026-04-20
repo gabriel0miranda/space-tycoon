@@ -51,7 +51,7 @@ local function applyPlayerInput(ship)
 end
 
 -- ─────────────────────────────────────────
--- Physics step — reads intent, applies forces
+-- Apply intent to ship
 -- ─────────────────────────────────────────
 
 local function applyIntent(ship, dt)
@@ -69,7 +69,7 @@ local function applyIntent(ship, dt)
         )
     end
 
--- 2. Strafe Lateral (Esquerda/Direita) - Relativo ao lado da nave
+    -- 2. Strafe Lateral (Esquerda/Direita) - Relativo ao lado da nave
     if intent.strafe ~= 0 then
         -- Multiplicamos por -sin e cos para pegar o vetor perpendicular ao ângulo atual
         body:applyForce(
@@ -79,11 +79,9 @@ local function applyIntent(ship, dt)
     end
 
     -- 3. Strafe Vertical (Cima/Baixo)
-    -- Nota: Em 2D, se isso for strafe "de tela", use os eixos 0, 1. 
-    -- Se for ship-relative (como subir/descer num plano), a lógica é a mesma do Thrust.
     if intent.strafeV ~= 0 then
         body:applyForce(
-            0, -- Se for apenas vertical na tela
+            0,
             intent.strafeV * mov.strafeAcceleration * mass
         )
     end
@@ -115,23 +113,17 @@ local function applyIntent(ship, dt)
     end
 end
 
--- ─────────────────────────────────────────
--- Main update
--- ─────────────────────────────────────────
+function ShipMovement.update(playerFlagShip, dt)
+    if not playerFlagShip.rigidbody or not playerFlagShip.rigidbody.body then return end
+    if not playerFlagShip.intent then playerFlagShip.intent = ShipMovement.newIntent() end
 
-function ShipMovement.update(dt)
-    for _, ship in ipairs(config.Entities.with("ship")) do
-        if not ship.rigidbody or not ship.rigidbody.body then return end
-        if not ship.intent then ship.intent = ShipMovement.newIntent() end
-
-        -- Player input writes to intent unless autopilot is active
-        if not ship.autopilot then
-            applyPlayerInput(ship)
-        end
-
-        applyIntent(ship, dt)
+    -- Player input writes to intent unless autopilot is active
+    if not playerFlagShip.autopilot then
+        applyPlayerInput(playerFlagShip)
     end
-    for _, npc in ipairs(config.Entities.with("npc")) do
+
+    applyIntent(playerFlagShip, dt)
+    for _, npc in ipairs(config.Entities.getByTag("npc")) do
       if not npc.intent then npc.intent = ShipMovement.newIntent() end
       applyIntent(npc, dt)
     end

@@ -1,16 +1,18 @@
 local Playing = {}
 
-local ship = nil
+local playerFlagShip = nil
+local armedEntities = {}
 
 function Playing.onEnter(params)
-  ship = config.Entities.with("ship")[1]
+  playerFlagShip = config.Entities.with("isFlagShip")[1]
+  armedEntities = config.Entities.with("weapon")
   config.InventoryUI.load()
   if params and params.resuming then
     print("Unfreezing")
     config.WorldManager:unfreeze()
   else
     config.WorldManager.loadSystem(config.WorldManager.currentSystemId)
-    ship.inventory:add("Cocaine",50,1)
+    playerFlagShip.inventory:add("Cocaine",12,1)
     print("Started playing")
     config.Camera.x = 0
     config.Camera.y = 0
@@ -44,9 +46,10 @@ end
 
 function Playing.update(dt)
   if config.Input.state.paused then return end
+  if not playerFlagShip or not playerFlagShip.rigidbody or not playerFlagShip.rigidbody.body or playerFlagShip.rigidbody.body:isDestroyed() then return end
 
   local valid_asteroids = {}
-  for _, ast in ipairs(config.Entities.with("asteroid")) do
+  for _, ast in ipairs(config.Entities.getByTag("asteroid")) do
     if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
       valid_asteroids[#valid_asteroids+1] = ast
     end
@@ -55,25 +58,25 @@ function Playing.update(dt)
 
   local floatsome_hash = config.SpatialHash.build(config.Entities.getByTag("floatsome"),obj_pos,obj_radius,config.CELL_SIZE)
 
-  config.ShipMovementSystem.update(dt)
-  config.NpcAISystem.update(dt)
-  config.GravityPullSystem.update(dt)
+  config.NpcAISystem.update(playerFlagShip, dt)
+  config.ShipMovementSystem.update(playerFlagShip, dt)
+  config.GravityPullSystem.update(ast_hash, dt)
   config.LandableMovementSystem.update(dt)
-  config.WeaponSystem.update(dt)
-  config.PickupSystem.update(dt,ship,floatsome_hash)
+  config.WeaponSystem.update(armedEntities, dt)
+  config.PickupSystem.update(dt,playerFlagShip,floatsome_hash)
   config.ProjectileSystem.update(ast_hash, dt)
 
   -- config.Camera follow
-  config.Camera:follow(ship.rigidbody.body:getX(), ship.rigidbody.body:getY())
+  config.Camera:follow(playerFlagShip.rigidbody.body:getX(), playerFlagShip.rigidbody.body:getY())
   config.Camera:update(dt)
 
   -- Landing check
-  for _, l in ipairs(config.Entities.with("landable")) do
-    local sx, sy = ship.rigidbody.body:getX(), ship.rigidbody.body:getY()
+  for _, l in ipairs(config.Entities.getByTag("landable")) do
+    local sx, sy = playerFlagShip.rigidbody.body:getX(), playerFlagShip.rigidbody.body:getY()
     local dx = sx - l.x
     local dy = sy - l.y
     if dx*dx + dy*dy < (l.radius + 40)^2 and config.Input.state.land then
-        ship.landedAt = l
+        playerFlagShip.landedAt = l
         config.WorldManager:freeze()
         config.GameState.switch("landed")
         config.Input.state.land = false
@@ -86,15 +89,22 @@ function Playing.update(dt)
     config.GameState.switch("mainmenu")
   end
   if config.Input.state.inventory then
-    config.InventoryUI.toggle(ship,{title = "Your Ship"} )
+    config.InventoryUI.toggle(playerFlagShip,{title = "Your Ship"} )
     config.Input.state.inventory = false
   end
+  config.InventoryUI.update(dt)
+
+  if config.Input.state.properties then
+    config.PropertyUI.toggle()
+    config.Input.state.PropertyUI = false
+  end
+  config.PropertyUI.update(dt)
   config.InventoryUI.update(dt)
   config.World:update(dt)
 end
 
 function Playing.draw()
-  config.RenderingSystem.draw(config.Camera)
+  config.RenderingSystem.draw(playerFlagShip, armedEntities, config.Camera)
 end
 
 return Playing

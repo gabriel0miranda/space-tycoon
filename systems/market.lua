@@ -11,7 +11,7 @@ end
 
 -- Gera o inventário e os preços de uma estação ao entrar nela
 function Market.generateStock(station)
-    local market = config.Landables[station.name].market
+    local market = station.market
     if not market or market.generated then return end
 
     -- Inicializa o inventário se não existir
@@ -26,18 +26,19 @@ function Market.generateStock(station)
 
     -- Gera tabela de preços de compra e venda
     -- A estação compra mais caro os itens que ela valoriza (demanded)
-    station.prices = {}
+    local prices = {}
     for item, basePrice in pairs(getBasePrices()) do
         local demand    = market.demanded and market.demanded[item] or 1.0
         local buyPrice  = math.floor(basePrice * demand * (0.9 + love.math.random() * 0.2))
         local sellPrice = math.floor(basePrice * 0.8 * (0.9 + love.math.random() * 0.2))
-        station.prices[item] = {
+        prices[item] = {
             buy  = buyPrice,   -- preço que a estação paga ao jogador
             sell = sellPrice,  -- preço que a estação cobra do jogador
         }
     end
 
-    market.generated = true
+    station.market.prices = prices
+    station.market.generated = true
 end
 
 -- Calcula o balanço de uma troca
@@ -47,11 +48,11 @@ end
 function Market.calculateBalance(station, offering, requesting)
     local balance = 0
     for _, o in ipairs(offering) do
-        local price = station.prices and station.prices[o.item]
+        local price = station.market.prices and station.market.prices[o.item]
         balance = balance + (price and price.buy or 0) * o.qty
     end
     for _, r in ipairs(requesting) do
-        local price = station.prices and station.prices[r.item]
+        local price = station.market.prices and station.market.prices[r.item]
         balance = balance - (price and price.sell or 0) * r.qty
     end
     return balance

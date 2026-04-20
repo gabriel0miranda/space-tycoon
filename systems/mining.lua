@@ -52,7 +52,7 @@ function Mining.drop_loot(asteroid, fraction)
           item = entry.item,
           qty = qty,
           x = asteroid.rigidbody.body:getX() + math.cos(angle)*offset,
-          y = asteroid.rigidbody.body:getY() + math.cos(angle)*offset,
+          y = asteroid.rigidbody.body:getY() + math.sin(angle)*offset,
           vx = avx + math.cos(angle) * speed,
           vy = avy + math.sin(angle) * speed,
           radius = radius,

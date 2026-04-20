@@ -1,15 +1,32 @@
-local function createNPC(x, y, faction)
-  local rigidBody = {}
-  rigidBody.body = love.physics.newBody(config.World, 400, 200, "dynamic")
-  rigidBody.shape = love.physics.newPolygonShape(0, -25, 50, 0, 0, 25)
-  rigidBody.fixture = love.physics.newFixture(rigidBody.body, rigidBody.shape)
-  rigidBody.color = {95/255, 117/255, 94/255}
-  rigidBody.body:setAngle(math.random())
-  return config.Entities.add({
+local unpack = table.unpack or unpack
+
+return function (x, y, faction, shipType)
+  shipType = shipType or "PP-2340"
+  local def = config.Ships[shipType]
+
+  local body = love.physics.newBody(config.World,x,y,"dynamic")
+  local fixtures = {}
+
+  for _, part in ipairs(def.parts) do
+    local shape = love.physics.newPolygonShape(unpack(part.points))
+    local fixture = love.physics.newFixture(body,shape)
+    fixture:setUserData("npc")
+    fixtures[#fixtures+1] = { fixture= fixture, shape= shape, color= part.color }
+  end
+
+  body:setAngle(math.random())
+
+  return config.Entities.create("npc",{
     x = x, y = y,
-    tags = { "npc", faction },  -- "passive" ou "hostile"
-    rigidbody = config.RigidbodyComponent(rigidBody.body,rigidBody.fixture),
-    sprite = config.SpriteComponent(rigidBody.color, rigidBody.shape,"Polygon"),
+    rigidbody = config.RigidbodyComponent(body,fixtures[1].fixture),
+    fixtures = fixtures,
+    sprite = { shipType = shipType },
+    movement  = config.MovementComponent(
+      def.movement.linearAcceleration,
+      def.movement.strafeAcceleration,
+      def.movement.angularAcceleration,
+      def.movement.linearDamping
+    ),
     ai = {
       state = "idle",           -- estado atual da FSM
       target = nil,             -- entidade alvo
@@ -17,5 +34,6 @@ local function createNPC(x, y, faction)
       faction = faction,
     },
     weapon = config.WeaponComponent(config.Weapons.laser),
+    layer = 2,
   })
 end

@@ -2,7 +2,7 @@ local Pickup = {}
 
 function Pickup.update(dt, player, floatsome_hash)
     local px, py = player.rigidbody.body:getX(), player.rigidbody.body:getY()
-    local pr = player.sprite.shape:getRadius()
+    local pr = player.rigidbody.fixture:getShape():getRadius()
     local candidates = config.SpatialHash.query(floatsome_hash,config.CELL_SIZE,px,py,pr+50) or {}
 
     for _, e in ipairs(candidates) do
