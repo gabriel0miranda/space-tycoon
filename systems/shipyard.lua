@@ -37,11 +37,11 @@ end
 function Shipyard.calculateBalance(station, offering, requesting)
     local balance = 0
     for _, o in ipairs(offering) do
-        local price = station.market.prices and station.market.prices[o.item]
+        local price = station.shipyard.prices and station.shipyard.prices[o.item]
         balance = balance + (price and price.buy or 0) * o.qty
     end
     for _, r in ipairs(requesting) do
-        local price = station.market.prices and station.market.prices[r.item]
+        local price = station.shipyard.prices and station.shipyard.prices[r.item]
         balance = balance - (price and price.sell or 0) * r.qty
     end
     return balance
