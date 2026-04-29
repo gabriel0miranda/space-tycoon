@@ -12,7 +12,7 @@ function Playing.onEnter(params)
     config.WorldManager:unfreeze()
   else
     config.WorldManager.loadSystem(config.WorldManager.currentSystemId)
-    playerFlagShip.inventory:add("Cocaine",12,1)
+    playerFlagShip.inventory:add("Cocaine",12)
     print("Started playing")
     config.Camera.x = 0
     config.Camera.y = 0
