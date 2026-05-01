@@ -81,6 +81,36 @@ local L = {
 
 local G = {}
 
+local function getOwnedShipsCount(player)
+    local count = 0
+    for _ in pairs(player.property.properties) do count = count + 1 end
+    return count
+end
+
+local function handleDepart()
+  local player = config.Entities.getByTag("player")[1]
+  local shipsCount = getOwnedShipsCount(player)
+  if shipsCount > 1 then
+    -- Ativa um estado de UI para o jogador escolher a nave
+    -- player.choosingShip = true 
+    print("Qual nave você deseja pilotar?")
+    -- Protótipo de verificação de escolta futura:
+    -- if player.hasAutoPilotModule or player.hiredPilots > 0 then
+    --    print("Você pode decolar com sua frota completa!")
+    -- end
+    activePanel = "depart"
+    config.Input.state.paused = false
+    print("departing")
+    config.GameState.switch("playing", { resuming = true })
+  else
+    -- Decolagem normal se só tiver uma nave
+    activePanel = "depart"
+    config.Input.state.paused = false
+    print("departing")
+    config.GameState.switch("playing", { resuming = true })
+  end
+end
+
 local function recalcGeometry()
     local sw = love.graphics.getWidth()
     local sh = love.graphics.getHeight()
@@ -405,12 +435,14 @@ end
 
 local function activateButton(key)
     if key == "trade" and playerFlagShip.landedAt and config.Landables[playerFlagShip.landedAt.name].market then
-        config.MarketUI.open(playerFlagShip, playerFlagShip.landedAt)
+      config.MarketUI.open(playerFlagShip, playerFlagShip.landedAt)
+    elseif key == "shipyard" and playerFlagShip.landedAt and config.Landables[playerFlagShip.landedAt.name].shipyard then
+      activePanel = "shipyard"
+      config.ShipyardUI.toggle()
     elseif key == "depart" then
-        config.Input.state.paused = false
-        config.GameState.switch("playing", { resuming = true })
+      handleDepart()
     else
-        activePanel = key
+      activePanel = key
     end
 end
 
@@ -439,8 +471,14 @@ function Landed.update(dt)
         end
     end
 
-    if activePanel == "depart" and config.Input.state.launch then
-        config.GameState.switch("playing", { resuming = true })
+    if activePanel == "depart" or config.Input.state.launch then
+      handleDepart()
+    end
+end
+
+function Landed.textinput(t)
+    if activePanel == "shipyard" then
+        config.ShipyardUI.textinput(t)
     end
 end
 
@@ -450,7 +488,9 @@ function Landed.keypressed(key)
       config.MarketUI.keypressed(key)
       return
     end
-
+    if config.ShipyardUI.isOpen() then
+      if config.ShipyardUI.keypressed(key) then return end -- Se consumiu o input, para aqui
+    end
     -- Encontra o índice atual do hoveredBtn
     local currentIndex = 1
     for i, btn in ipairs(allButtonsFlat) do
@@ -525,15 +565,7 @@ function Landed.draw()
     local panelScene = buttonScenes[activePanel] or "station"
     local panelText  = {}
 
-    if activePanel == "depart" then
-        panelText = {
-            "All systems verified.",
-            "Departure window is open.",
-            "",
-            "Press ENTER or click Depart to launch.",
-        }
-        panelScene = "space"
-    elseif panelData then
+    if panelData then
         panelText = wrapText(panelData.description or "", 52)
     end
 
@@ -621,6 +653,7 @@ function Landed.draw()
 
     -- Market UI e Inventory UI por cima de tudo
     config.MarketUI.draw()
+    config.ShipyardUI.draw()
     config.InventoryUI.draw()
 
     love.graphics.setColor(1, 1, 1, 1)

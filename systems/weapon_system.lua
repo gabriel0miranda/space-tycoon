@@ -102,7 +102,7 @@ local function applyIntent(e, dt)
   end
 
   local x, y
-  if e.rigidbody and e.rigidbody.body then
+  if e.rigidbody and e.rigidbody.body and not e.rigidbody.body:isDestroyed() then
     x, y = e.rigidbody.body:getPosition()
   else
     x, y = e.x or 0, e.y or 0
@@ -113,7 +113,7 @@ local function applyIntent(e, dt)
   if intent.targetX and intent.targetY then
     angle = math.atan2(intent.targetY - y, intent.targetX - x)
   else
-    angle = e.rigidbody and e.rigidbody.body:getAngle() or (weapon.angle or 0)
+    angle = not e.rigidbody.body:isDestroyed() and e.rigidbody.body:getAngle() or (weapon.angle or 0)
   end
 
   weapon.angle = angle
