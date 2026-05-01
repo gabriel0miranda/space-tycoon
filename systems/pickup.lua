@@ -16,7 +16,7 @@ function Pickup.update(dt, player, floatsome_hash)
             local dist = math.sqrt(dx*dx + dy*dy)
 
             if dist < e.radius + 50 then
-                local ok, _ = player.inventory:add(e.item, e.qty, config.Items[e.item].volume or 1)
+                local ok, _ = player.inventory:add(e.item, e.qty)
                 if ok then
                     config.Entities.remove(e)
                 end

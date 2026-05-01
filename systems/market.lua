@@ -21,7 +21,7 @@ function Market.generateStock(station)
 
     for _, entry in ipairs(market.stock or {}) do
         local qty = entry.min + math.floor(love.math.random() * (entry.max - entry.min))
-        station.inventory:add(entry.item, qty, 1)
+        station.inventory:add(entry.item, qty)
     end
 
     -- Gera tabela de preços de compra e venda
@@ -61,9 +61,10 @@ end
 -- Executa a troca se válida
 function Market.executeTrade(station, ship, offering, requesting)
     local balance = Market.calculateBalance(station, offering, requesting)
+    local player = config.Entities.getByTag("player")[1]
 
     -- Verifica se jogador tem créditos suficientes
-    if balance < 0 and ship.credits.amount < -balance then
+    if balance < 0 and player.credits.amount < -balance then
         return false, "Créditos insuficientes"
     end
 
@@ -84,13 +85,13 @@ function Market.executeTrade(station, ship, offering, requesting)
     -- Executa
     for _, o in ipairs(offering) do
         ship.inventory:remove(o.item, o.qty)
-        station.inventory:add(o.item, o.qty, 1)
+        station.inventory:add(o.item, o.qty)
     end
     for _, r in ipairs(requesting) do
         station.inventory:remove(r.item, r.qty)
-        ship.inventory:add(r.item, r.qty, 1)
+        ship.inventory:add(r.item, r.qty)
     end
-    ship.credits:add(balance)
+    player.credits:add(balance)
 
     return true, balance
 end
