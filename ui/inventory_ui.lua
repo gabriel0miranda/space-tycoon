@@ -49,20 +49,24 @@ end
 
 -- Abre um painel para uma entidade.
 -- config: { title, x, y, readonly }
-function InventoryUI.open(entity, config)
+function InventoryUI.open(entity, configuration)
+    print("Opening all inventory")
+    love.mouse.setVisible(true)
+    love.mouse.setRelativeMode(false)
+    config.Input.pushContext("inventory")
     -- Evita abrir o mesmo inventário duas vezes
     for _, p in ipairs(panels) do
         if p.entity == entity then return end
     end
 
-    config = config or {}
+    configuration = configuration or {}
     table.insert(panels, {
         entity      = entity,
         inventory   = entity.inventory,
-        title       = config.title   or "Inventory",
-        readonly    = config.readonly or false,
-        x           = config.x       or (100 + (#panels * 340)),
-        y           = config.y       or 80,
+        title       = configuration.title   or "Inventory",
+        readonly    = configuration.readonly or false,
+        x           = configuration.x       or (100 + (#panels * 340)),
+        y           = configuration.y       or 80,
         selectedIdx = nil,
         extScroll   = 0,          -- offset de scroll das extensões
         dragging    = false,
@@ -72,6 +76,10 @@ function InventoryUI.open(entity, config)
 end
 
 function InventoryUI.close(entity)
+    print("Closing inventory")
+    love.mouse.setVisible(false)
+    love.mouse.setRelativeMode(true)
+    config.Input.popContext("inventory")
     for i, p in ipairs(panels) do
         if p.entity == entity then
             table.remove(panels, i)
@@ -81,6 +89,10 @@ function InventoryUI.close(entity)
 end
 
 function InventoryUI.closeAll()
+    print("Closing all inventory")
+    love.mouse.setVisible(false)
+    love.mouse.setRelativeMode(true)
+    config.Input.popContext("inventory")
     panels = {}
 end
 
@@ -93,12 +105,8 @@ end
 
 function InventoryUI.toggle(entity, config)
     if InventoryUI.isOpen(entity) then
-        love.mouse.setVisible(false)
-        love.mouse.setRelativeMode(true)
         InventoryUI.close(entity)
     else
-        love.mouse.setVisible(true)
-        love.mouse.setRelativeMode(false)
         InventoryUI.open(entity, config)
     end
 end

@@ -148,6 +148,7 @@ local function buildRows()
 end
 
 function PropertyUI.open()
+    config.Input.pushContext("property")
     open        = true
     scroll      = 0
     selectedKey = nil
@@ -159,6 +160,7 @@ function PropertyUI.open()
 end
 
 function PropertyUI.close()
+    config.Input.popContext("property")
     open       = false
     detailPane = nil
 end

@@ -38,7 +38,20 @@ function love.wheelmoved(dx, dy)
     config.GameState.wheelmoved(dx, dy)
 end
 
+function love.gamepadpressed(joystick, button)
+  config.Input.gamepadpress(button)
+end
+
+function love.gamepadreleased(joystick, button)
+  config.Input.gamepadrelease(button)
+end
+
+function love.gamepadaxis(joystick, axis, value)
+  config.Input.gamepadaxis(axis, value)
+end
+
 love.update = function(dt)
+  config.Input.beginFrame()
   config.GameState.update(dt)
 end
 

@@ -124,8 +124,25 @@ function ShipyardUI.draw(player, station)
   end
 end
 
-function ShipyardUI.toggle() open = not open end
+function ShipyardUI.open()
+  config.Input.pushContext("shipyard")
+  open = true
+end
+
+function ShipyardUI.close()
+  config.Input.popContext("shipyard")
+  open = false
+end
+
 function ShipyardUI.isOpen() return open end
+
+function ShipyardUI.toggle()
+  if ShipyardUI.isOpen() then
+    ShipyardUI.close()
+  elseif not ShipyardUI.isOpen() then
+    ShipyardUI.open()
+  end
+end
 
 function ShipyardUI.textinput(t)
     if isNaming then

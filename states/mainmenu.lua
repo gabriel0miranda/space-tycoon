@@ -1,24 +1,24 @@
 local MainMenu = {}
 
 -- ─────────────────────────────────────────
--- Cores
+-- Cores  (tema marrom/âmbar — igual ao market_ui)
 -- ─────────────────────────────────────────
 
 local C = {
-    bg          = {0.02, 0.03, 0.06, 1},
-    bgBtn       = {0.05, 0.07, 0.13, 1},
-    bgBtnHover  = {0.06, 0.12, 0.21, 1},
-    border      = {0.12, 0.18, 0.26, 1},
-    borderAccent= {0.29, 0.54, 0.83, 1},
-    borderDanger= {0.35, 0.17, 0.17, 1},
-    textNormal  = {0.48, 0.60, 0.73, 1},
-    textBright  = {0.78, 0.85, 0.94, 1},
-    textMuted   = {0.15, 0.25, 0.35, 1},
-    textAccent  = {0.29, 0.54, 0.83, 1},
-    textDanger  = {0.87, 0.43, 0.37, 1},
-    keyNormal   = {0.16, 0.29, 0.42, 1},
-    keyHover    = {0.29, 0.54, 0.83, 1},
-    keyDanger   = {0.87, 0.43, 0.37, 1},
+    bg          = {0.06, 0.03, 0.01, 1},
+    bgBtn       = {0.08, 0.04, 0.02, 1},
+    bgBtnHover  = {0.14, 0.07, 0.02, 1},
+    border      = {0.23, 0.13, 0.05, 1},
+    borderAccent= {0.75, 0.38, 0.13, 1},
+    borderDanger= {0.45, 0.12, 0.06, 1},
+    textNormal  = {0.78, 0.62, 0.42, 1},
+    textBright  = {0.92, 0.78, 0.58, 1},
+    textMuted   = {0.38, 0.22, 0.10, 1},
+    textActive  = {0.88, 0.60, 0.22, 1},
+    textDanger  = {0.87, 0.30, 0.18, 1},
+    keyNormal   = {0.38, 0.22, 0.10, 1},
+    keyHover    = {0.75, 0.38, 0.13, 1},
+    keyDanger   = {0.87, 0.30, 0.18, 1},
 }
 
 -- ─────────────────────────────────────────
@@ -55,8 +55,7 @@ local buttons = {
     { key = "4", label = "Quit",      action = "quit", danger = true  },
 }
 
--- Índice do botão em hover (-1 = nenhum)
-local hoveredBtn = 1  -- começa com "New Game" selecionado
+local hoveredBtn = 1
 
 -- ─────────────────────────────────────────
 -- Geometria
@@ -68,25 +67,21 @@ local function recalcGeometry()
     local sw = love.graphics.getWidth()
     local sh = love.graphics.getHeight()
 
-    -- Bloco de título
     G.titleX = sw / 2
     G.titleY = sh / 2 - 140
 
-    -- Bloco de botões (centralizado)
-    -- 3 botões + 1 divisor entre o 2º e o 3º
     local dividerH = 18
     local totalH   = #buttons * BTN_H + (#buttons - 1) * BTN_GAP + dividerH
     G.btnStartX = sw / 2 - BTN_W / 2
     G.btnStartY = sh / 2 - totalH / 2 + 40
 
-    -- Posições Y de cada botão (pula o divisor antes do quit)
     G.btnY = {}
     local curY = G.btnStartY
-    for i, btn in ipairs(buttons) do
+    for i = 1, #buttons do
         G.btnY[i] = curY
         curY = curY + BTN_H + BTN_GAP
         if i == 2 then
-            curY = curY + dividerH  -- espaço extra antes do Quit
+            curY = curY + dividerH
         end
     end
 
@@ -97,7 +92,6 @@ local function recalcGeometry()
     G.planetY = sh * 0.22
     G.planetR = 55
 
-    -- Footer
     G.footerY = sh - 24
 end
 
@@ -106,18 +100,21 @@ end
 -- ─────────────────────────────────────────
 
 function MainMenu.onEnter()
+    config.Input.pushContext("mainmenu")
     love.mouse.setVisible(true)
+    love.mouse.setRelativeMode(false)
     generateStars()
     recalcGeometry()
     hoveredBtn = 1
 end
 
 function MainMenu.onExit()
+    config.Input.popContext("mainmenu")
     love.mouse.setVisible(false)
+    love.mouse.setRelativeMode(true)
 end
 
 function MainMenu.update(dt)
-    -- Hover via mouse
     local mx, my = love.mouse.getPosition()
     hoveredBtn = -1
     for i = 1, #buttons do
@@ -155,7 +152,6 @@ function MainMenu.keypressed(key)
     if key == "escape" then
         love.event.quit()
     end
-    -- Navegar com setas
     if key == "up" then
         hoveredBtn = math.max(1, (hoveredBtn > 0 and hoveredBtn or 1) - 1)
     end
@@ -185,30 +181,28 @@ local function setColor(c)
 end
 
 local function drawBackground()
-    -- Fundo
     setColor(C.bg)
     love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 
-    -- Estrelas
+    -- Estrelas com tom âmbar/marrom quente em vez de azul-frio
     for _, s in ipairs(stars) do
-        love.graphics.setColor(0.55, 0.63, 0.78, s.a)
+        love.graphics.setColor(0.72, 0.55, 0.32, s.a)
         love.graphics.circle("fill", s.x, s.y, s.r)
     end
 
-    -- Planeta decorativo
-    setColor({0.05, 0.06, 0.10, 1})
+    -- Planeta decorativo — mesmo esquema do landed
+    setColor({0.08, 0.04, 0.02, 1})
     love.graphics.circle("fill", G.planetX, G.planetY, G.planetR)
-    setColor({0.10, 0.14, 0.20, 1})
+    setColor({0.23, 0.13, 0.05, 1})
     love.graphics.circle("line", G.planetX, G.planetY, G.planetR)
 
     -- Núcleo interno
-    setColor({0.03, 0.04, 0.08, 1})
+    setColor({0.04, 0.02, 0.01, 1})
     love.graphics.circle("fill", G.planetX, G.planetY, G.planetR * 0.76)
 
     -- Anel
-    love.graphics.setColor(0.10, 0.16, 0.26, 0.7)
+    love.graphics.setColor(0.20, 0.10, 0.04, 0.7)
     love.graphics.setLineWidth(1)
-    -- simula elipse com um arco escalado
     love.graphics.push()
         love.graphics.translate(G.planetX, G.planetY)
         love.graphics.rotate(-0.2)
@@ -219,7 +213,6 @@ local function drawBackground()
 end
 
 local function drawTitle()
-    -- Título principal
     setColor(C.textBright)
     love.graphics.setFont(config.bigFont)
     local title = "Space Tycoon"
@@ -234,17 +227,17 @@ local function drawTitle()
     -- Subtítulo
     setColor(C.textMuted)
     love.graphics.setFont(config.smallFont)
-    local sub = "a simple space adventure"
+    local sub  = "a simple space adventure"
     local sw2  = config.smallFont:getWidth(sub)
     love.graphics.print(sub, G.titleX - sw2 / 2, G.titleY + config.bigFont:getHeight() + 16)
 end
 
 local function drawButtons()
     for i, btn in ipairs(buttons) do
-        local bx      = G.btnStartX
-        local by      = G.btnY[i]
-        local isHover = hoveredBtn == i
-        local isDanger= btn.danger
+        local bx       = G.btnStartX
+        local by       = G.btnY[i]
+        local isHover  = hoveredBtn == i
+        local isDanger = btn.danger
 
         -- Fundo
         local bg = isHover and C.bgBtnHover or C.bgBtn
@@ -252,8 +245,9 @@ local function drawButtons()
         love.graphics.rectangle("fill", bx, by, BTN_W, BTN_H, 2)
 
         -- Borda
-        local border = isDanger and (isHover and C.borderDanger or C.border)
-                    or (isHover and C.borderAccent or C.border)
+        local border = isDanger
+            and (isHover and C.borderDanger or C.border)
+            or  (isHover and C.borderAccent or C.border)
         setColor(border)
         love.graphics.rectangle("line", bx, by, BTN_W, BTN_H, 2)
 
@@ -266,14 +260,16 @@ local function drawButtons()
 
         -- Tecla de atalho
         love.graphics.setFont(config.smallFont)
-        local keyColor = isDanger and (isHover and C.keyDanger or C.textMuted)
-                      or (isHover and C.keyHover or C.keyNormal)
+        local keyColor = isDanger
+            and (isHover and C.keyDanger  or C.textMuted)
+            or  (isHover and C.keyHover   or C.keyNormal)
         setColor(keyColor)
         love.graphics.print(btn.key, bx + 12, by + BTN_H / 2 - config.smallFont:getHeight() / 2)
 
         -- Label
-        local labelColor = isDanger and (isHover and C.textDanger or C.textNormal)
-                        or (isHover and C.textBright or C.textNormal)
+        local labelColor = isDanger
+            and (isHover and C.textDanger or C.textNormal)
+            or  (isHover and C.textActive or C.textNormal)
         setColor(labelColor)
         love.graphics.setFont(config.normalFont)
         love.graphics.print(btn.label, bx + 34, by + BTN_H / 2 - config.normalFont:getHeight() / 2)

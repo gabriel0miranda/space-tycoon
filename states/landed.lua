@@ -357,6 +357,7 @@ end
 -- ─────────────────────────────────────────
 
 function Landed.onEnter()
+    config.Input.pushContext("landed")
     mousedx, mousedy = love.mouse.getPosition()
     love.mouse.setVisible(true)
     love.mouse.setRelativeMode(false)
@@ -417,6 +418,8 @@ function Landed.onEnter()
 end
 
 function Landed.onExit()
+    activePanel = "none"
+    config.Input.popContext("landed")
     love.mouse.setVisible(false)
     love.mouse.setRelativeMode(true)
     if playerFlagShip and playerFlagShip.rigidbody and playerFlagShip.rigidbody.body then
@@ -450,9 +453,9 @@ function Landed.update(dt)
     config.InventoryUI.update(dt)
     config.MarketUI.update(dt)
 
-    if config.Input.state.inventory then
+    if config.Input.state.ui_inventory then
         config.InventoryUI.toggle(playerFlagShip, { title = "Freight Bay" })
-        config.Input.state.inventory = false
+        config.Input.state.ui_inventory = false
     end
 
     -- Hover dos botões (apenas quando market não está aberto)
@@ -471,7 +474,7 @@ function Landed.update(dt)
         end
     end
 
-    if activePanel == "depart" or config.Input.state.launch then
+    if activePanel == "depart" or config.Input.state.ship_launch then
       handleDepart()
     end
 end

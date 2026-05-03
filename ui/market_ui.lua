@@ -126,6 +126,7 @@ end
 -- ─────────────────────────────────────────
 
 function MarketUI.open(shipEntity, stationEntity)
+    config.Input.pushContext("market")
     ship      = shipEntity
     station   = stationEntity
     open      = true
@@ -143,6 +144,7 @@ function MarketUI.open(shipEntity, stationEntity)
 end
 
 function MarketUI.close()
+    config.Input.popContext("market")
     open = false
     ship = nil
     station = nil

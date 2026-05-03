@@ -2,15 +2,19 @@ local Playing = {}
 
 local playerFlagShip = nil
 local armedEntities = {}
+local landCooldown = 0
 
 function Playing.onEnter(params)
+  config.Input.pushContext("playing")
   playerFlagShip = config.Entities.with("isFlagShip")[1]
   armedEntities = config.Entities.with("weapon")
   config.InventoryUI.load()
   if params and params.resuming then
+    landCooldown = 1.5
     print("Unfreezing")
     config.WorldManager:unfreeze()
   else
+    local landCooldown = 0
     config.WorldManager.loadSystem(config.WorldManager.currentSystemId)
     playerFlagShip.inventory:add("Cocaine",12)
     print("Started playing")
@@ -25,6 +29,7 @@ function Playing.onEnter(params)
 end
 
 function Playing.onExit()
+  config.Input.popContext("playing")
   print("Exiting playing state")
 end
 
@@ -45,6 +50,9 @@ local function ast_radius(ast)
 end
 
 function Playing.update(dt)
+  if landCooldown > 0 then
+      landCooldown = landCooldown - dt
+  end
   if config.Input.state.paused then return end
   if not playerFlagShip or not playerFlagShip.rigidbody or not playerFlagShip.rigidbody.body or playerFlagShip.rigidbody.body:isDestroyed() then return end
 
@@ -75,7 +83,7 @@ function Playing.update(dt)
     local sx, sy = playerFlagShip.rigidbody.body:getX(), playerFlagShip.rigidbody.body:getY()
     local dx = sx - l.x
     local dy = sy - l.y
-    if dx*dx + dy*dy < (l.radius + 40)^2 and config.Input.state.land then
+    if dx*dx + dy*dy < (l.radius + 40)^2 and config.Input.state.land and landCooldown <= 0 then
         playerFlagShip.landedAt = l
         config.WorldManager:freeze()
         config.GameState.switch("landed")
@@ -84,20 +92,17 @@ function Playing.update(dt)
     end
   end
 
-  if config.Input.state.mainmenu then
-    config.Input.state.mainmenu = false
+  if config.Input.state.ui_mainmenu then
     config.GameState.switch("mainmenu")
   end
 
-  if config.Input.state.inventory then
+  if config.Input.state.ui_inventory then
     config.InventoryUI.toggle(playerFlagShip,{title = "Your Ship"} )
-    config.Input.state.inventory = false
   end
   config.InventoryUI.update(dt)
 
-  if config.Input.state.properties then
+  if config.Input.state.ui_properties then
     config.PropertyUI.toggle()
-    config.Input.state.properties = false
   end
   config.PropertyUI.update(dt)
 
