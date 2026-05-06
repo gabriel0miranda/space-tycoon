@@ -158,6 +158,9 @@ function MarketUI.isOpen() return open end
 
 function MarketUI.update(dt)
     if not open then return end
+    if config.Input.state.ui_cancel then
+      MarketUI.close()
+    end
     if msgTimer > 0 then msgTimer = msgTimer - dt end
 end
 
@@ -170,10 +173,8 @@ end
 local btnRects = {}  -- populado no draw
 
 function MarketUI.keypressed(key)
-  if key == "escape" then
-    MarketUI.close()
-  end
 end
+
 function MarketUI.mousepressed(mx, my, button)
     if not open then return end
     if button ~= 1 then return end
@@ -440,11 +441,12 @@ function MarketUI.draw()
     love.graphics.setFont(config.normalFont)
     love.graphics.print(sign .. balance .. " cr", PX + PAD + 56, footerY + 11)
 
+    local player = config.Entities.getByTag("player")[1]
     -- Créditos do jogador
-    if ship and ship.credits then
+    if player and player.credits then
         sc(C.textMuted)
         love.graphics.setFont(config.smallFont)
-        love.graphics.print("Credits: " .. ship.credits.amount, PX + PAD + 160, footerY + 14)
+        love.graphics.print("Credits: " .. player.credits.amount, PX + PAD + 160, footerY + 14)
     end
 
     -- Botão Confirmar

@@ -13,8 +13,8 @@ Este é um jogo de exploração espacial bem simples e bastante ambicioso. O nom
         [x] Quit
     - Funcionalidade
         [x] Controle pelo teclado via números
-        [ ] Controle pelo teclado via direcionais
-        [ ] Controle pelo mouse
+        [x] Controle pelo teclado via direcionais
+        [x] Controle pelo mouse
         [ ] Controle pelo gamepad
         [x] Inicia novo jogo
         [ ] Seleciona jogo salvo e continua
@@ -29,7 +29,6 @@ Este é um jogo de exploração espacial bem simples e bastante ambicioso. O nom
         [ ] Controle pelo mouse
         [ ] Controle pelo gamepad
         [x] Movimento de naves
-        [x] Movimento de asteróides (gravitação)
         [x] Sistema de controle de reação (RCS)
 - Sistemas Estelares
     - Entidades
@@ -40,4 +39,5 @@ Este é um jogo de exploração espacial bem simples e bastante ambicioso. O nom
         [x] Buracos de minhoca
         [x] NPC
     - Funcionalidades
-        
+        [x] Movimento de asteróides (gravitação)
+               

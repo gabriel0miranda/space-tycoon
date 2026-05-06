@@ -181,6 +181,9 @@ function PropertyUI.isOpen() return open end
 
 function PropertyUI.update(dt)
     if not open then return end
+    if config.Input.state.ui_cancel then
+      PropertyUI.close()
+    end
     if love.mouse.isDown(1) and dragging then
         local mx, my = love.mouse.getPosition()
         PX = mx - dragOffX
@@ -188,6 +191,9 @@ function PropertyUI.update(dt)
     elseif not love.mouse.isDown(1) then
         dragging = false
     end
+end
+
+function PropertyUI.keypressed(key)
 end
 
 function PropertyUI.mousepressed(mx, my, button)

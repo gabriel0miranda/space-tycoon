@@ -51,14 +51,14 @@ end
 function GameState.mousepressed(x, y, button)
   local state = stateModules[GameState.current]
   if state and state.mousepressed then
-    state:mousepressed(x, y, button)
+    state.mousepressed(x, y, button)
   end
 end
 
 function GameState.wheelmoved(dx, dy)
   local state = stateModules[GameState.current]
-  if state and state.wwheelmoved then
-    state:wheelmoved(dx, dy)
+  if state and state.wheelmoved then
+    state.wheelmoved(dx, dy)
   end
 end
 

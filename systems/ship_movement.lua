@@ -28,23 +28,25 @@ end
 
 local function applyPlayerInput(ship)
     local intent = ship.intent
-    local input  = config.Input.state
 
-    intent.thrust = (input.thrust and 1 or 0) + (input.brake and -1 or 0)
-    intent.strafe = (input.right and -1 or 0) + (input.left and 1 or 0)
-    intent.strafeV = (input.up and -1 or 0) + (input.down and 1 or 0)
+    intent.thrust = (config.Input.state.ship_thrust and 1 or 0) + (config.Input.state.ship_brake and -1 or 0)
+    intent.strafe = (config.Input.state.ship_strafe_right and -1 or 0) + (config.Input.state.ship_strafe_left and 1 or 0)
+    intent.strafeV = (config.Input.state.ship_strafe_up and -1 or 0) + (config.Input.state.ship_strafe_down and 1 or 0)
 
-    if input.rotateLeft then
+    if config.Input.state.ship_rotate_left then
         intent.torque      = -1
-        intent.dampAngular = false
+        --intent.dampAngular = false
         intent.targetAngle = nil
-    elseif input.rotateRight then
+    elseif config.Input.state.ship_rotate_right then
         intent.torque      = 1
-        intent.dampAngular = false
+        --intent.dampAngular = false
         intent.targetAngle = nil
     else
         intent.torque      = 0
-        intent.dampAngular = input.rcs
+    end
+
+    if config.Input.state.ship_rcs_toggle then
+      intent.dampAngular = not intent.dampAngular
     end
 
     intent.dampLinear = ship.inertiaDampeners

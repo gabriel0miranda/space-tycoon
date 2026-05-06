@@ -6,8 +6,6 @@ love.load = function()
   config.GameState.register("playing", config.PlayingState)
   config.GameState.register("landed", config.LandedState)
 
-  config.PlayerEntity("NewPlayer")
-
   config.WorldManager.systems = config.Systems
 
   config.GameState.switch("mainmenu")
@@ -28,6 +26,10 @@ end
 love.keyreleased = function(released_key)
   config.GameState.keyreleased(released_key)
   config.Input.release(released_key)
+end
+
+function love.textinput(char)
+    config.TextInputUI.textinput(char)
 end
 
 function love.mousepressed(x, y, button)

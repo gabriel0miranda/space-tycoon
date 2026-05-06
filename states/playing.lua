@@ -14,17 +14,19 @@ function Playing.onEnter(params)
     print("Unfreezing")
     config.WorldManager:unfreeze()
   else
-    local landCooldown = 0
-    config.WorldManager.loadSystem(config.WorldManager.currentSystemId)
-    playerFlagShip.inventory:add("Cocaine",12)
-    print("Started playing")
-    config.Camera.x = 0
-    config.Camera.y = 0
+    landCooldown = 1.5
+    if playerFlagShip.landedAt then
+        config.WorldManager:freeze()
+        config.GameState.switch("landed")
+    end
+    print("Entered space")
+    config.Camera.x = playerFlagShip.rigidbody.body:getX()
+    config.Camera.y = playerFlagShip.rigidbody.body:getY()
     config.Camera.scale = 0.2
     config.Camera.rotation = 0
     config.Camera.smoothSpeed = 8
-    config.Camera.targetX = 0
-    config.Camera.targetY = 0
+    config.Camera.targetX = playerFlagShip.rigidbody.body:getX()
+    config.Camera.targetY = playerFlagShip.rigidbody.body:getY()
   end
 end
 
@@ -110,10 +112,10 @@ function Playing.update(dt)
 end
 
 function Playing.keypressed(key)
-    --if config.PropertyUI.isOpen() then
-    --  config.PropertyUI.keypressed(key)
-    --  return
-    --end
+    if config.PropertyUI.isOpen() then
+      config.PropertyUI.keypressed(key)
+      return
+    end
 
     if config.InventoryUI.isOpen() then
       config.InventoryUI.keypressed(key)
@@ -121,7 +123,7 @@ function Playing.keypressed(key)
     end
 end
 
-function Playing.mousepressed(_, mx, my, button)
+function Playing.mousepressed(mx, my, button)
     if config.PropertyUI.isOpen() then
       config.PropertyUI.mousepressed(mx, my, button)
       return

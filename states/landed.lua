@@ -5,12 +5,14 @@ local Landed = {}
 -- ─────────────────────────────────────────
 
 local playerFlagShip        = nil
+local player        = nil
 local activePanel = "trade"
 local allButtonsFlat = {}
 local hoveredBtn  = nil
 local leftButtons = {}
 local rightButtons= {}
 local mousedx, mousedy
+local showLocationDesc = false  -- true: painel central exibe descrição do local
 
 -- ─────────────────────────────────────────
 -- Mapeamentos
@@ -88,7 +90,6 @@ local function getOwnedShipsCount(player)
 end
 
 local function handleDepart()
-  local player = config.Entities.getByTag("player")[1]
   local shipsCount = getOwnedShipsCount(player)
   if shipsCount > 1 then
     -- Ativa um estado de UI para o jogador escolher a nave
@@ -362,23 +363,27 @@ function Landed.onEnter()
     love.mouse.setVisible(true)
     love.mouse.setRelativeMode(false)
     playerFlagShip = config.Entities.with("isFlagShip")[1]
+    player = config.Entities.getByTag("player")[1]
 
     -- Transição de wormhole
     if playerFlagShip.landedAt and playerFlagShip.landedAt.toSystem then
-        local targetSystem      = playerFlagShip.landedAt.toSystem
-        local currentSystemName = config.WorldManager.systems[config.WorldManager.currentSystemId].name
-        config.WorldManager.loadSystem(targetSystem)
-        local entries = config.WorldManager.systems[targetSystem].wormholes or {}
-        local entryX, entryY = 0, 0
-        for _, entry in ipairs(entries) do
-            if entry.name == "To " .. currentSystemName then
-                entryX, entryY = entry.x, entry.y
-            end
-        end
-        playerFlagShip.rigidbody.body:setPosition(entryX, entryY)
-        playerFlagShip.rigidbody.body:setLinearVelocity(0, 0)
-        config.GameState.switch("playing")
-        return
+      local targetSystem      = playerFlagShip.landedAt.toSystem
+      local currentSystemName = config.WorldManager.systems[config.WorldManager.currentSystemId].name
+      config.WorldManager.loadSystem(targetSystem)
+      local entries = config.WorldManager.systems[targetSystem].wormholes or {}
+      local entryX, entryY = 0, 0
+      for _, entry in ipairs(entries) do
+          if entry.name == "To " .. currentSystemName then
+              entryX, entryY = entry.x, entry.y
+          end
+      end
+      playerFlagShip.rigidbody.body:setPosition(entryX, entryY)
+      playerFlagShip.rigidbody.body:setLinearVelocity(0, 0)
+      playerFlagShip.rigidbody.body:setAngularVelocity(0)
+      playerFlagShip.rigidbody.body:setActive(true)
+      config.WorldManager.snapshot = nil
+      config.GameState.switch("playing", {resuming=false})
+      return
     end
 
     -- Gera estoque do mercado na primeira visita
@@ -407,6 +412,7 @@ function Landed.onEnter()
 
     activePanel = allButtonsFlat[1].key
     hoveredBtn = allButtonsFlat[1].key
+    showLocationDesc = true
     recalcGeometry()
 
     if playerFlagShip.rigidbody and playerFlagShip.rigidbody.body then
@@ -430,18 +436,29 @@ function Landed.onExit()
         )
     end
     playerFlagShip.landedAt = nil
-    playerFlagShip = nil
-    config.MarketUI.close()
-    config.InventoryUI.closeAll()
+    if config.MarketUI.isOpen then
+      config.MarketUI.close()
+    end
+    if config.InventoryUI.isOpen() then
+      config.InventoryUI.closeAll()
+    end
+    if config.PropertyUI.isOpen() then
+      config.PropertyUI.close()
+    end
+    if config.ShipyardUI.isOpen() then
+      config.ShipyardUI.close()
+    end
     print("Launched into space")
 end
 
 local function activateButton(key)
+    showLocationDesc = false  -- qualquer botão descarta a descrição inicial
     if key == "trade" and playerFlagShip.landedAt and config.Landables[playerFlagShip.landedAt.name].market then
+      activePanel = "trade"
       config.MarketUI.open(playerFlagShip, playerFlagShip.landedAt)
     elseif key == "shipyard" and playerFlagShip.landedAt and config.Landables[playerFlagShip.landedAt.name].shipyard then
       activePanel = "shipyard"
-      config.ShipyardUI.toggle()
+      config.ShipyardUI.toggle(playerFlagShip, playerFlagShip.landedAt)
     elseif key == "depart" then
       handleDepart()
     else
@@ -454,8 +471,10 @@ function Landed.update(dt)
     config.MarketUI.update(dt)
 
     if config.Input.state.ui_inventory then
-        config.InventoryUI.toggle(playerFlagShip, { title = "Freight Bay" })
-        config.Input.state.ui_inventory = false
+        config.InventoryUI.toggle(playerFlagShip, { title = "Freight Bay",
+                                                    state = "landed",
+                                                  })
+        config.Input.consume("ui_inventory")
     end
 
     -- Hover dos botões (apenas quando market não está aberto)
@@ -486,7 +505,11 @@ function Landed.textinput(t)
 end
 
 function Landed.keypressed(key)
-    -- Se o mercado estiver aberto, ele domina o input
+    -- Se a UI estiver aberta, ela domina o input
+    if config.TextInputUI.isOpen() then
+      config.TextInputUI.keypressed(key)
+      return
+    end
     if config.MarketUI.isOpen() then
       config.MarketUI.keypressed(key)
       return
@@ -530,16 +553,27 @@ function Landed.keypressed(key)
     hoveredBtn = allButtonsFlat[nextIndex].key
 end
 
-function Landed.mousepressed(_, mx, my, button)
+function Landed.mousepressed(mx, my, button)
     -- Market UI tem prioridade
     if config.MarketUI.isOpen() then
         config.MarketUI.mousepressed(mx, my, button)
+        return
+    end
+    if config.ShipyardUI.isOpen() then
+        config.ShipyardUI.mousepressed(mx, my, button)
         return
     end
 
     config.InventoryUI.mousepressed(mx, my, button)
 
     if button == 1 then
+        -- Clique na cena → mostra descrição do local
+        if mx >= G.sceneX and mx <= G.sceneX + G.sceneW
+        and my >= G.sceneY and my <= G.sceneY + G.sceneH then
+            showLocationDesc = true
+            return
+        end
+
         local rects = getButtonRects()
         for key, r in pairs(rects) do
             if pointInRect(mx, my, r) then
@@ -564,12 +598,15 @@ end
 function Landed.draw()
     local landedData = config.Landables[playerFlagShip.landedAt.name]
     local panelData  = landedData.buttons and landedData.buttons[activePanel]
-    local panelTitle = buttonLabels[activePanel] or activePanel
     local panelScene = buttonScenes[activePanel] or "station"
-    local panelText  = {}
+    local panelTitle, panelText
 
-    if panelData then
-        panelText = wrapText(panelData.description or "", 52)
+    if showLocationDesc then
+        panelTitle = landedData.name or "Unknown"
+        panelText  = wrapText(landedData.description or "", 52)
+    else
+        panelTitle = buttonLabels[activePanel] or activePanel
+        panelText  = panelData and wrapText(panelData.description or "", 52) or {}
     end
 
     -- Fundo
@@ -656,7 +693,7 @@ function Landed.draw()
 
     -- Market UI e Inventory UI por cima de tudo
     config.MarketUI.draw()
-    config.ShipyardUI.draw()
+    config.ShipyardUI.draw(player,playerFlagShip.landedAt)
     config.InventoryUI.draw()
 
     love.graphics.setColor(1, 1, 1, 1)

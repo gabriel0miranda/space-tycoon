@@ -16,7 +16,8 @@ return function(x, y, owner, flagShip, name, type)
   body:setAngle(0)
 
   return config.Entities.create('ship', {
-    name        = def.name,
+    name      = name,
+    type      = type,
     rigidbody = config.RigidbodyComponent(body, fixtures[1].fixture),
     fixtures  = fixtures,   -- todas as partes ficam aqui
     inertiaDampeners = true,
@@ -32,7 +33,7 @@ return function(x, y, owner, flagShip, name, type)
     inventory   = config.InventoryComponent(def.cargo),
     layer       = 2,
     persistent  = true,
-    isFlagShip  = true,
+    isFlagShip  = flagShip,
     landedAt    = nil,
   })
 end

@@ -26,7 +26,7 @@ end
 function WorldManager.unfreeze()
   if not WorldManager.snapshot then return end
   for _, s in ipairs(WorldManager.snapshot) do
-    if s.entity.rigidbody and s.entity.rigidbody.body then
+    if s.entity.rigidbody and s.entity.rigidbody.body and not s.entity.rigidbody.body:isDestroyed() then
       s.entity.rigidbody.body:setPosition(s.x, s.y)
       s.entity.rigidbody.body:setLinearVelocity(s.vx, s.vy)
       s.entity.rigidbody.body:setAngle(s.angle)

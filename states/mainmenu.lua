@@ -50,12 +50,38 @@ local BTN_H   = 34
 local BTN_GAP = 4
 
 local buttons = {
-    { key = "1", label = "New Game",  action = "new",  danger = false },
-    { key = "2", label = "Continue",  action = "cont", danger = false },
-    { key = "4", label = "Quit",      action = "quit", danger = true  },
+    { key = "1", label = "Novo Jogo",  action = "new",  danger = false },
+    { key = "2", label = "Continuar",  action = "cont", danger = false },
+    { key = "3", label = "Controles",  action = "control", danger = false },
+    { key = "4", label = "Sair",      action = "quit", danger = true  },
 }
 
 local hoveredBtn = 1
+
+local function executeAction(action)
+  if action == "new" then
+    local playerName
+    local chosenStart = config.Starts["Young Noobinobi"]
+    config.TextInputUI.open({
+      title = "Nome de Jogador",
+      placeholder = "Carados Paço",
+      maxLenght = 32,
+      onConfirm = function(text)
+        playerName = text
+        config.PlayerEntity(chosenStart, playerName)
+        config.WorldManager.loadSystem(chosenStart.starting_systemId)
+        config.GameState.switch("playing")
+      end,
+      onCancel = function() end,
+    })
+  elseif action == "cont" then
+      -- TODO: implementar save/load
+  elseif action == "control" then
+      -- TODO: implementar tela de controles
+  elseif action == "quit" then
+      love.event.quit()
+  end
+end
 
 -- ─────────────────────────────────────────
 -- Geometria
@@ -116,7 +142,6 @@ end
 
 function MainMenu.update(dt)
     local mx, my = love.mouse.getPosition()
-    hoveredBtn = -1
     for i = 1, #buttons do
         local bx = G.btnStartX
         local by = G.btnY[i]
@@ -125,9 +150,14 @@ function MainMenu.update(dt)
             break
         end
     end
+    config.TextInputUI.update(dt)
 end
 
 function MainMenu.mousepressed(mx, my, button)
+    if config.TextInputUI.isOpen() then
+        config.TextInputUI.mousepressed(mx, my, button)
+        return
+    end
     if button ~= 1 then return end
     for i = 1, #buttons do
         local bx = G.btnStartX
@@ -140,36 +170,28 @@ function MainMenu.mousepressed(mx, my, button)
 end
 
 function MainMenu.keypressed(key)
-    for _, btn in ipairs(buttons) do
-        if key == btn.key then
-            executeAction(btn.action)
-            return
-        end
+  if config.TextInputUI.isOpen() then
+    config.TextInputUI.keypressed(key)
+    return
+  end
+  for _, btn in ipairs(buttons) do
+    if key == btn.key then
+      executeAction(btn.action)
+      return
     end
-    if key == "return" then
-        executeAction(buttons[hoveredBtn > 0 and hoveredBtn or 1].action)
-    end
-    if key == "escape" then
-        love.event.quit()
-    end
-    if key == "up" then
-        hoveredBtn = math.max(1, (hoveredBtn > 0 and hoveredBtn or 1) - 1)
-    end
-    if key == "down" then
-        hoveredBtn = math.min(#buttons, (hoveredBtn > 0 and hoveredBtn or 1) + 1)
-    end
-end
-
-function executeAction(action)
-    if action == "new" then
-        config.GameState.switch("playing")
-    elseif action == "cont" then
-        -- TODO: implementar save/load
-    elseif action == "control" then
-        -- TODO: implementar tela de controles
-    elseif action == "quit" then
-        love.event.quit()
-    end
+  end
+  if key == "return" then
+    executeAction(buttons[hoveredBtn > 0 and hoveredBtn or 1].action)
+  end
+  if key == "escape" then
+    love.event.quit()
+  end
+  if key == "up" then
+    hoveredBtn = math.max(1, (hoveredBtn > 0 and hoveredBtn or 1) - 1)
+  end
+  if key == "down" then
+    hoveredBtn = math.min(#buttons, (hoveredBtn > 0 and hoveredBtn or 1) + 1)
+  end
 end
 
 -- ─────────────────────────────────────────
@@ -294,6 +316,7 @@ function MainMenu.draw()
     drawButtons()
     drawFooter()
     love.graphics.setColor(1, 1, 1, 1)
+    config.TextInputUI.draw()
 end
 
 return MainMenu

@@ -2,23 +2,23 @@ local InventoryUI = {}
 
 -- Cores por categoria de item
 local itemColors = {
-    rare     = {0.91, 0.75, 0.37, 1},
-    uncommon = {0.37, 0.72, 0.44, 1},
-    danger   = {0.87, 0.43, 0.37, 1},
-    default  = {0.78, 0.81, 0.88, 1},
+    rare     = {0.95, 0.75, 0.20, 1},
+    uncommon = {0.38, 0.22, 0.10, 1},
+    danger   = {0.87, 0.30, 0.18, 1},
+    default  = {0.75, 0.38, 0.13, 1},
 }
 
 -- Cores da UI
 local colors = {
-    bg          = {0.10, 0.12, 0.18, 1},
-    bgDark      = {0.05, 0.07, 0.13, 1},
-    bgHover     = {0.12, 0.16, 0.25, 1},
-    bgSelected  = {0.10, 0.19, 0.33, 1},
-    border      = {0.23, 0.29, 0.42, 1},
-    borderAccent= {0.29, 0.54, 0.83, 1},
-    textPrimary = {0.78, 0.81, 0.88, 1},
-    textMuted   = {0.42, 0.53, 0.67, 1},
-    headerBg    = {0.07, 0.09, 0.16, 1},
+    bg          = {0.06, 0.03, 0.01, 0.97},
+    bgDark      = {0.04, 0.02, 0.01, 1},
+    bgHover     = {0.12, 0.06, 0.02, 1},
+    bgSelected  = {0.16, 0.08, 0.02, 1},
+    border      = {0.23, 0.13, 0.05, 1},
+    borderAccent= {0.75, 0.38, 0.13, 1},
+    textPrimary = {0.78, 0.62, 0.42, 1},
+    textMuted   = {0.38, 0.22, 0.10, 1},
+    headerBg    = {0.08, 0.04, 0.02, 1},
 }
 
 -- Estado interno: lista de painéis abertos
@@ -75,10 +75,12 @@ function InventoryUI.open(entity, configuration)
     })
 end
 
-function InventoryUI.close(entity)
+function InventoryUI.close(entity, configuration)
     print("Closing inventory")
-    love.mouse.setVisible(false)
-    love.mouse.setRelativeMode(true)
+    if configuration.state ~= "landed" then
+      love.mouse.setVisible(false)
+      love.mouse.setRelativeMode(true)
+    end
     config.Input.popContext("inventory")
     for i, p in ipairs(panels) do
         if p.entity == entity then
@@ -97,6 +99,9 @@ function InventoryUI.closeAll()
 end
 
 function InventoryUI.isOpen(entity)
+    if entity == nil then
+        return #panels > 0
+    end
     for _, p in ipairs(panels) do
         if p.entity == entity then return true end
     end
@@ -105,7 +110,7 @@ end
 
 function InventoryUI.toggle(entity, config)
     if InventoryUI.isOpen(entity) then
-        InventoryUI.close(entity)
+        InventoryUI.close(entity, config)
     else
         InventoryUI.open(entity, config)
     end
@@ -116,6 +121,9 @@ end
 -- ─────────────────────────────────────────
 
 function InventoryUI.update(dt)
+    if config.Input.state.ui_cancel then
+      InventoryUI.closeAll()
+    end
     if love.mouse.isDown(1) then
         for _, p in ipairs(panels) do
             if p.dragging then
@@ -186,6 +194,9 @@ function InventoryUI.mousepressed(mx, my, button)
             return
         end
     end
+end
+
+function InventoryUI.keypressed(key)
 end
 
 function InventoryUI.wheelmoved(dx, dy)

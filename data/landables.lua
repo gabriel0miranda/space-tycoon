@@ -1,17 +1,23 @@
 return {
 ["Merle's Refuge"] =  {
-  name = "Merle's Refuge",
-  description = "This planet serves as a tranquil paradise for the rich noobinians. The absolute safety of the system and temperate climate of the planet created a truly hedonistic population. This level of welfare is only possible due to the very lucrative ore mining business.",
+  name = "Refúgio de Merle",
+  description = "Esse planeta serve como um paraíso tranquilo aos noobinianos ricos, aposentados e desocuptados. A segurança absoluta do sistema e o clima temperado do planeta criaram uma população verdadeiramente hedonista. Esse nível de bem estar só é possível por conta do mercado extremamente lucrativo de mineração.",
   x =  200,
   y =-1100,
   radius = 300,
   type = "planet",
   color = {25/255, 134/255, 201/255},
   buttons = {
-    spaceport = { description = "The spaceport is filled to the brim with noobinians, it's always high season in Merle's Refuge." },
-    bar       = { description = "A very high end bar." },
-    bank      = { description = "This is a giant bank agency, it's while columns tower over you, and the weight of money materializes in a giant bull statue held high by a thick pillar."},
+    spaceport = { description = "O porto espacial é cheio até a boca de noobinianos, é sempre alta temporada no Refúgio de Merle."},
+    bar       = { description = "Um bar bem chique e noir. A nobreza noobinobi aprecisa momentos de descontração calmos e elegantes." },
+    bank      = { description = "Essa é uma agência bancária gigantesca, suas colunas brancas se impõem sobre você, e o peso do dinheiro é materializado na forma de uma estátua enorme de touro suspendida num pedestal grosso."},
     trade     = {},
+    shipyard  = {},
+  },
+  shipyard = {
+    stock = {
+    "PP-2340","NN-Interceptor","NN-Gunship","NN-Dreadnought"
+    },
   },
   market = {
     capacity = 20000,
@@ -23,17 +29,17 @@ return {
   },
 },
 ["Mother's Heart"] =  {
-  name = "Mother's Heart",
-  description = "The home planet of the Noobi Empire, a very pretentious regime that took over the Noobinobi, the alien race they belong to. The Empire tried for many years to invade the free systems that lie beyond The Wall, but ended up bankrupt and deep in a food crisis that was only resolved once the Grand Noobi Navy (GNN) redirected troops to man the fertile fields of Mother's Heart.",
+  name = "Coração de Mãe",
+  description = "O planeta principal do Empério Noobi, um regime pretencioso que consolidou o povo Noobinobi. O Emperio tentou, por vários anos, invadir um sistemas livres que se estendem além da Parede, mas acabou falido e numa onda de fome que só se resolveu quando a Grande Frota Noobi (GNN) redirecionou suas tropas para tender os campos do Coração de Mãe",
   x =  1200,
   y = -1800,
   radius = 300,
   type = "planet",
   color = {78/255, 183/255, 64/255},
   buttons = {
-    spaceport = { description = "An amazing green field extends in every direction around the crowded spaceport From here you can take the electric bullet train straight to the planet's capital, Noobinori." },
-    bar       = { description = "The smell of fresh mowed grass fills the air around the bar's open area. It's a nice place to read a book and sip on a drink." },
-    bank      = { description = "A very small Galaxy Bank unit. There's one sad attendant behind a glass pane calling people's tickets."},
+    spaceport = { description = "Um enorme campo verde se extente em todas as direções em volta do porto espacial. Daqui você pode pegar um trem bala direto para a capital do Coração de Mãe." },
+    bar       = { description = "O cheiro de grama fresca e o vento do campo é extremamente agradável quando se tenta aproveitar uma boa bebida. Homens e mulheres de todas as castas se reunem nos bares do Coração de Mãe." },
+    bank      = { description = "Esta agência do Banco Galático é arejada e espaçosa, alguns clientes trazem seus animais para negociar empréstimos rurais."},
     trade     = {},
   },
   market = {
@@ -44,18 +50,18 @@ return {
   },
 },
 ["Trading Station"] = {
-  name = "Trading Station",
-  description = "This is a trading station, many trading booths and lounges lay in waiting for great exchanges of goods, favours and power.",
+  name = "Estação de Troca",
+  description = "Essa é uma estação de troca, muitas câmaras de troca e louges esperam por grandes câmbios de bens, favores e poder.",
   x = -900,
   y = -400,
   radius = 60,
   type = "station",
   color = {1/255, 125/255, 137/255},
   buttons = {
-    spaceport = { description = "An amazing green field extends in every direction around the crowded spaceport From here you can take the electric bullet train straight to the planet's capital, Noobinori." },
-    bar       = { description = "The smell of fresh mowed grass fills the air around the bar's open area. It's a nice place to read a book and sip on a drink." },
-    bank      = { description = "A very small Galaxy Bank unit. There's one sad attendant behind a glass pane calling people's tickets."},
-    trade     = {},
+    spaceport = { description = "A doca da estação é minúscula, a maioria dos visitantes nem mesmo para para fazer negócios." },
+    bar       = { description = "Um bar escuro e neblinoso, apenas os negócios mais obscuros se realizam nas cabines privadas." },
+    bank      = { description = "Uma pequena agência do Banco Galático. A atendente entediada do outro lado do vidro chama os clientes por senha."},
+    trade     = { description = "O som de comércio, dinheiro e telefones tocando monta uma sinfonia aterrorizante, você se recolhe e senta em um dos terminais de troca, o uso dos headphones abafadores dos terminais é uma necessidade aqui."},
   },
   market = {
     capacity = 20000,
@@ -65,16 +71,15 @@ return {
   },
 },
 ["Mining Depot"] =   {
-  name        = "Mining Depot",
-  description = "A big warehouse that starts the path of metal ores through the industrial pipeline. This facility buys and stores metal ore, in waiting for the freighters that deliver the material to the refineries.",
+  name        = "Depósito de Mineração",
+  description = "Um enorme armazem de minérios que inicia o caminho do metal pela indústria galática. Aguardando silenciosamente pelos cargueiros que vendem e compram minérios.",
   x      = 1200,
   y      = 600,
   radius = 120,
   type   = "station",
   color  = {170/255, 154/255, 3/255},
   buttons = {
-  trade = { description = "Station market. Metals are always in high demand here." },
-  bar   = { description = "A crowded bar. Pilots share routes and rumors." },
+  trade = { description = "Uma doca de compra e venda. Minérios estão sempre em alta demanda aqui." },
   },
   market = {
   capacity = 20000,
@@ -91,17 +96,15 @@ return {
   },
 },
 ["Metal Refinery"] = {
-  name = "Metal Refinery",
-  description = "A floating foundry that purifies the metal from ore. The station is almost completely autonomously operated, except for the small crew that manages a little trading hub anexed to the melting warehouse.",
+  name = "Refinaria de Metal",
+  description = "Uma fundição flutuante que opera quase que autonomamente. Apenas alguns funcionários residem na estação e gerenciam um pequeno armazem de trocas anexado à estação.",
   x = 500,
   y = -800,
   radius = 100,
   type = "station",
   color = {1/255, 125/255, 137/255},
   buttons = {
-    spaceport = { description = "An amazing green field extends in every direction around the crowded spaceport From here you can take the electric bullet train straight to the planet's capital, Noobinori." },
-    bar       = { description = "The smell of fresh mowed grass fills the air around the bar's open area. It's a nice place to read a book and sip on a drink." },
-    bank      = { description = "A very small Galaxy Bank unit. There's one sad attendant behind a glass pane calling people's tickets."},
+    spaceport = { description = "A doca é simples e eficiente." },
     trade     = {},
   },
   market = {
@@ -112,17 +115,16 @@ return {
   },
 },
 ["Shipyard"] = {
-  name = "Shipyard",
-  description = "The Shipyard is a very pragmatic place. Giant elevators and conveyor belts allow the potential buyer to find the desired ship, by asking the little computer on one of the landing bays, and take it for a test flight.",
+  name = "Estaleiro",
+  description = "O Estaleiro é um lugar bastante pragmático. Elevadores gigantes rotacionam as naves em cada doca, trazendo aquelas escolhidas pelos compradores em um computador falante.",
   x = -500,
   y = 900,
   radius = 80,
   type = "station",
   color = {1/255, 125/255, 137/255},
   buttons = {
-    spaceport = { description = "An amazing green field extends in every direction around the crowded spaceport From here you can take the electric bullet train straight to the planet's capital, Noobinori." },
-    bar       = { description = "The smell of fresh mowed grass fills the air around the bar's open area. It's a nice place to read a book and sip on a drink." },
-    bank      = { description = "A very small Galaxy Bank unit. There's one sad attendant behind a glass pane calling people's tickets."},
+    bar       = { description = "Um pequeno café serve drinks diversos e comida de dedo para os clientes que aguardam reparos e despachos de documentos." },
+    bank      = { description = "Um mínusculo caixa eletrônico do Banco Galático."},
     shipyard  = {},
   },
   shipyard = {
@@ -132,17 +134,16 @@ return {
   },
 },
 ["Golden Fortress"] = {
-  name = "Golden Fortress",
-  description = "The Golden Fortress is the first line of defence of the inner systems of the Noobi Empire. The fortress beats off marauder raids very frequently, but has never faced a organized massive attack.",
+  name = "Fortaleza Dourada",
+  description = "A Fortaleza Dourada é um massivo planeta artifical que serve como último bastião de defesa do Empério Noobi. A fortaleza repele piratas o tempo todo com facilidade, mas nunca enfrentou um ataque massivo coordenado.",
   x = -2000,
   y = 0,
   radius = 180,
   type = "station",
   color = {239/255, 221/255, 59/255},
   buttons = {
-    spaceport = { description = "An amazing green field extends in every direction around the crowded spaceport From here you can take the electric bullet train straight to the planet's capital, Noobinori." },
-    bar       = { description = "The smell of fresh mowed grass fills the air around the bar's open area. It's a nice place to read a book and sip on a drink." },
-    bank      = { description = "A very small Galaxy Bank unit. There's one sad attendant behind a glass pane calling people's tickets."},
+    spaceport = { description = "O Porto Espacial da Fortaleza Dourada é militarizado por natureza, milhares de soldados noobinobi se locomovem com velocidade e precisão por entre as naves." },
+    bank      = { description = "Uma agência comum do Banco Galático. O banheiro está em reformas."},
   },
   },
 }

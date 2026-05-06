@@ -167,7 +167,8 @@ local default_bindings = {
         -- UI
         ["i"]           = "ui_inventory",
         ["o"]           = "ui_properties",
-        ["escape"]      = "ui_mainmenu",
+        ["escape"]      = "ui_cancel",
+        ["f4"]          = "ui_mainmenu",
 
         -- Meta
         ["p"]           = "meta_pause",
@@ -251,6 +252,16 @@ local context_defs = {
         },
     },
 
+    property = {
+        bubble = true,
+        actions = {
+            ui_confirm=true, ui_cancel=true,
+            ui_up=true, ui_down=true, ui_left=true, ui_right=true,
+            ui_inventory=true,
+            meta_debug=true,
+        },
+    },
+
     market = {
         bubble = true,
         actions = {
@@ -266,6 +277,14 @@ local context_defs = {
             ui_confirm=true, ui_cancel=true,
             ui_up=true, ui_down=true,
             meta_debug=true,
+        },
+    },
+
+    textinput = {
+        bubble = false,   -- bloqueia tudo: o modal é dono total do teclado
+        actions = {
+            ui_cancel  = true,   -- Esc ainda fecha o modal
+            ui_confirm = true,   -- Enter ainda confirma
         },
     },
 
@@ -285,6 +304,16 @@ local context_defs = {
             ui_confirm=true, ui_cancel=true,
             ui_up=true, ui_down=true,
             meta_debug=true,
+        },
+    },
+
+    select = {
+        bubble = false,   -- modal dono total do teclado
+        actions = {
+            ui_confirm = true,
+            ui_cancel  = true,
+            ui_up      = true,
+            ui_down    = true,
         },
     },
 
@@ -343,6 +372,7 @@ input.state.launch       = false
 input.state.debugFlag    = false
 input.state.properties   = false
 input.state.mainmenu     = false
+input.state.exit         = false
 
 -- Pulses que foram disparados neste frame
 local active_pulses = {}
@@ -532,6 +562,7 @@ function input.beginFrame()
     input.state.inventory  = false
     input.state.properties = false
     input.state.mainmenu   = false
+    input.state.exit       = false
 
     -- 2. Promove: active_pulses do frame atual vira last_pulses para o próximo
     last_pulses   = active_pulses
