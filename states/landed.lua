@@ -83,33 +83,75 @@ local L = {
 
 local G = {}
 
-local function getOwnedShipsCount(player)
-    local count = 0
-    for _ in pairs(player.property.properties) do count = count + 1 end
-    return count
+local function doDepart(shipEntity)
+    -- O código que estava em handleDepart antes do if:
+    activePanel = "depart"
+    config.Input.state.paused = false
+    print("departing with: " .. (shipEntity and shipEntity.name or "?"))
+    config.GameState.switch("playing", { resuming = true })
 end
 
 local function handleDepart()
-  local shipsCount = getOwnedShipsCount(player)
-  if shipsCount > 1 then
-    -- Ativa um estado de UI para o jogador escolher a nave
-    -- player.choosingShip = true 
-    print("Qual nave você deseja pilotar?")
-    -- Protótipo de verificação de escolta futura:
-    -- if player.hasAutoPilotModule or player.hiredPilots > 0 then
-    --    print("Você pode decolar com sua frota completa!")
-    -- end
-    activePanel = "depart"
-    config.Input.state.paused = false
-    print("departing")
-    config.GameState.switch("playing", { resuming = true })
-  else
-    -- Decolagem normal se só tiver uma nave
-    activePanel = "depart"
-    config.Input.state.paused = false
-    print("departing")
-    config.GameState.switch("playing", { resuming = true })
-  end
+    local ships = {}
+    for _, e in ipairs(config.Entities.with("isFlagShip")) do
+        -- pega a flagship atual
+        ships.current = e
+    end
+
+    -- Monta lista completa da frota do player
+    local fleet = {}
+    if player and player.property then
+        for _, shipEnt in pairs(player.property.properties) do
+            local shipType = shipEnt.sprite and shipEnt.sprite.shipType or "?"
+            local def      = config.Ships[shipType] or {}
+            table.insert(fleet, {
+                label    = shipEnt.name or def.name or shipType,
+                sublabel = def.name ~= shipEnt.name and def.name or nil,
+                value    = shipEnt,
+            })
+        end
+    end
+
+    -- Ordena: flagship primeiro
+    table.sort(fleet, function(a, b)
+        if a.value.isFlagShip ~= b.value.isFlagShip then
+            return a.value.isFlagShip
+        end
+        return (a.label or "") < (b.label or "")
+    end)
+
+    if #fleet <= 1 then
+        -- Decolagem direta: sem escolha
+        doDepart(fleet[1] and fleet[1].value or ships.current)
+        return
+    end
+
+    -- Acha índice inicial (a flagship atual)
+    local initialIdx = 1
+    for i, opt in ipairs(fleet) do
+        if opt.value.isFlagShip then initialIdx = i; break end
+    end
+
+    config.SelectUI.open({
+        title        = "Decolar com qual nave?",
+        options      = fleet,
+        selected     = initialIdx,
+        confirmLabel = "Decolar",
+        onConfirm    = function(opt)
+            -- Troca flagship se necessário
+            if not opt.value.isFlagShip then
+                for _, e in ipairs(config.Entities.with("isFlagShip")) do
+                    e.isFlagShip = false
+                end
+                opt.value.isFlagShip = true
+                if player and player.property then
+                    player.property.flagShip = opt.value
+                end
+            end
+            doDepart(opt.value)
+        end,
+        onCancel = function() end,
+    })
 end
 
 local function recalcGeometry()
@@ -467,6 +509,7 @@ local function activateButton(key)
 end
 
 function Landed.update(dt)
+    playerFlagShip = config.Entities.with("isFlagShip")[1]
     config.InventoryUI.update(dt)
     config.MarketUI.update(dt)
 
@@ -509,6 +552,10 @@ function Landed.keypressed(key)
     if config.TextInputUI.isOpen() then
       config.TextInputUI.keypressed(key)
       return
+    end
+    if config.SelectUI.isOpen() then
+        config.SelectUI.keypressed(key)
+        return
     end
     if config.MarketUI.isOpen() then
       config.MarketUI.keypressed(key)
@@ -555,6 +602,10 @@ end
 
 function Landed.mousepressed(mx, my, button)
     -- Market UI tem prioridade
+    if config.SelectUI.isOpen() then
+        config.SelectUI.mousepressed(mx, my, button)
+        return
+    end
     if config.MarketUI.isOpen() then
         config.MarketUI.mousepressed(mx, my, button)
         return
@@ -584,6 +635,10 @@ function Landed.mousepressed(mx, my, button)
 end
 
 function Landed.wheelmoved(dx, dy)
+    if config.SelectUI.isOpen() then
+        config.SelectUI.wheelmoved(dx, dy)
+        return
+    end
     if config.MarketUI.isOpen() then
         config.MarketUI.wheelmoved(dx, dy)
         return
@@ -696,6 +751,7 @@ function Landed.draw()
     config.ShipyardUI.draw(player,playerFlagShip.landedAt)
     config.InventoryUI.draw()
 
+    config.SelectUI.draw()
     love.graphics.setColor(1, 1, 1, 1)
 end
 

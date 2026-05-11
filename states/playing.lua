@@ -52,6 +52,7 @@ local function ast_radius(ast)
 end
 
 function Playing.update(dt)
+  playerFlagShip = config.Entities.with("isFlagShip")[1]
   if landCooldown > 0 then
       landCooldown = landCooldown - dt
   end

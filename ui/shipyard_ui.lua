@@ -239,6 +239,7 @@ local function doSetFlagship()
         e.isFlagShip = false
     end
     selectedFleet.isFlagShip = true
+
     showMsg("Nave ativa alterada para: " .. (selectedFleet.name or "?"), C.textActive)
 end
 
