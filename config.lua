@@ -27,6 +27,7 @@ return {
   SelectUI = require("ui.select_ui"),
   ShipyardUI  = require("ui.shipyard_ui"),
   PropertyUI  = require("ui.property_ui"),
+  DialogueUI  = require("ui.dialogue_ui"),
   MiningSystem = require("systems.mining"),
   WeaponSystem = require("systems.weapon_system"),
   ShipMovementSystem = require("systems.ship_movement"),

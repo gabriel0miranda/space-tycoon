@@ -150,6 +150,8 @@ function MainMenu.update(dt)
             break
         end
     end
+    config.DialogueUI.update(dt)
+    config.SelectUI.update(dt)
     config.TextInputUI.update(dt)
 end
 
@@ -157,6 +159,14 @@ function MainMenu.mousepressed(mx, my, button)
     if config.TextInputUI.isOpen() then
         config.TextInputUI.mousepressed(mx, my, button)
         return
+    end
+    if config.SelectUI.isOpen() then
+        config.SelectUI.mousepressed(mx, my, button)
+        return
+    end
+    if config.DialogueUI.isOpen() then
+      config.DialogueUI.mousepressed(mx, my, btn);
+      return
     end
     if button ~= 1 then return end
     for i = 1, #buttons do
@@ -169,9 +179,28 @@ function MainMenu.mousepressed(mx, my, button)
     end
 end
 
+function MainMenu.wheelmoved(dx, dy)
+  if config.SelectUI.isOpen() then
+    config.SelectUI.wheelmoved(dx, dy)
+    return
+  end
+  if config.DialogueUI.isOpen() then
+    config.DialogueUI.wheelmoved(dx, dy);
+    return
+  end
+end
+
 function MainMenu.keypressed(key)
   if config.TextInputUI.isOpen() then
     config.TextInputUI.keypressed(key)
+    return
+  end
+  if config.SelectUI.isOpen() then
+      config.SelectUI.keypressed(key)
+      return
+  end
+  if config.DialogueUI.isOpen() then
+    config.DialogueUI.keypressed(k);
     return
   end
   for _, btn in ipairs(buttons) do
@@ -316,6 +345,8 @@ function MainMenu.draw()
     drawButtons()
     drawFooter()
     love.graphics.setColor(1, 1, 1, 1)
+    config.DialogueUI.draw()
+    config.SelectUI.draw()
     config.TextInputUI.draw()
 end
 

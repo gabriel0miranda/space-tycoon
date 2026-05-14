@@ -510,8 +510,18 @@ end
 
 function Landed.update(dt)
     playerFlagShip = config.Entities.with("isFlagShip")[1]
-    config.InventoryUI.update(dt)
-    config.MarketUI.update(dt)
+    if config.InventoryUI.isOpen() then
+      config.InventoryUI.update(dt)
+    end
+    if config.MarketUI.isOpen() then
+      config.MarketUI.update(dt)
+    end
+    if config.SelectUI.isOpen() then
+      config.SelectUI.update(dt)
+    end
+    if config.DialogueUI.isOpen() then
+      config.DialogueUI.update(dt)
+    end
 
     if config.Input.state.ui_inventory then
         config.InventoryUI.toggle(playerFlagShip, { title = "Freight Bay",
@@ -556,6 +566,10 @@ function Landed.keypressed(key)
     if config.SelectUI.isOpen() then
         config.SelectUI.keypressed(key)
         return
+    end
+    if config.DialogueUI.isOpen() then
+      config.DialogueUI.keypressed(k);
+      return
     end
     if config.MarketUI.isOpen() then
       config.MarketUI.keypressed(key)
@@ -602,9 +616,17 @@ end
 
 function Landed.mousepressed(mx, my, button)
     -- Market UI tem prioridade
+    if config.TextInputUI.isOpen() then
+        config.TextInputUI.mousepressed(mx, my, button)
+        return
+    end
     if config.SelectUI.isOpen() then
         config.SelectUI.mousepressed(mx, my, button)
         return
+    end
+    if config.DialogueUI.isOpen() then
+      config.DialogueUI.mousepressed(mx, my, btn);
+      return
     end
     if config.MarketUI.isOpen() then
         config.MarketUI.mousepressed(mx, my, button)
@@ -615,7 +637,9 @@ function Landed.mousepressed(mx, my, button)
         return
     end
 
-    config.InventoryUI.mousepressed(mx, my, button)
+    if config.InventoryUI.isOpen() then
+      config.InventoryUI.mousepressed(mx, my, button)
+    end
 
     if button == 1 then
         -- Clique na cena → mostra descrição do local
@@ -635,15 +659,22 @@ function Landed.mousepressed(mx, my, button)
 end
 
 function Landed.wheelmoved(dx, dy)
-    if config.SelectUI.isOpen() then
-        config.SelectUI.wheelmoved(dx, dy)
-        return
-    end
-    if config.MarketUI.isOpen() then
-        config.MarketUI.wheelmoved(dx, dy)
-        return
-    end
+  if config.SelectUI.isOpen() then
+    config.SelectUI.wheelmoved(dx, dy)
+    return
+  end
+  if config.DialogueUI.isOpen() then
+    config.DialogueUI.wheelmoved(dx, dy);
+    return
+  end
+  if config.MarketUI.isOpen() then
+    config.MarketUI.wheelmoved(dx, dy)
+    return
+  end
+  if config.InventoryUI.isOpen() then
     config.InventoryUI.wheelmoved(dx, dy)
+    return
+  end
 end
 
 -- ─────────────────────────────────────────
@@ -751,6 +782,7 @@ function Landed.draw()
     config.ShipyardUI.draw(player,playerFlagShip.landedAt)
     config.InventoryUI.draw()
 
+    config.DialogueUI.draw()
     config.SelectUI.draw()
     love.graphics.setColor(1, 1, 1, 1)
 end

@@ -317,6 +317,16 @@ local context_defs = {
         },
     },
 
+    dialogue = {
+      bubble = false,
+      actions = {
+        ui_confirm = true,
+        ui_cancel = true,
+        ui_up = true,
+        ui_down = true,
+      },
+    },
+
     -- Tela de remapeamento de controles: consome TUDO para capturar qualquer tecla
     controls = {
         bubble = false,
