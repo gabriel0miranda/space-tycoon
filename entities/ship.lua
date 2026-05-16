@@ -1,4 +1,4 @@
-return function(x, y, owner, flagShip, name, type)
+return function(x, y, owner, flagShip, name, type, landedAt)
   type = type or "PP-2340"
   name = name or owner..'s ship #'
   local def = config.Ships[type]
@@ -34,6 +34,6 @@ return function(x, y, owner, flagShip, name, type)
     layer       = 2,
     persistent  = true,
     isFlagShip  = flagShip,
-    landedAt    = nil,
+    landedAt    = landedAt,
   })
 end

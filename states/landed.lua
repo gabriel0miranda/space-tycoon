@@ -101,21 +101,23 @@ local function handleDepart()
     -- Monta lista completa da frota do player
     local fleet = {}
     if player and player.property then
-        for _, shipEnt in pairs(player.property.properties) do
-            local shipType = shipEnt.sprite and shipEnt.sprite.shipType or "?"
+        for _, property in pairs(player.property.properties) do
+          if property.ship then
+            local shipType = property.type or "?"
             local def      = config.Ships[shipType] or {}
             table.insert(fleet, {
-                label    = shipEnt.name or def.name or shipType,
-                sublabel = def.name ~= shipEnt.name and def.name or nil,
-                value    = shipEnt,
+                label    = property.name or def.name or shipType,
+                sublabel = def.name ~= property.name and def.name or nil,
+                value    = property,
             })
+          end
         end
     end
 
     -- Ordena: flagship primeiro
     table.sort(fleet, function(a, b)
-        if a.value.isFlagShip ~= b.value.isFlagShip then
-            return a.value.isFlagShip
+        if a.value.flagShip ~= b.value.flagShip then
+            return a.value.flagShip
         end
         return (a.label or "") < (b.label or "")
     end)
@@ -129,7 +131,7 @@ local function handleDepart()
     -- Acha índice inicial (a flagship atual)
     local initialIdx = 1
     for i, opt in ipairs(fleet) do
-        if opt.value.isFlagShip then initialIdx = i; break end
+        if opt.value.flagShip then initialIdx = i; break end
     end
 
     config.SelectUI.open({
@@ -139,13 +141,17 @@ local function handleDepart()
         confirmLabel = "Decolar",
         onConfirm    = function(opt)
             -- Troca flagship se necessário
-            if not opt.value.isFlagShip then
-                for _, e in ipairs(config.Entities.with("isFlagShip")) do
-                    e.isFlagShip = false
-                end
-                opt.value.isFlagShip = true
+            if not opt.value.flagShip then
                 if player and player.property then
-                    player.property.flagShip = opt.value
+                  for _, property in pairs(player.property.properties) do
+                    if property.ship then
+                      if property.name == opt.value.name then
+                        property.flagShip = true
+                      else
+                        property.flagShip = false
+                      end
+                    end
+                  end
                 end
             end
             doDepart(opt.value)
@@ -509,7 +515,6 @@ local function activateButton(key)
 end
 
 function Landed.update(dt)
-    playerFlagShip = config.Entities.with("isFlagShip")[1]
     if config.InventoryUI.isOpen() then
       config.InventoryUI.update(dt)
     end

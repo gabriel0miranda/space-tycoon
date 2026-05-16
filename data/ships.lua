@@ -18,19 +18,18 @@ return {
     cargo       = 50,
     movement    = { linearAcceleration=1200, strafeAcceleration=800, angularAcceleration=1600, linearDamping=0.8 },
     weapons = {"laser"},
-    -- Definição visual: lista de partes, cada uma com seus pontos e cor
     parts = {
       {
-        points = { 0,-50, 12,-10, 20,0, 12,15, 0,25, -12,15, -20,0, -12,-10 },
+        points = {50,0, 10,12, 0,20, -15,12, -25,0, -15,-12, 0,-20, 10,-12},
         color  = { 0.7, 0.8, 0.9 },
       },
       {
-        points = { 0,-30, 6,-10, 10,0, 6,10, 0,15, -6,10, -10,0, -6,-10 },
+        points = {30,0, 10,6, 0,10, -10,6, -15,0, -10,-6, 0,-10, 10,-6},
         color  = { 0.3, 0.5, 0.7, 0.8 },
       },
     },
   },
-
+ 
   ["NN-Gunship"] = {
     name    = "NN-Gunship",
     price   = 40000,
@@ -39,20 +38,23 @@ return {
     weapons = {"laser"},
     parts = {
       {
-        points = { 0,-60, 10,-20, 18,0, 10,30, 0,40, -10,30, -25,10, -25,-10, -10,-20 },
+        -- corpo principal: simplificado de 9 para 8 vértices
+        points = {60,0, 20,10, 0,18, -30,10, -40,0, -30,-10, 0,-18, 20,-10},
         color  = { 0.6, 0.65, 0.7 },
       },
       {
-        points = { 18,0, 40,-8, 45,0, 40,8 },
+        -- asa direita
+        points = {0,18, 8,40, 0,45, -8,40},
         color  = { 0.8, 0.4, 0.2 },
       },
       {
-        points = { -25,-10, -25,10, -45,5, -45,-5 },
+        -- asa esquerda
+        points = {0,-18, 8,-40, 0,-45, -8,-40},
         color  = { 0.8, 0.4, 0.2 },
       },
     },
   },
-
+ 
   ["NN-Dreadnought"] = {
     name    = "NN-Dreadnought",
     price   = 200000,
@@ -61,23 +63,28 @@ return {
     weapons = {"laser"},
     parts = {
       {
-        points = { 0,-80, 20,-50, 30,-20, 30,30, 20,50, 0,60, -20,50, -30,30, -30,-20, -20,-50 },
+        -- corpo principal: simplificado de 10 para 8 vértices
+        points = {80,0, 50,20, 0,30, -50,20, -60,0, -50,-20, 0,-30, 50,-20},
         color  = { 0.5, 0.55, 0.6 },
       },
       {
-        points = { 30,-20, 55,-30, 60,-10, 60,10, 55,20, 30,10 },
+        -- ala direita
+        points = {20,30, 30,55, 10,60, -10,55, -20,30, -10,30},
         color  = { 0.4, 0.45, 0.5 },
       },
       {
-        points = { -30,-20, -55,-30, -60,-10, -60,10, -55,20, -30,10 },
+        -- ala esquerda
+        points = {20,-30, 30,-55, 10,-60, -10,-55, -20,-30, -10,-30},
         color  = { 0.4, 0.45, 0.5 },
       },
       {
-        points = { 20,-50, 40,-60, 45,-45, 35,-30, 20,-30 },
+        -- nacele direita
+        points = {50,20, 60,40, 45,45, 30,35, 30,20},
         color  = { 0.35, 0.4, 0.45 },
       },
       {
-        points = { -20,-50, -40,-60, -45,-45, -35,-30, -20,-30 },
+        -- nacele esquerda
+        points = {50,-20, 60,-40, 45,-45, 30,-35, 30,-20},
         color  = { 0.35, 0.4, 0.45 },
       },
     },

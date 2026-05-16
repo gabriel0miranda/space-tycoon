@@ -5,6 +5,7 @@ return function(properties)
     add = function(self, property)
       if not self.properties[property.name] then
         self.properties[property.name] = property
+        print("Property added: "..property.name)
         return true
       end
       return false, "Property already owned"

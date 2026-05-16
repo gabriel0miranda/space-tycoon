@@ -83,35 +83,6 @@ local function showMsg(text, color)
     msgTimer = 3.0
 end
 
--- Retorna lista ordenada do estoque da estação
-local function getStationStock()
-    if not station then return {} end
-    local data = config.Landables[station.name]
-    local sy   = data and data.shipyard
-    if not sy or not sy.stock then return {} end
-    local list = {}
-    for _, shipType in ipairs(sy.stock) do
-        local def = config.Ships[shipType]
-        if def then
-            table.insert(list, { shipType = shipType, def = def })
-        end
-    end
-    return list
-end
-
--- Retorna lista ordenada da frota do jogador
-local function getFleet()
-    if not player or not player.property then return {} end
-    local list = {}
-    for _, shipEnt in pairs(player.property.properties) do
-        table.insert(list, shipEnt)
-    end
-    table.sort(list, function(a, b)
-        if a.isFlagShip ~= b.isFlagShip then return a.isFlagShip end
-        return (a.name or "") < (b.name or "")
-    end)
-    return list
-end
 
 -- Ficha técnica de um shipType (string)
 local function getDetails(shipType)
@@ -233,14 +204,8 @@ local function doSell()
 end
 
 local function doSetFlagship()
-    if not selectedFleet or selectedFleet.isFlagShip then return end
-    -- Troca flagship: desmarca a atual, marca a selecionada
-    for _, e in ipairs(config.Entities.with("isFlagShip")) do
-        e.isFlagShip = false
-    end
-    selectedFleet.isFlagShip = true
-
-    showMsg("Nave ativa alterada para: " .. (selectedFleet.name or "?"), C.textActive)
+    local fleet = config.ShipyardSystem.setFlagShip(player,selectedFleet)
+    showMsg("Nave ativa alterada para: " .. (fleet.name or "?"), C.textActive)
 end
 
 -- ─────────────────────────────────────────
@@ -488,7 +453,7 @@ function ShipyardUI.draw(playerEntity, stationEntity)
     love.graphics.printf("PREÇO", lx, bodyY + 3, lw - 6, "right")
 
     local stockY = bodyY + SECTION_H
-    local stock  = getStationStock()
+    local stock  = config.ShipyardSystem.getStationStock(station)
 
     if #stock == 0 then
         sc(C.textMuted)
@@ -519,7 +484,7 @@ function ShipyardUI.draw(playerEntity, stationEntity)
     love.graphics.print("SUA FROTA", rx + 4, bodyY + 3)
 
     local fleetY = bodyY + SECTION_H
-    local fleet  = getFleet()
+    local fleet  = config.ShipyardSystem.getFleet(player)
 
     if #fleet == 0 then
         sc(C.textMuted)

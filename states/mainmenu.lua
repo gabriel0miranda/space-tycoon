@@ -62,18 +62,36 @@ local function executeAction(action)
   if action == "new" then
     local playerName
     local chosenStart = config.Starts["Young Noobinobi"]
-    config.TextInputUI.open({
-      title = "Nome de Jogador",
-      placeholder = "Carados Paço",
-      maxLenght = 32,
-      onConfirm = function(text)
-        playerName = text
-        config.PlayerEntity(chosenStart, playerName)
-        config.WorldManager.loadSystem(chosenStart.starting_systemId)
-        config.GameState.switch("playing")
+    local starts = {}
+    for _, start in pairs(config.Starts) do
+      table.insert(starts,{ label = start.name, sublabel = start.starting_system, value = start})
+    end
+    config.SelectUI.open({
+      title = "Escolha o cenário inicial",
+      options = starts,
+      onConfirm = function(option)
+        chosenStart = option.value
+        config.TextInputUI.open({
+          title = "Nome de Jogador",
+          placeholder = "Carados Paço",
+          maxLenght = 32,
+          onConfirm = function(text)
+            playerName = text
+            config.PlayerEntity(chosenStart, playerName)
+            config.DialogueUI.open({
+              text = chosenStart.description,
+              onConfirm = function(option)
+                config.WorldManager.loadSystem(chosenStart.starting_systemId)
+                config.GameState.switch("playing")
+              end,
+            })
+          end,
+          onCancel = function() end,
+        })
       end,
       onCancel = function() end,
-    })
+      }
+    )
   elseif action == "cont" then
       -- TODO: implementar save/load
   elseif action == "control" then
@@ -165,7 +183,7 @@ function MainMenu.mousepressed(mx, my, button)
         return
     end
     if config.DialogueUI.isOpen() then
-      config.DialogueUI.mousepressed(mx, my, btn);
+      config.DialogueUI.mousepressed(mx, my, button);
       return
     end
     if button ~= 1 then return end
@@ -196,11 +214,11 @@ function MainMenu.keypressed(key)
     return
   end
   if config.SelectUI.isOpen() then
-      config.SelectUI.keypressed(key)
-      return
+    config.SelectUI.keypressed(key)
+    return
   end
   if config.DialogueUI.isOpen() then
-    config.DialogueUI.keypressed(k);
+    config.DialogueUI.keypressed(key);
     return
   end
   for _, btn in ipairs(buttons) do

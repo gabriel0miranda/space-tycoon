@@ -152,7 +152,7 @@ local default_bindings = {
         ["4"]           = "ship_weapon_4",
 
         -- Sistemas
-        ["r"]           = "ship_rcs_toggle",
+        ["lshift"]           = "ship_rcs_toggle",
         ["kp0"]         = "ship_rcs_toggle",
         ["return"]      = "ship_land",
         ["kpenter"]     = "ship_land",

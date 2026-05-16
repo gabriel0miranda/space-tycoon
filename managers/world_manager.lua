@@ -26,6 +26,16 @@ end
 function WorldManager.unfreeze()
   if not WorldManager.snapshot then return end
   for _, s in ipairs(WorldManager.snapshot) do
+    if s.entity.isFlagShip then
+      local player = config.Entities.getByTag("player")[1]
+
+      for _, property in pairs(player.property.properties) do
+        if property.ship and property.flagShip then
+          config.ShipEntity(s.entity.rigidbody.body:getX(), s.entity.rigidbody.body:getY(), player.name, true, property.name, property.type, s.entity.landedAt)
+        end
+      end
+      config.Entities.remove(s.entity)
+    end
     if s.entity.rigidbody and s.entity.rigidbody.body and not s.entity.rigidbody.body:isDestroyed() then
       s.entity.rigidbody.body:setPosition(s.x, s.y)
       s.entity.rigidbody.body:setLinearVelocity(s.vx, s.vy)
@@ -40,12 +50,20 @@ end
 function WorldManager.loadSystem(systemId)
   local toRemove = {}
   for _, e in ipairs(config.Entities.all) do
-    if e.tag ~= "player" and not e.isFlagShip then
+    if e.tag ~= "player"  then
       toRemove[#toRemove+1] = e
     end
   end
   for _, e in ipairs(toRemove) do
     config.Entities.remove(e)
+  end
+
+  local player = config.Entities.getByTag("player")[1]
+
+  for _, property in ipairs(player.property.properties) do
+    if property.ship and property.flagShip then
+      config.ShipEntity(player.x, player.y, player.name, true, property.name, property.type, player.landedAt)
+    end
   end
 
   WorldManager.currentSystemId = systemId

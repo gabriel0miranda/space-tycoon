@@ -6,15 +6,18 @@ local landCooldown = 0
 
 function Playing.onEnter(params)
   config.Input.pushContext("playing")
-  playerFlagShip = config.Entities.with("isFlagShip")[1]
-  armedEntities = config.Entities.with("weapon")
   config.InventoryUI.load()
   if params and params.resuming then
     landCooldown = 1.5
     print("Unfreezing")
     config.WorldManager:unfreeze()
+    playerFlagShip = config.Entities.with("isFlagShip")[1]
+    print("playerflagship: "..tostring(playerFlagShip))
+    armedEntities = config.Entities.with("weapon")
   else
     landCooldown = 1.5
+    playerFlagShip = config.Entities.with("isFlagShip")[1]
+    armedEntities = config.Entities.with("weapon")
     if playerFlagShip.landedAt then
         config.WorldManager:freeze()
         config.GameState.switch("landed")
@@ -52,7 +55,6 @@ local function ast_radius(ast)
 end
 
 function Playing.update(dt)
-  playerFlagShip = config.Entities.with("isFlagShip")[1]
   if landCooldown > 0 then
       landCooldown = landCooldown - dt
   end

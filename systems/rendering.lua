@@ -111,7 +111,7 @@ local function drawMinimap(playerFlagShip, camera)
     local playerX, playerY = playerFlagShip.rigidbody.body:getPosition()
 
     -- Estrela central
-    for _, star in ipairs(config.Entities.with("star")) do
+    for _, star in ipairs(config.Entities.getByTag("star")) do
         local dx = (star.x - playerX) * mapScale
         local dy = (star.y - playerY) * mapScale
         love.graphics.setColor(0.91, 0.75, 0.37)
@@ -119,7 +119,7 @@ local function drawMinimap(playerFlagShip, camera)
     end
 
     -- Planetas e estações
-    for _, e in ipairs(config.Entities.with("landable")) do
+    for _, e in ipairs(config.Entities.getByTag("landable")) do
         local dx = (e.x - playerX) * mapScale
         local dy = (e.y - playerY) * mapScale
         local color = e.type == "station"
@@ -130,7 +130,7 @@ local function drawMinimap(playerFlagShip, camera)
     end
 
     -- Asteroides
-    for _, ast in ipairs(config.Entities.with("asteroid")) do
+    for _, ast in ipairs(config.Entities.getByTag("asteroid")) do
         if ast.rigidbody and ast.rigidbody.body then
             local ax, ay = ast.rigidbody.body:getPosition()
             local dx = (ax - playerX) * mapScale
@@ -167,7 +167,7 @@ local function drawDebugOverlay(playerFlagShip)
     "\nShip Y:"..playerFlagShip.rigidbody.body:getY()..
     "\nShip angle:"..playerFlagShip.rigidbody.body:getAngle()..
     "\nShip angular velocity:"..playerFlagShip.rigidbody.body:getAngularVelocity()..
-    "\nShip RCS:"..tostring(playerFlagShip.rcs)..
+    "\nShip RCS:"..tostring(config.Input.state.rcs)..
     "\nShip weapon:"..playerFlagShip.weapon.def.type
   )
   love.graphics.setColor(1,1,1)
