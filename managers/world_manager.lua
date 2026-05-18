@@ -60,8 +60,9 @@ function WorldManager.loadSystem(systemId)
 
   local player = config.Entities.getByTag("player")[1]
 
-  for _, property in ipairs(player.property.properties) do
+  for _, property in pairs(player.property.properties) do
     if property.ship and property.flagShip then
+      print("recreating ship")
       config.ShipEntity(player.x, player.y, player.name, true, property.name, property.type, player.landedAt)
     end
   end

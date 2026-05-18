@@ -3,7 +3,7 @@ return {
     name = "PP-2340",
     price = 1500,
     cargo       = 100,
-    movement    = { linearAcceleration=800, strafeAcceleration=800, angularAcceleration=1200, linearDamping=0.8 },
+    movement    = { linearAcceleration=800, strafeAcceleration=800, angularAcceleration=1200, linearDamping=0.8, angularDampingFactor=0.9 },
     weapons = {"laser"},
     parts = {
       {
@@ -16,7 +16,7 @@ return {
     name        = "NN-Interceptor",
     price       = 15000,
     cargo       = 50,
-    movement    = { linearAcceleration=1200, strafeAcceleration=800, angularAcceleration=1600, linearDamping=0.8 },
+    movement    = { linearAcceleration=1200, strafeAcceleration=800, angularAcceleration=1600, linearDamping=0.8, angularDampingFactor=0.8 },
     weapons = {"laser"},
     parts = {
       {
@@ -29,12 +29,11 @@ return {
       },
     },
   },
- 
   ["NN-Gunship"] = {
     name    = "NN-Gunship",
     price   = 40000,
     cargo   = 120,
-    movement = { linearAcceleration=800, strafeAcceleration=500, angularAcceleration=900, linearDamping=0.6 },
+    movement = { linearAcceleration=800, strafeAcceleration=500, angularAcceleration=900, linearDamping=0.6, angularDampingFactor=0.4 },
     weapons = {"laser"},
     parts = {
       {
@@ -54,12 +53,11 @@ return {
       },
     },
   },
- 
   ["NN-Dreadnought"] = {
     name    = "NN-Dreadnought",
     price   = 200000,
     cargo   = 2000,
-    movement = { linearAcceleration=300, strafeAcceleration=200, angularAcceleration=300, linearDamping=0.3 },
+    movement = { linearAcceleration=300, strafeAcceleration=200, angularAcceleration=300, linearDamping=0.3, angularDampingFactor=0.4 },
     weapons = {"laser"},
     parts = {
       {

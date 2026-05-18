@@ -98,6 +98,7 @@ local action_types = {
 
     -- Sistemas da nave
     ship_rcs_toggle     = "pulse",
+    ship_rcs_hold       = "hold",
     ship_land           = "hold",
     ship_launch         = "hold",
 
@@ -152,8 +153,10 @@ local default_bindings = {
         ["4"]           = "ship_weapon_4",
 
         -- Sistemas
-        ["lshift"]           = "ship_rcs_toggle",
+        ["lshift"]      = "ship_rcs_hold",
+        ["rctrl"]       = "ship_rcs_hold",
         ["kp0"]         = "ship_rcs_toggle",
+        ["0"]           = "ship_rcs_toggle",
         ["return"]      = "ship_land",
         ["kpenter"]     = "ship_land",
         ["l"]           = "ship_launch",
@@ -233,7 +236,8 @@ local context_defs = {
             ship_fire=true,
             ship_weapon_1=true, ship_weapon_2=true,
             ship_weapon_3=true, ship_weapon_4=true,
-            ship_rcs_toggle=true, ship_land=true, ship_launch=true,
+            ship_rcs_toggle=true, ship_rcs_hold=true,
+            ship_land=true, ship_launch=true,
             camera_zoom_in=true, camera_zoom_out=true,
             ui_inventory=true, ui_properties=true, ui_mainmenu=true,
             meta_pause=true, meta_debug=true,
@@ -373,6 +377,7 @@ input.state.rotateLeft   = false
 input.state.rotateRight  = false
 input.state.fire_primary = false
 input.state.rcs          = true   -- começa ligado, igual ao original
+input.state.rcs_off          = false
 input.state.paused       = false
 input.state.weapon_type  = 1
 input.state.inventory    = false
@@ -492,11 +497,9 @@ local function sync_legacy_state()
     s.launch       = s.ship_launch
     s.zoomIn       = s.camera_zoom_in
     s.zoomOut      = s.camera_zoom_out
+    s.rcs_off      = s.ship_rcs_hold
 
     -- Pulse aliases (são true por 1 frame; toggles resolvidos aqui)
-    if s.ship_rcs_toggle then
-        s.rcs = not s.rcs
-    end
     if s.meta_pause then
         s.paused = not s.paused
     end
@@ -817,6 +820,7 @@ input.action_labels = {
     { "ship_weapon_3",     "Arma 3",               "Combate" },
     { "ship_weapon_4",     "Arma 4",               "Combate" },
     { "ship_rcs_toggle",   "Toggle RCS",           "Sistemas" },
+    { "ship_rcs_hold",     "Hold change RCS",      "Sistemas" },
     { "ship_land",         "Pousar",               "Sistemas" },
     { "ship_launch",       "Decolar",              "Sistemas" },
     { "camera_zoom_in",    "Zoom in",              "Câmera" },

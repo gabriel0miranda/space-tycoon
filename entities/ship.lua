@@ -27,9 +27,10 @@ return function(x, y, owner, flagShip, name, type, landedAt)
       def.movement.linearAcceleration,
       def.movement.strafeAcceleration,
       def.movement.angularAcceleration,
-      def.movement.linearDamping
+      def.movement.linearDamping,
+      def.movement.angularDampingFactor
     ),
-    weapon      = config.WeaponComponent(def.weapons[1]),
+    weapon      = config.WeaponComponent(config.Weapons[def.weapons[1]]),
     inventory   = config.InventoryComponent(def.cargo),
     layer       = 2,
     persistent  = true,

@@ -7,6 +7,21 @@ local ShipMovement = {}
 -- The physics step only reads from intent.
 -- ─────────────────────────────────────────
 
+-- helpers
+local function applyLinearDamping(body, mov)
+  local vx, vy = body:getLinearVelocity()
+  body:applyForce(-vx*mov.linearDamping, -vy*mov.linearDamping)
+end
+local function applyAngularDamping(body, mov, torqueActive)
+  if torqueActive then return end
+  local av = body:getAngularVelocity()
+  if math.abs(av) < 0.01 then
+    body:setAngularVelocity(0)
+    return
+  end
+  -- Multiplica a velocidade por um fator < 1 a cada frame
+  body:setAngularVelocity(av * mov.angularDampingFactor)
+end
 -- Returns a blank intent table (all neutral)
 function ShipMovement.newIntent()
     return {
@@ -45,11 +60,8 @@ local function applyPlayerInput(ship)
         intent.torque      = 0
     end
 
-    if config.Input.state.ship_rcs_toggle then
-      intent.dampAngular = not intent.dampAngular
-    end
-
-    intent.dampLinear = ship.inertiaDampeners
+    intent.dampAngular = not config.Input.state.rcs_off
+    intent.dampLinear = ship.inertiaDampeners and not config.Input.state.rcs_off
 end
 
 -- ─────────────────────────────────────────
@@ -104,14 +116,12 @@ local function applyIntent(ship, dt)
 
     -- Linear dampening (inertia dampeners)
     if intent.dampLinear then
-        local vx, vy = body:getLinearVelocity()
-        body:applyForce(-vx * mov.linearDamping, -vy * mov.linearDamping)
+      applyLinearDamping(body,mov)
     end
 
     -- Angular dampening (RCS)
     if intent.dampAngular and intent.targetAngle == nil then
-        local I = body:getMass() * (5 * 5 / 2)
-        body:applyAngularImpulse(-I * body:getAngularVelocity())
+      applyAngularDamping(body,mov, intent.torque ~= 0)
     end
 end
 

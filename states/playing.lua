@@ -12,7 +12,6 @@ function Playing.onEnter(params)
     print("Unfreezing")
     config.WorldManager:unfreeze()
     playerFlagShip = config.Entities.with("isFlagShip")[1]
-    print("playerflagship: "..tostring(playerFlagShip))
     armedEntities = config.Entities.with("weapon")
   else
     landCooldown = 1.5

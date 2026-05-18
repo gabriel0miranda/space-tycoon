@@ -418,6 +418,7 @@ function Landed.onEnter()
       local targetSystem      = playerFlagShip.landedAt.toSystem
       local currentSystemName = config.WorldManager.systems[config.WorldManager.currentSystemId].name
       config.WorldManager.loadSystem(targetSystem)
+      playerFlagShip = config.Entities.with("isFlagShip")[1]
       local entries = config.WorldManager.systems[targetSystem].wormholes or {}
       local entryX, entryY = 0, 0
       for _, entry in ipairs(entries) do
