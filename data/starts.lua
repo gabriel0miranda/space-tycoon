@@ -15,9 +15,10 @@ return {
       flagShip = true,
       name = "Noite Branca",
       type = "PP-2340",
+      weapons = {[1] = "Photon Cannon", [2] = "Vacuum Machinegun", [3] = "Predator Missile", [4] = "Proximity Mine", [5] = "EMP"},
       cargo = {
-        {name = "Cocaine", quantity = 12},
-        {name = "Steel Sheets", quantity = 2},
+        ["Cocaine"] = 12,
+        ["Steel Sheets"] = 2,
       },
     },
   },

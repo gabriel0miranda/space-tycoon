@@ -33,7 +33,8 @@ return function (x, y, faction, shipType)
       timer = 0,                -- timer genérico (patrol, cooldown)
       faction = faction,
     },
-    weapon = config.WeaponComponent(config.Weapons.laser),
+    weapons = config.WeaponComponent({[1] = "Vacuum Machinegun"}),
+    currentWeapon = 1,
     layer = 2,
   })
 end

@@ -28,10 +28,14 @@ function WorldManager.unfreeze()
   for _, s in ipairs(WorldManager.snapshot) do
     if s.entity.isFlagShip then
       local player = config.Entities.getByTag("player")[1]
+      local currentCargo = s.entity.inventory.items
 
       for _, property in pairs(player.property.properties) do
+        if property.ship and property.name == s.entity.name then
+          property.cargo = currentCargo
+        end
         if property.ship and property.flagShip then
-          config.ShipEntity(s.entity.rigidbody.body:getX(), s.entity.rigidbody.body:getY(), player.name, true, property.name, property.type, s.entity.landedAt)
+          config.ShipEntity(s.entity.rigidbody.body:getX(), s.entity.rigidbody.body:getY(), player.name, true, property.name, property.type, s.entity.landedAt, property.weapons, property.cargo)
         end
       end
       config.Entities.remove(s.entity)
@@ -49,9 +53,13 @@ end
 
 function WorldManager.loadSystem(systemId)
   local toRemove = {}
+  local currentCargo = {}
   for _, e in ipairs(config.Entities.all) do
     if e.tag ~= "player"  then
       toRemove[#toRemove+1] = e
+    end
+    if e.tag == "ship" and e.isFlagShip then
+      currentCargo = e.inventory.items
     end
   end
   for _, e in ipairs(toRemove) do
@@ -63,7 +71,7 @@ function WorldManager.loadSystem(systemId)
   for _, property in pairs(player.property.properties) do
     if property.ship and property.flagShip then
       print("recreating ship")
-      config.ShipEntity(player.x, player.y, player.name, true, property.name, property.type, player.landedAt)
+      config.ShipEntity(player.x, player.y, player.name, true, property.name, property.type, player.landedAt, property.weapons, currentCargo)
     end
   end
 

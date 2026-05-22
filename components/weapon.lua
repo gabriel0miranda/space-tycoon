@@ -1,8 +1,13 @@
-return function(weapon_def)
-  return {
-    def      = weapon_def,   -- referência à definição
-    timer    = 0,            -- cooldown atual
-    firing   = false,        -- input externo seta isso
-    angle    = 0,            -- direção de disparo (radianos)
-  }
+return function(weapons)
+  for i, weapon in ipairs(weapons) do
+    weapons[i] = {
+      def       = config.Weapons[weapon],
+      capacitor = {
+                   max = config.Weapons[weapon].capacitor,
+                   current = 0,
+                   },
+      firing    = false,
+    }
+  end
+  return weapons
 end
