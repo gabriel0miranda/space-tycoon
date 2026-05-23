@@ -6,6 +6,7 @@ return function(weapons)
                    max = config.Weapons[weapon].capacitor,
                    current = 0,
                    },
+      angle = 0,
       firing    = false,
     }
   end

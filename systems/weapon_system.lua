@@ -33,6 +33,18 @@ local function fire_projectile(owner, weapon, x, y, angle)
   })
 end
 
+local function fire_mine(owner, weapon, x, y, angle)
+end
+
+local function fire_pulse(owner, weapon, x, y, angle)
+end
+
+local function fire_laser(owner, weapon, x, y, angle)
+end
+
+local function fire_missile(owner, weapon, x, y, angle)
+end
+
 local function fire_drill(owner, weapon, x, y, angle)
   local def = weapon.def
   local dirX = math.cos(angle)
@@ -66,20 +78,33 @@ function WeaponSystem.newIntent()
     targetX   = nil,   -- se definido, aponta o disparo pra esse ponto
     targetY   = nil,
     weaponDef = nil,   -- nil = usa o weapon.def atual sem trocar
+    currentWeapon = nil,
   }
 end
 
 -- Jogador escreve no intent via input
 local function applyPlayerInput(e)
-  local intent = e.weapon.intent
+  local intent = e.intent
   local input  = config.Input.state
 
-  intent.firing = input.fire_primary
+  intent.firing = input.ship_fire
 
-  if input.weapon_type == 1 then intent.weaponDef = config.Weapons.laser      end
-  if input.weapon_type == 2 then intent.weaponDef = config.Weapons.machinegun end
-  if input.weapon_type == 3 then intent.weaponDef = config.Weapons.missile    end
-  if input.weapon_type == 4 then intent.weaponDef = config.Weapons.drill      end
+  if input.ship_weapon_1 then
+    intent.weaponDef = e.weapons[1].def
+    intent.currentWeapon = 1
+  end
+  if input.ship_weapon_2 then
+    intent.weaponDef = e.weapons[2].def
+    intent.currentWeapon = 2
+  end
+  if input.ship_weapon_3 then
+    intent.weaponDef = e.weapons[3].def
+    intent.currentWeapon = 3
+  end
+  if input.ship_weapon_4 then
+    intent.weaponDef = e.weapons[4].def
+    intent.currentWeapon = 4
+  end
 
   -- Jogador atira na direção que a nave está apontando
   intent.targetX = nil
@@ -88,17 +113,17 @@ end
 
 -- Aplica o intent — executa o disparo se as condições batem
 local function applyIntent(e, dt)
-  local weapon = e.weapon
-  local intent = weapon.intent
+  local weapons = e.weapons
+  local intent = e.intent
 
   -- Troca de arma se o intent pediu
   if intent.weaponDef then
-    weapon.def = intent.weaponDef
+    e.currentWeapon = intent.currentWeapon
   end
 
   -- Cooldown
-  if weapon.timer > 0 then
-    weapon.timer = weapon.timer - dt
+  if weapons.capacitor.current < weapons.capacitor.max then
+    weapons.capacitor.current = weapons.capacitor.current - dt
   end
 
   local x, y
@@ -113,20 +138,27 @@ local function applyIntent(e, dt)
   if intent.targetX and intent.targetY then
     angle = math.atan2(intent.targetY - y, intent.targetX - x)
   else
-    angle = not e.rigidbody.body:isDestroyed() and e.rigidbody.body:getAngle() or (weapon.angle or 0)
+    angle = not e.rigidbody.body:isDestroyed() and e.rigidbody.body:getAngle() or (weapons.angle or 0)
   end
 
-  weapon.angle = angle
+  weapons.angle = angle
 
-  if not intent.firing or weapon.timer > 0 then return end
+  if not intent.firing or weapons.capacitor.current < weapons.capacitor.max then return end
 
-  weapon.timer = weapon.def.cooldown
+  weapons.capacitor.current = 0
 
-  if weapon.def.type == "drill" then
-    fire_drill(e, weapon, x, y, angle)
-  else
-    fire_projectile(e, weapon, x, y, angle)
+  if weapons.def.type == "laser" then
+    fire_drill(e, weapons, x, y, angle)
+  elseif weapons.def.type == "projectile" then
+    fire_projectile(e, weapons, x, y, angle)
+  elseif weapons.def.type == "missile" then
+    fire_missile(e, weapons, x, y, angle)
+  elseif weapons.def.type == "mine" then
+    fire_mine(e, weapons, x, y, angle)
+  elseif weapons.def.type == "pulse" then
+    fire_pulse(e, weapons, x, y, angle)
   end
+
 end
 
 -- ─────────────────────────────────────────
