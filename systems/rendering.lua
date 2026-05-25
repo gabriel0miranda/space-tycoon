@@ -53,7 +53,7 @@ end
 
 local function drawDrillEffect(armedEntities)
   for _, e in ipairs(armedEntities) do
-    local weapon = e.weapon
+    local weapon = e.weapons[e.currentWeapon]
     if weapon.def.type == "drill" and weapon.intent and weapon.intent.firing and weapon.timer > 0 then
       local x, y = e.rigidbody.body:getPosition()
       local tx = x + math.cos(weapon.angle) * weapon.def.range
@@ -168,7 +168,7 @@ local function drawDebugOverlay(playerFlagShip)
     "\nShip angle:"..playerFlagShip.rigidbody.body:getAngle()..
     "\nShip angular velocity:"..playerFlagShip.rigidbody.body:getAngularVelocity()..
     "\nShip RCS:"..tostring(not config.Input.state.rcs_off)..
-    "\nShip weapon:"..playerFlagShip.weapon.def.type
+    "\nShip weapon:"..playerFlagShip.weapons[playerFlagShip.currentWeapon].def.type
   )
   love.graphics.setColor(1,1,1)
 end

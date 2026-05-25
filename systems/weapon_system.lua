@@ -24,7 +24,7 @@ local function fire_projectile(owner, weapon, x, y, angle)
     vy        = vy,
     lifetime  = def.lifetime,
     damage    = def.damage,
-    size      = def.size,
+    size      = 2,
     color     = def.color,
     projType  = def.type,
     owner     = owner,
@@ -68,6 +68,15 @@ local function fire_drill(owner, weapon, x, y, angle)
   end
 end
 
+local fireFunctions = {
+    projectile = fire_projectile,
+    missile    = fire_missile,
+    laser      = fire_laser,
+    mine       = fire_mine,
+    pulse      = fire_pulse,
+    drill      = fire_drill,
+}
+
 -- ─────────────────────────────────────────
 -- Intent API
 -- ─────────────────────────────────────────
@@ -77,33 +86,36 @@ function WeaponSystem.newIntent()
     firing    = false,
     targetX   = nil,   -- se definido, aponta o disparo pra esse ponto
     targetY   = nil,
-    weaponDef = nil,   -- nil = usa o weapon.def atual sem trocar
     currentWeapon = nil,
   }
 end
 
 -- Jogador escreve no intent via input
 local function applyPlayerInput(e)
-  local intent = e.intent
+  local intent = e.weapons_intent
   local input  = config.Input.state
 
   intent.firing = input.ship_fire
 
   if input.ship_weapon_1 then
-    intent.weaponDef = e.weapons[1].def
-    intent.currentWeapon = 1
+    if e.weapons[1] then
+      intent.currentWeapon = 1
+    end
   end
   if input.ship_weapon_2 then
-    intent.weaponDef = e.weapons[2].def
-    intent.currentWeapon = 2
+    if e.weapons[2] then
+      intent.currentWeapon = 2
+    end
   end
   if input.ship_weapon_3 then
-    intent.weaponDef = e.weapons[3].def
-    intent.currentWeapon = 3
+    if e.weapons[3] then
+      intent.currentWeapon = 3
+    end
   end
   if input.ship_weapon_4 then
-    intent.weaponDef = e.weapons[4].def
-    intent.currentWeapon = 4
+    if e.weapons[4] then
+      intent.currentWeapon = 4
+    end
   end
 
   -- Jogador atira na direção que a nave está apontando
@@ -113,17 +125,17 @@ end
 
 -- Aplica o intent — executa o disparo se as condições batem
 local function applyIntent(e, dt)
-  local weapons = e.weapons
-  local intent = e.intent
+  local weapon = e.weapons[e.currentWeapon]
+  local intent = e.weapons_intent
 
   -- Troca de arma se o intent pediu
-  if intent.weaponDef then
+  if intent.currentWeapon then
     e.currentWeapon = intent.currentWeapon
   end
 
   -- Cooldown
-  if weapons.capacitor.current < weapons.capacitor.max then
-    weapons.capacitor.current = weapons.capacitor.current - dt
+  if weapon.capacitor.current < weapon.capacitor.max then
+    weapon.capacitor.current = weapon.capacitor.current + 10
   end
 
   local x, y
@@ -138,26 +150,18 @@ local function applyIntent(e, dt)
   if intent.targetX and intent.targetY then
     angle = math.atan2(intent.targetY - y, intent.targetX - x)
   else
-    angle = not e.rigidbody.body:isDestroyed() and e.rigidbody.body:getAngle() or (weapons.angle or 0)
+    angle = not e.rigidbody.body:isDestroyed() and e.rigidbody.body:getAngle() or (weapon.angle or 0)
   end
 
-  weapons.angle = angle
+  weapon.angle = angle
 
-  if not intent.firing or weapons.capacitor.current < weapons.capacitor.max then return end
+  if not intent.firing then return end
+  if weapon.capacitor.current < weapon.capacitor.max then return end
 
-  weapons.capacitor.current = 0
+  weapon.capacitor.current = 0
 
-  if weapons.def.type == "laser" then
-    fire_drill(e, weapons, x, y, angle)
-  elseif weapons.def.type == "projectile" then
-    fire_projectile(e, weapons, x, y, angle)
-  elseif weapons.def.type == "missile" then
-    fire_missile(e, weapons, x, y, angle)
-  elseif weapons.def.type == "mine" then
-    fire_mine(e, weapons, x, y, angle)
-  elseif weapons.def.type == "pulse" then
-    fire_pulse(e, weapons, x, y, angle)
-  end
+  local fn = fireFunctions[weapon.def.type]
+  if fn then fn(e, weapon, x, y, angle) end
 
 end
 
@@ -167,8 +171,8 @@ end
 
 function WeaponSystem.update(armedEntities, dt)
   for _, e in ipairs(armedEntities) do
-    if not e.weapon.intent then
-      e.weapon.intent = WeaponSystem.newIntent()
+    if not e.weapons_intent then
+      e.weapons_intent = WeaponSystem.newIntent()
     end
 
     -- Jogador escreve via input, NPC já escreveu no intent antes (no NpcAI)

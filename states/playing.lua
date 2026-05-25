@@ -12,11 +12,11 @@ function Playing.onEnter(params)
     print("Unfreezing")
     config.WorldManager:unfreeze()
     playerFlagShip = config.Entities.with("isFlagShip")[1]
-    armedEntities = config.Entities.with("weapon")
+    armedEntities = config.Entities.with("weapons")
   else
     landCooldown = 1.5
     playerFlagShip = config.Entities.with("isFlagShip")[1]
-    armedEntities = config.Entities.with("weapon")
+    armedEntities = config.Entities.with("weapons")
     if playerFlagShip.landedAt then
         config.WorldManager:freeze()
         config.GameState.switch("landed")
