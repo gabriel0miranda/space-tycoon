@@ -6,7 +6,7 @@ function Mining.damage(asteroid, damage)
     local mineable = asteroid.mineable
     if not mineable then return end
 
-    mineable.health = mineable.health - damage
+    mineable.health = mineable.health - damage/mineable.health
 
     -- Reduz escala visual proporcionalmente
     local pct = math.max(0, mineable.health / mineable.max_health)
@@ -40,7 +40,9 @@ end
 function Mining.drop_loot(asteroid, fraction)
     for _, entry in ipairs(asteroid.mineable.loot_table) do
         local qty = math.random(entry.min, entry.max)
-        qty = math.max(1, math.floor(qty * fraction))
+        print("qty = "..qty.."\nfraction = "..fraction.."\nfloor = "..math.floor(qty * fraction))
+        qty = math.max(0, math.floor(qty * fraction))
+        if qty == 0 then return end
         local radius = math.max(5,math.floor(qty))
         local color = config.Items[entry.item].color and config.Items[entry.item].color or {1,1,1}
         -- Cria entidade de minério flutuando na posição do asteroide

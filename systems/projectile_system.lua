@@ -2,7 +2,7 @@ local ProjectileSystem = {}
 
 local function handle_hit(proj, target)
   if target.mineable then
-    config.MiningSystem.damage(target, proj.damage)
+    config.MiningSystem.damage(target, proj.hullDamage)
   end
   -- Futuramente: target.health, shields, etc.
   config.Entities.remove(proj)
@@ -37,7 +37,7 @@ local function update_homing(proj, ast_hash, dt)
 end
 
 function ProjectileSystem.update(ast_hash, dt)
-  local projectiles = config.Entities.with("projectile")
+  local projectiles = config.Entities.getByTag("projectile")
 
   for _, proj in ipairs(projectiles) do
     -- Homing

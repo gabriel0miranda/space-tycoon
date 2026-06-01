@@ -70,7 +70,6 @@ function WorldManager.loadSystem(systemId)
 
   for _, property in pairs(player.property.properties) do
     if property.ship and property.flagShip then
-      print("recreating ship")
       config.ShipEntity(player.x, player.y, player.name, true, property.name, property.type, player.landedAt, property.weapons, currentCargo)
     end
   end

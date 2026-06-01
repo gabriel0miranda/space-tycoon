@@ -18,18 +18,19 @@ local function fire_projectile(owner, weapon, x, y, angle)
   end
 
   config.Entities.create("projectile", {
-    x         = x,
-    y         = y,
-    vx        = vx,
-    vy        = vy,
-    lifetime  = def.lifetime,
-    damage    = def.damage,
-    size      = 2,
-    color     = def.color,
-    projType  = def.type,
-    owner     = owner,
-    homing    = def.homing,
-    turnSpeed = def.turnSpeed,
+    x             = x,
+    y             = y,
+    vx            = vx,
+    vy            = vy,
+    lifetime      = def.lifetime,
+    hullDamage    = def.hullDamage,
+    shieldDamage  = def.shieldDamage,
+    size          = 2,
+    color         = def.color,
+    projType      = def.type,
+    owner         = owner,
+    homing        = def.homing,
+    turnSpeed     = def.turnSpeed,
   })
 end
 
@@ -40,41 +41,27 @@ local function fire_pulse(owner, weapon, x, y, angle)
 end
 
 local function fire_laser(owner, weapon, x, y, angle)
-end
-
-local function fire_missile(owner, weapon, x, y, angle)
-end
-
-local function fire_drill(owner, weapon, x, y, angle)
-  local def = weapon.def
-  local dirX = math.cos(angle)
-  local dirY = math.sin(angle)
-
-  for _, ast in ipairs(config.Entities.getByTag("asteroid")) do
-    if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
-      local ax, ay = ast.rigidbody.body:getPosition()
-      local dx, dy = ax - x, ay - y
-      local radius = ast.sprite.shape and ast.sprite.shape:getRadius() or 20
-      local dot = dx * dirX + dy * dirY
-      if dot > -radius and dot < def.range then
-        local px = dot * dirX
-        local py = dot * dirY
-        local perpDist = math.sqrt((dx - px)^2 + (dy - py)^2)
-        if perpDist < radius then
-          config.MiningSystem.damage(ast, def.damage)
-        end
-      end
-    end
-  end
+  config.Entities.create("laser", {
+    x        = x,
+    y        = y,
+    angle    = angle,
+    range    = weapon.def.range,
+    damage   = weapon.def,
+    color    = weapon.def.color,
+    owner    = owner,
+    lifetime = 0.08,
+    hitX     = nil,
+    hitY     = nil,
+  })
 end
 
 local fireFunctions = {
     projectile = fire_projectile,
-    missile    = fire_missile,
+    missile    = fire_projectile,
     laser      = fire_laser,
     mine       = fire_mine,
     pulse      = fire_pulse,
-    drill      = fire_drill,
+    drill      = fire_laser,
 }
 
 -- ─────────────────────────────────────────
@@ -135,7 +122,8 @@ local function applyIntent(e, dt)
 
   -- Cooldown
   if weapon.capacitor.current < weapon.capacitor.max then
-    weapon.capacitor.current = weapon.capacitor.current + 10
+    weapon.capacitor.current = math.min(weapon.capacitor.max,
+                                        weapon.capacitor.current + 300 * dt)
   end
 
   local x, y
@@ -158,6 +146,8 @@ local function applyIntent(e, dt)
   if not intent.firing then return end
   if weapon.capacitor.current < weapon.capacitor.max then return end
 
+  -- mover isso pras funções de disparo (fireFunctions)
+  -- criar um system pra cada (elas só colocam uma entidade na pilha)
   weapon.capacitor.current = 0
 
   local fn = fireFunctions[weapon.def.type]

@@ -12,8 +12,8 @@ return {
     starColor    = {1,1,1},
     asteroidCount= 30,
     asteroidOres = {
-    {item="Iron Ore", min=5, max=10},
-    {item="Silver Ore", min=2, max=6},
+    {item="Iron Ore", min=0, max=10},
+    {item="Silver Ore", min=0, max=6},
     },
     landables    = {
       "Trading Station",
@@ -32,7 +32,7 @@ return {
     starColor    = {1,1,1},
     asteroidCount= 50,
     asteroidOres = {
-      {item="Sulfur", min=2, max=5},
+      {item="Sulfur", min=1, max=5},
     },
     landables    = {
       "Shipyard",
@@ -53,7 +53,7 @@ return {
     starColor    = {1,1,1},
     asteroidCount= 5,
     asteroidOres = {
-      {item="Iron Ore", min=2, max=6},
+      {item="Iron Ore", min=0, max=6},
     },
     landables    = {
       "Golden Fortress",

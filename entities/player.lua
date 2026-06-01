@@ -1,5 +1,3 @@
-local unpack = table.unpack or unpack
-
 return function(start, playerName)
   playerName = playerName or start.name
   local property_owned = {}

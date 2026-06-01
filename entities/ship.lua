@@ -1,7 +1,7 @@
 return function(x, y, owner, flagShip, name, type, landedAt, weapons, cargo)
-  type = type or "PP-2340"
-  name = name or owner..'s ship #'
-  weapons = weapons or config.Ships[type].weapons
+  local shipType = type or "PP-2340"
+  local shipName = name or owner..'s ship #'
+  local shipWeapons = weapons or config.Ships[type].weapons
   local def = config.Ships[type]
 
   local body = love.physics.newBody(config.World, x, y, "dynamic")
@@ -17,13 +17,13 @@ return function(x, y, owner, flagShip, name, type, landedAt, weapons, cargo)
   body:setAngle(0)
 
   return config.Entities.create('ship', {
-    name             = name,
-    type             = type,
+    name             = shipName,
+    type             = shipType,
     rigidbody        = config.RigidbodyComponent(body, fixtures[1].fixture),
     fixtures         = fixtures,   -- todas as partes ficam aqui
     inertiaDampeners = true,
     rcs              = true,
-    sprite           = { shipType = type },  -- sinaliza pro renderer que é multi-part
+    sprite           = { shipType = shipType },  -- sinaliza pro renderer que é multi-part
     movement         = config.MovementComponent(
                         def.movement.linearAcceleration,
                         def.movement.strafeAcceleration,
@@ -31,7 +31,7 @@ return function(x, y, owner, flagShip, name, type, landedAt, weapons, cargo)
                         def.movement.linearDamping,
                         def.movement.angularDampingFactor
                     ),
-    weapons          = config.WeaponComponent(weapons),
+    weapons          = config.WeaponComponent(shipWeapons),
     currentWeapon    = 1,
     inventory        = config.InventoryComponent(def.cargo,cargo or {}),
     layer            = 2,
