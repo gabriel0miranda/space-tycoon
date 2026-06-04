@@ -32,6 +32,8 @@ local function fire_projectile(owner, weapon, x, y, angle)
     homing        = def.homing,
     turnSpeed     = def.turnSpeed,
   })
+
+  weapon.capacitor.current = 0
 end
 
 local function fire_mine(owner, weapon, x, y, angle)
@@ -49,10 +51,12 @@ local function fire_laser(owner, weapon, x, y, angle)
     damage   = weapon.def,
     color    = weapon.def.color,
     owner    = owner,
-    lifetime = 0.08,
+    lifetime = 0.03,
     hitX     = nil,
     hitY     = nil,
   })
+
+  weapon.capacitor.current = weapon.capacitor.max - 10
 end
 
 local fireFunctions = {
@@ -145,10 +149,6 @@ local function applyIntent(e, dt)
 
   if not intent.firing then return end
   if weapon.capacitor.current < weapon.capacitor.max then return end
-
-  -- mover isso pras funções de disparo (fireFunctions)
-  -- criar um system pra cada (elas só colocam uma entidade na pilha)
-  weapon.capacitor.current = 0
 
   local fn = fireFunctions[weapon.def.type]
   if fn then fn(e, weapon, x, y, angle) end

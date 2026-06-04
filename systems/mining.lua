@@ -40,7 +40,6 @@ end
 function Mining.drop_loot(asteroid, fraction)
     for _, entry in ipairs(asteroid.mineable.loot_table) do
         local qty = math.random(entry.min, entry.max)
-        print("qty = "..qty.."\nfraction = "..fraction.."\nfloor = "..math.floor(qty * fraction))
         qty = math.max(0, math.floor(qty * fraction))
         if qty == 0 then return end
         local radius = math.max(5,math.floor(qty))

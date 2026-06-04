@@ -73,3 +73,5 @@ function LaserSystem.update(dt)
     end
   end
 end
+
+return LaserSystem

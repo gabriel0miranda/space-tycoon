@@ -45,27 +45,17 @@ local function drawProjectiles()
         love.graphics.rectangle("fill", -proj.size * 2, -proj.size / 2, proj.size * 4, proj.size)
       love.graphics.pop()
     else
-      -- Laser/bala: círculo simples
+      -- Bala: círculo simples
       love.graphics.circle("fill", proj.x, proj.y, proj.size)
     end
   end
 end
 
-local function drawDrillEffect(armedEntities)
-  for _, e in ipairs(armedEntities) do
-    local weapon = e.weapons[e.currentWeapon]
-    if weapon.def.type == "drill" and weapon.intent and weapon.intent.firing and weapon.timer > 0 then
-      local x, y = e.rigidbody.body:getPosition()
-      local tx = x + math.cos(weapon.angle) * weapon.def.range
-      local ty = y + math.sin(weapon.angle) * weapon.def.range
-      -- Pulsa com base no cooldown restante
-      local alpha = weapon.timer / weapon.def.cooldown
-      love.graphics.setColor(weapon.def.color[1], weapon.def.color[2], weapon.def.color[3], alpha)
-      love.graphics.setLineWidth(weapon.def.size * alpha)
-      love.graphics.line(x, y, tx, ty)
-      love.graphics.circle("fill", tx, ty, weapon.def.size * alpha)
-      love.graphics.setLineWidth(1)
-    end
+local function drawLaser()
+  for _, laser in ipairs(config.Entities.getByTag("laser")) do
+    love.graphics.setColor(laser.color)
+    -- Laser: line
+    love.graphics.line(laser.x, laser.y, laser.hitX, laser.hitY)
   end
 end
 
@@ -178,7 +168,7 @@ function Rendering.draw(playerFlagShip, armedEntities, camera)
         drawWorldLayer()
         -- drawParallaxBackground()
         drawProjectiles()
-        drawDrillEffect(armedEntities)
+        drawLaser()
     camera:detach()
     drawInventory()
     drawProperty()

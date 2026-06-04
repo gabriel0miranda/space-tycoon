@@ -77,6 +77,7 @@ function Playing.update(dt)
   config.WeaponSystem.update(armedEntities, dt)
   config.PickupSystem.update(dt,playerFlagShip,floatsome_hash)
   config.ProjectileSystem.update(ast_hash, dt)
+  config.LaserSystem.update(dt)
 
   -- config.Camera follow
   config.Camera:follow(playerFlagShip.rigidbody.body:getX(), playerFlagShip.rigidbody.body:getY())
