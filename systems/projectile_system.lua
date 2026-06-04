@@ -2,18 +2,22 @@ local ProjectileSystem = {}
 
 local function handle_hit(proj, target)
   if target.mineable then
-    config.MiningSystem.damage(target, proj.hullDamage)
+    config.MiningSystem.damage(target, proj.damage.hullDamage)
+  else
+    config.DamageSystem.apply(target, proj.damage.shieldDamage, proj.damage.hullDamage)
   end
   -- Futuramente: target.health, shields, etc.
   config.Entities.remove(proj)
 end
 
 local function update_homing(proj, ast_hash, dt)
+  print("UPDATING HOMING")
   -- Míssil: busca o asteroide mais próximo
   local best, bestDist = nil, math.huge
-  local candidates = config.SpatialHash.query(ast_hash, config.CELL_SIZE, proj.x, proj.y, proj.size + 20)
+  local candidates = config.SpatialHash.query(ast_hash, config.CELL_SIZE, proj.x, proj.y, proj.size + proj.range)
   for _, ast in ipairs(candidates) do
     if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
+      print("HOMING")
       local ax, ay = ast.rigidbody.body:getPosition()
       local d = (ax-proj.x)^2 + (ay-proj.y)^2
       if d < bestDist then bestDist = d; best = ast end

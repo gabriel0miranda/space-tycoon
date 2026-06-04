@@ -34,6 +34,7 @@ return {
   RenderingSystem = require("systems.rendering"),
   ProjectileSystem = require("systems.projectile_system"),
   LaserSystem = require("systems.laser_system"),
+  DamageSystem = require("systems.damage_system"),
   PickupSystem = require("systems.pickup"),
   MarketSystem = require("systems.market"),
   ShipyardSystem = require("systems.shipyard"),

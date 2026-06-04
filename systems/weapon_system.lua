@@ -6,7 +6,8 @@ local WeaponSystem = {}
 
 local function fire_projectile(owner, weapon, x, y, angle)
   local def = weapon.def
-  local spread = (love.math.random() - 0.5) * def.spread
+  local weaponSpread = def.spread or 0
+  local spread = (love.math.random() - 0.5) * weaponSpread
   local a = angle + spread
   local vx = math.cos(a) * def.speed
   local vy = math.sin(a) * def.speed
@@ -23,23 +24,43 @@ local function fire_projectile(owner, weapon, x, y, angle)
     vx            = vx,
     vy            = vy,
     lifetime      = def.lifetime,
-    hullDamage    = def.hullDamage,
-    shieldDamage  = def.shieldDamage,
-    size          = 2,
+    damage        = def,
+    size          = def.size or 3,
     color         = def.color,
     projType      = def.type,
     owner         = owner,
     homing        = def.homing,
     turnSpeed     = def.turnSpeed,
+    range         = def.range
   })
 
   weapon.capacitor.current = 0
 end
 
 local function fire_mine(owner, weapon, x, y, angle)
+  config.Entities.create("mine", {
+    x        = x,
+    y        = y,
+    damage   = weapon.def,
+    range    = weapon.def.range,
+    color    = weapon.def.color,
+    owner    = owner,
+  })
+
+  weapon.cooldown = weapon.def.cooldown
 end
 
 local function fire_pulse(owner, weapon, x, y, angle)
+  config.Entities.create("pulse", {
+    x         = x,
+    y         = y,
+    lifetime  = weapon.def.lifetime,
+    color     = weapon.def.color,
+    range     = weapon.def.range,
+    owner     = owner
+  })
+
+  weapon.capacitor.current = 0
 end
 
 local function fire_laser(owner, weapon, x, y, angle)
@@ -56,7 +77,7 @@ local function fire_laser(owner, weapon, x, y, angle)
     hitY     = nil,
   })
 
-  weapon.capacitor.current = weapon.capacitor.max - 10
+  weapon.capacitor.current = weapon.capacitor.max - weapon.capacitor.drain
 end
 
 local fireFunctions = {

@@ -16,7 +16,7 @@ return function(x, y, owner, flagShip, name, type, landedAt, weapons, cargo)
 
   body:setAngle(0)
 
-  return config.Entities.create('ship', {
+  local entity = config.Entities.create('ship', {
     name             = shipName,
     type             = shipType,
     rigidbody        = config.RigidbodyComponent(body, fixtures[1].fixture),
@@ -39,4 +39,6 @@ return function(x, y, owner, flagShip, name, type, landedAt, weapons, cargo)
     isFlagShip       = flagShip,
     landedAt         = landedAt,
   })
+  fixtures[1].fixture:setUserData(entity)
+  return entity
 end

@@ -1,4 +1,5 @@
 return function(star,asteroidCount,asteroidOres)
+  local asteroids = {}
   for i =1, asteroidCount or 30 do
     local theta = love.math.random() * 2 * math.pi
     local r_min_sq = config.ASTEROID_MIN_RADIUS^2
@@ -27,7 +28,6 @@ return function(star,asteroidCount,asteroidOres)
     rigidBody.body = love.physics.newBody(config.World, x, y, "dynamic")
     rigidBody.shape = love.physics.newCircleShape(size)
     rigidBody.fixture = love.physics.newFixture(rigidBody.body,rigidBody.shape)
-    rigidBody.fixture:setUserData("asteroid")
     local color = {99/100, 87/100, 67/100}
 
     rigidBody.body:setMass(((4/3)*math.pi*(size)^3)*170)
@@ -36,7 +36,7 @@ return function(star,asteroidCount,asteroidOres)
     --rigidBody.body:setLinearDamping(0.12)
     rigidBody.body:setAngularDamping(0.8)
 
-    config.Entities.create("asteroid", {
+    local entity = config.Entities.create("asteroid", {
       x = x or 0,
       y = y or 0,
       rigidbody = config.RigidbodyComponent(rigidBody.body,rigidBody.fixture),
@@ -45,5 +45,8 @@ return function(star,asteroidCount,asteroidOres)
       glow = 0,
       layer = 1
     })
+    entity.rigidbody.fixture:setUserData(entity)
+    table.insert(asteroids,entity)
   end
+  return asteroids
 end
