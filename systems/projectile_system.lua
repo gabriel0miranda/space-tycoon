@@ -40,7 +40,7 @@ local function update_homing(proj, ast_hash, dt)
   proj.vy = math.sin(newAngle) * speed
 end
 
-function ProjectileSystem.update(ast_hash, dt)
+function ProjectileSystem.update(ship_hash, ast_hash, dt)
   local projectiles = config.Entities.getByTag("projectile")
 
   for _, proj in ipairs(projectiles) do
@@ -56,8 +56,8 @@ function ProjectileSystem.update(ast_hash, dt)
     if proj.lifetime <= 0 then
       config.Entities.remove(proj)
     else
-      -- Colisão com asteroides
-      local candidates = config.SpatialHash.query(ast_hash, config.CELL_SIZE, proj.x, proj.y, proj.size + 20)
+      -- Colisão
+      local candidates = config.TableConcat.concat(config.SpatialHash.query(ast_hash, config.CELL_SIZE, proj.x, proj.y, proj.size + 20),config.SpatialHash.query(ship_hash, config.CELL_SIZE, proj.x, proj.y, proj.size + 20))
       for _, ast in ipairs(candidates) do
         if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
           local ax, ay = ast.rigidbody.body:getPosition()

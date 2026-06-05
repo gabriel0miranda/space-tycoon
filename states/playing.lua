@@ -45,12 +45,12 @@ local function obj_radius(obj)
   return obj.radius or 10
 end
 
-local function ast_pos(ast)
-  return ast.rigidbody.body:getPosition()
+local function rigidbody_pos(entity)
+  return entity.rigidbody.body:getPosition()
 end
 
-local function ast_radius(ast)
-  return (ast.sprite.shape and ast.sprite.shape:getRadius()) or 20
+local function shape_radius(entity)
+  return (entity.sprite.shape and entity.sprite.shape:getRadius()) or 20
 end
 
 function Playing.update(dt)
@@ -66,9 +66,11 @@ function Playing.update(dt)
       valid_asteroids[#valid_asteroids+1] = ast
     end
   end
-  local ast_hash = config.SpatialHash.build(valid_asteroids,ast_pos,ast_radius,config.CELL_SIZE)
+  local ast_hash = config.SpatialHash.build(valid_asteroids,rigidbody_pos,shape_radius,config.CELL_SIZE)
 
   local floatsome_hash = config.SpatialHash.build(config.Entities.getByTag("floatsome"),obj_pos,obj_radius,config.CELL_SIZE)
+
+  local ship_hash = config.SpatialHash.build(config.Entities.getByTag("ship"),rigidbody_pos,shape_radius,config.CELL_SIZE)
 
   config.NpcAISystem.update(playerFlagShip, dt)
   config.ShipMovementSystem.update(playerFlagShip, dt)
@@ -76,8 +78,9 @@ function Playing.update(dt)
   config.LandableMovementSystem.update(dt)
   config.WeaponSystem.update(armedEntities, dt)
   config.PickupSystem.update(dt,playerFlagShip,floatsome_hash)
-  config.ProjectileSystem.update(ast_hash, dt)
-  config.LaserSystem.update(dt)
+  config.ProjectileSystem.update(ship_hash,ast_hash,dt)
+  config.LaserSystem.update(ship_hash,ast_hash,dt)
+  config.PulseSystem.update(ship_hash,ast_hash,dt)
 
   -- config.Camera follow
   config.Camera:follow(playerFlagShip.rigidbody.body:getX(), playerFlagShip.rigidbody.body:getY())
