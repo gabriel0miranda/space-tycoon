@@ -50,5 +50,6 @@ return {
     lifetime           = 3,
     color              = {0.3, 0.5, 0.9, 1},
     range              = 400,
+    effect             = "emp",
   },
 }

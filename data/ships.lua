@@ -5,6 +5,7 @@ return {
     cargo       = 100,
     movement    = { linearAcceleration=800, strafeAcceleration=800, angularAcceleration=1200, linearDamping=0.8, angularDampingFactor=0.9 },
     weapons = {[1] = "Photon Cannon", [2] = "Vacuum Machinegun", [3] = "Predator Missile", [4] = "Proximity Mine", [5] = "EMP"},
+    generatorPower = 300,
     parts = {
       {
         points = {0, -25, 50, 0, 0, 25},
@@ -18,6 +19,7 @@ return {
     cargo       = 50,
     movement    = { linearAcceleration=1200, strafeAcceleration=800, angularAcceleration=1600, linearDamping=0.8, angularDampingFactor=0.8 },
     weapons = {[1] = "Photon Cannon", [2] = "Vacuum Machinegun", [3] = "Predator Missile", [4] = "Proximity Mine", [5] = "EMP"},
+    generatorPower = 500,
     parts = {
       {
         points = {50,0, 10,12, 0,20, -15,12, -25,0, -15,-12, 0,-20, 10,-12},
@@ -35,6 +37,7 @@ return {
     cargo   = 120,
     movement = { linearAcceleration=800, strafeAcceleration=500, angularAcceleration=900, linearDamping=0.6, angularDampingFactor=0.4 },
     weapons = {[1] = "Photon Cannon", [2] = "Vacuum Machinegun", [3] = "Predator Missile", [4] = "Proximity Mine", [5] = "EMP"},
+    generatorPower = 1000,
     parts = {
       {
         -- corpo principal: simplificado de 9 para 8 vértices
@@ -59,6 +62,7 @@ return {
     cargo   = 2000,
     movement = { linearAcceleration=300, strafeAcceleration=200, angularAcceleration=300, linearDamping=0.3, angularDampingFactor=0.4 },
     weapons = {[1] = "Photon Cannon", [2] = "Vacuum Machinegun", [3] = "Predator Missile", [4] = "Proximity Mine", [5] = "EMP"},
+    generatorPower = 4000,
     parts = {
       {
         -- corpo principal: simplificado de 10 para 8 vértices

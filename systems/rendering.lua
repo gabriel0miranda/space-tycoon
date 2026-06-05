@@ -158,7 +158,8 @@ local function drawDebugOverlay(playerFlagShip)
     "\nShip angle:"..playerFlagShip.rigidbody.body:getAngle()..
     "\nShip angular velocity:"..playerFlagShip.rigidbody.body:getAngularVelocity()..
     "\nShip RCS:"..tostring(not config.Input.state.rcs_off)..
-    "\nShip weapon:"..playerFlagShip.weapons[playerFlagShip.currentWeapon].def.type
+    "\nShip weapon:"..playerFlagShip.weapons[playerFlagShip.currentWeapon].def.type..
+    "\nWeapon capacitor:"..playerFlagShip.weapons[playerFlagShip.currentWeapon].capacitor.current
   )
   love.graphics.setColor(1,1,1)
 end

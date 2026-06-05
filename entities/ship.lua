@@ -2,7 +2,7 @@ return function(x, y, owner, flagShip, name, type, landedAt, weapons, cargo)
   local shipType = type or "PP-2340"
   local shipName = name or owner..'s ship #'
   local shipWeapons = weapons or config.Ships[type].weapons
-  local def = config.Ships[type]
+  local def = config.Ships[shipType]
 
   local body = love.physics.newBody(config.World, x, y, "dynamic")
   local fixtures = {}
@@ -23,6 +23,7 @@ return function(x, y, owner, flagShip, name, type, landedAt, weapons, cargo)
     fixtures         = fixtures,   -- todas as partes ficam aqui
     inertiaDampeners = true,
     rcs              = true,
+    owner            = owner,
     sprite           = { shipType = shipType },  -- sinaliza pro renderer que é multi-part
     movement         = config.MovementComponent(
                         def.movement.linearAcceleration,
@@ -33,6 +34,7 @@ return function(x, y, owner, flagShip, name, type, landedAt, weapons, cargo)
                     ),
     weapons          = config.WeaponComponent(shipWeapons),
     currentWeapon    = 1,
+    generator        = config.GeneratorComponent(def.generatorPower),
     inventory        = config.InventoryComponent(def.cargo,cargo or {}),
     layer            = 2,
     persistent       = true,

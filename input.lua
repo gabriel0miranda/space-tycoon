@@ -95,6 +95,7 @@ local action_types = {
     ship_weapon_2       = "pulse",
     ship_weapon_3       = "pulse",
     ship_weapon_4       = "pulse",
+    ship_weapon_5       = "pulse",
 
     -- Sistemas da nave
     ship_rcs_toggle     = "pulse",
@@ -151,6 +152,7 @@ local default_bindings = {
         ["2"]           = "ship_weapon_2",
         ["3"]           = "ship_weapon_3",
         ["4"]           = "ship_weapon_4",
+        ["5"]           = "ship_weapon_5",
 
         -- Sistemas
         ["lshift"]      = "ship_rcs_hold",
@@ -235,7 +237,7 @@ local context_defs = {
             ship_axis_x=true, ship_axis_y=true, ship_axis_rotate=true,
             ship_fire=true,
             ship_weapon_1=true, ship_weapon_2=true,
-            ship_weapon_3=true, ship_weapon_4=true,
+            ship_weapon_3=true, ship_weapon_4=true,ship_weapon_5=true,
             ship_rcs_toggle=true, ship_rcs_hold=true,
             ship_land=true, ship_launch=true,
             camera_zoom_in=true, camera_zoom_out=true,
@@ -512,6 +514,7 @@ local function sync_legacy_state()
     if s.ship_weapon_2 then s.weapon_type = 2 end
     if s.ship_weapon_3 then s.weapon_type = 3 end
     if s.ship_weapon_4 then s.weapon_type = 4 end
+    if s.ship_weapon_5 then s.weapon_type = 5 end
 
     -- Pulses de UI mapeados para os campos legados de 1 frame
     s.inventory  = s.ui_inventory
@@ -819,6 +822,7 @@ input.action_labels = {
     { "ship_weapon_2",     "Arma 2",               "Combate" },
     { "ship_weapon_3",     "Arma 3",               "Combate" },
     { "ship_weapon_4",     "Arma 4",               "Combate" },
+    { "ship_weapon_5",     "Arma 5",               "Combate" },
     { "ship_rcs_toggle",   "Toggle RCS",           "Sistemas" },
     { "ship_rcs_hold",     "Hold change RCS",      "Sistemas" },
     { "ship_land",         "Pousar",               "Sistemas" },

@@ -1,5 +1,5 @@
 return function(start, playerName)
-  playerName = playerName or start.name
+  playerName = playerName ~= "" and playerName or start.name
   local property_owned = {}
   for _, property in ipairs(start.starting_property) do
     table.insert(property_owned,property)

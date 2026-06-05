@@ -11,13 +11,11 @@ local function handle_hit(proj, target)
 end
 
 local function update_homing(proj, ast_hash, dt)
-  print("UPDATING HOMING")
   -- Míssil: busca o asteroide mais próximo
   local best, bestDist = nil, math.huge
   local candidates = config.SpatialHash.query(ast_hash, config.CELL_SIZE, proj.x, proj.y, proj.size + proj.range)
   for _, ast in ipairs(candidates) do
     if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
-      print("HOMING")
       local ax, ay = ast.rigidbody.body:getPosition()
       local d = (ax-proj.x)^2 + (ay-proj.y)^2
       if d < bestDist then bestDist = d; best = ast end
@@ -58,13 +56,14 @@ function ProjectileSystem.update(ship_hash, ast_hash, dt)
     else
       -- Colisão
       local candidates = config.TableConcat.concat(config.SpatialHash.query(ast_hash, config.CELL_SIZE, proj.x, proj.y, proj.size + 20),config.SpatialHash.query(ship_hash, config.CELL_SIZE, proj.x, proj.y, proj.size + 20))
-      for _, ast in ipairs(candidates) do
-        if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
-          local ax, ay = ast.rigidbody.body:getPosition()
-          local r = (ast.sprite.shape and ast.sprite.shape:getRadius()) or 20
+      for _, entity in ipairs(candidates) do
+        if entity.rigidbody and entity.rigidbody.body and not entity.rigidbody.body:isDestroyed() then
+          if entity.owner and entity.owner == proj.owner.owner then break end
+          local ax, ay = entity.rigidbody.body:getPosition()
+          local r = (entity.sprite.shape and entity.sprite.shape:getRadius()) or 20
           local dx, dy = proj.x - ax, proj.y - ay
           if dx*dx + dy*dy < (r + proj.size)^2 then
-            handle_hit(proj, ast)
+            handle_hit(proj, entity)
             break
           end
         end

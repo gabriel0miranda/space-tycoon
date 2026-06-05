@@ -57,7 +57,9 @@ local function fire_pulse(owner, weapon, x, y, angle)
     lifetime  = weapon.def.lifetime,
     color     = weapon.def.color,
     range     = weapon.def.range,
-    owner     = owner
+    effect    = weapon.def.effect,
+    owner     = owner,
+    damage    = weapon.def.damage
   })
 
   weapon.capacitor.current = 0
@@ -129,6 +131,11 @@ local function applyPlayerInput(e)
       intent.currentWeapon = 4
     end
   end
+  if input.ship_weapon_5 then
+    if e.weapons[5] then
+      intent.currentWeapon = 5
+    end
+  end
 
   -- Jogador atira na direção que a nave está apontando
   intent.targetX = nil
@@ -145,11 +152,6 @@ local function applyIntent(e, dt)
     e.currentWeapon = intent.currentWeapon
   end
 
-  -- Cooldown
-  if weapon.capacitor.current < weapon.capacitor.max then
-    weapon.capacitor.current = math.min(weapon.capacitor.max,
-                                        weapon.capacitor.current + 300 * dt)
-  end
 
   local x, y
   if e.rigidbody and e.rigidbody.body and not e.rigidbody.body:isDestroyed() then

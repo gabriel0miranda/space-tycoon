@@ -2,6 +2,7 @@ local Playing = {}
 
 local playerFlagShip = nil
 local armedEntities = {}
+local generatorEntities = {}
 local landCooldown = 0
 
 function Playing.onEnter(params)
@@ -13,10 +14,12 @@ function Playing.onEnter(params)
     config.WorldManager:unfreeze()
     playerFlagShip = config.Entities.with("isFlagShip")[1]
     armedEntities = config.Entities.with("weapons")
+    generatorEntities = config.Entities.with("generator")
   else
     landCooldown = 1.5
     playerFlagShip = config.Entities.with("isFlagShip")[1]
     armedEntities = config.Entities.with("weapons")
+    generatorEntities = config.Entities.with("generator")
     if playerFlagShip.landedAt then
         config.WorldManager:freeze()
         config.GameState.switch("landed")
@@ -76,10 +79,11 @@ function Playing.update(dt)
   config.ShipMovementSystem.update(playerFlagShip, dt)
   config.GravityPullSystem.update(ast_hash, dt)
   config.LandableMovementSystem.update(dt)
+  config.EnergySystem.update(generatorEntities,dt)
   config.WeaponSystem.update(armedEntities, dt)
   config.PickupSystem.update(dt,playerFlagShip,floatsome_hash)
   config.ProjectileSystem.update(ship_hash,ast_hash,dt)
-  config.LaserSystem.update(ship_hash,ast_hash,dt)
+  config.LaserSystem.update(dt)
   config.PulseSystem.update(ship_hash,ast_hash,dt)
 
   -- config.Camera follow
