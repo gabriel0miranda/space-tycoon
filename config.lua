@@ -59,6 +59,7 @@ return {
   Weapons = require("data.weapons"),
   Landables = require("data.landables"),
   Ships = require("data.ships"),
+  NpcProfiles = require("data.npc_profiles"),
   NpcEntity = require("entities.npc"),
   PlayerEntity = require("entities.player"),
   ShipEntity = require("entities.ship"),

@@ -136,8 +136,8 @@ function ShipMovement.update(playerFlagShip, dt)
 
     applyIntent(playerFlagShip, dt)
     for _, npc in ipairs(config.Entities.getByTag("npc")) do
-      if not npc.intent then npc.intent = ShipMovement.newIntent() end
-      applyIntent(npc, dt)
+      if not npc.ship.intent then npc.ship.intent = ShipMovement.newIntent() end
+      applyIntent(npc.ship, dt)
     end
 end
 

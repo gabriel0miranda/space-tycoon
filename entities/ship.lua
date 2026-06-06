@@ -38,7 +38,7 @@ return function(x, y, owner, flagShip, name, type, landedAt, weapons, cargo)
     inventory        = config.InventoryComponent(def.cargo,cargo or {}),
     layer            = 2,
     persistent       = true,
-    isFlagShip       = flagShip,
+    isFlagShip       = flagShip or nil,
     landedAt         = landedAt,
   })
   fixtures[1].fixture:setUserData(entity)

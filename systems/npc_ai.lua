@@ -13,32 +13,32 @@ local function dist2(ax, ay, bx, by)
 end
 
 local function set_npc_intent(npc, tx, ty)
-  local nx, ny = npc.rigidbody.body:getPosition()
+  local nx, ny = npc.ship.rigidbody.body:getPosition()
   local dx, dy = tx - nx, ty - ny
 
   -- Aponta pro alvo
-  npc.intent.targetAngle = math.atan2(dy, dx)
+  npc.ship.intent.targetAngle = math.atan2(dy, dx)
 
   -- Empurra pra frente só quando já está razoavelmente alinhado
-  local currentAngle = npc.rigidbody.body:getAngle()
-  local da = npc.intent.targetAngle - currentAngle
+  local currentAngle = npc.ship.rigidbody.body:getAngle()
+  local da = npc.ship.intent.targetAngle - currentAngle
   da = ((da + math.pi) % (2 * math.pi)) - math.pi
 
   if math.abs(da) < 0.3 then
-    npc.intent.thrust = 1
+    npc.ship.intent.thrust = 1
   else
-    npc.intent.thrust = 0  -- para e gira primeiro
+    npc.ship.intent.thrust = 0  -- para e gira primeiro
   end
 
-  npc.intent.dampLinear  = true
-  npc.intent.dampAngular = false  -- o targetAngle já cuida da rotação
+  npc.ship.intent.dampLinear  = true
+  npc.ship.intent.dampAngular = false  -- o targetAngle já cuida da rotação
 end
 
 local function clear_weapon_intent(npc)
-  if npc.weapon and npc.weapon.intent then
-    npc.weapon.intent.firing  = false
-    npc.weapon.intent.targetX = nil
-    npc.weapon.intent.targetY = nil
+  if npc.ship.weapons and npc.ship.weapons.intent then
+    npc.ship.weapons.intent.firing  = false
+    npc.ship.weapons.intent.targetX = nil
+    npc.ship.weapons.intent.targetY = nil
   end
 end
 
@@ -49,7 +49,7 @@ local function state_idle(npc, ai, dt)
   ai.timer = ai.timer - dt
   if ai.timer <= 0 then
     -- escolhe um waypoint aleatório próximo
-    local nx, ny = npc.rigidbody.body:getPosition()
+    local nx, ny = npc.ship.rigidbody.body:getPosition()
     ai.waypoint = {
       x = nx + math.random(-PATROL_RADIUS, PATROL_RADIUS),
       y = ny + math.random(-PATROL_RADIUS, PATROL_RADIUS),
@@ -59,7 +59,7 @@ local function state_idle(npc, ai, dt)
 end
 
 local function state_patrolling(npc, ai, dt)
-  local nx, ny = npc.rigidbody.body:getPosition()
+  local nx, ny = npc.ship.rigidbody.body:getPosition()
   clear_weapon_intent(npc)
   set_npc_intent(npc, ai.waypoint.x, ai.waypoint.y)
 
@@ -89,18 +89,18 @@ end
 
 local function state_attacking(npc, ai, dt, player)
   if not player then ai.state = "idle"; return end
-  local nx, ny = npc.rigidbody.body:getPosition()
+  local nx, ny = npc.ship.rigidbody.body:getPosition()
   local px, py = player.rigidbody.body:getPosition()
-  local ang = npc.rigidbody.body:getAngle()
+  local ang = npc.ship.rigidbody.body:getAngle()
 
   -- continua apontando pro jogador mas mais devagar
     set_npc_intent(npc, px, py)
 
   -- atira (delega pro WeaponSystem)
-  if npc.weapon and npc.weapon.intent then
-    npc.weapon.intent.firing  = true
-    npc.weapon.intent.targetX = px
-    npc.weapon.intent.targetY = py
+  if npc.ship.weapons and npc.ship.weapons.intent then
+    npc.ship.weapons.intent.firing  = true
+    npc.ship.weapons.intent.targetX = px
+    npc.ship.weapons.intent.targetY = py
   end
 
   -- saiu do range de ataque? volta a perseguir
@@ -120,7 +120,7 @@ function NpcAI.update(playerFlagShip, dt)
       -- detecção de jogador (só hostis)
       if ai.faction == "hostile" and (ai.state == "idle" or ai.state == "patrolling") then
         if playerFlagShip then
-          local nx, ny = npc.rigidbody.body:getPosition()
+          local nx, ny = npc.ship.rigidbody.body:getPosition()
           local px, py = playerFlagShip.rigidbody.body:getPosition()
           if dist2(nx, ny, px, py) < DETECT_RANGE*DETECT_RANGE then
             ai.state = "chasing"

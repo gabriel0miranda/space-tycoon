@@ -12,6 +12,7 @@ return {
     starColor    = {1,1,1},
     asteroidCount= 30,
     asteroidOres = {
+    populationDensity = 0.0001,
     {item="Iron Ore", min=0, max=10},
     {item="Silver Ore", min=0, max=6},
     },
@@ -31,6 +32,7 @@ return {
     starMass     = 80000,
     starColor    = {1,1,1},
     asteroidCount= 50,
+    populationDensity = 0.0001,
     asteroidOres = {
       {item="Sulfur", min=1, max=5},
     },
@@ -51,6 +53,7 @@ return {
     starY        = 0,
     starMass     = 30000,
     starColor    = {1,1,1},
+    populationDensity = 0.0001,
     asteroidCount= 5,
     asteroidOres = {
       {item="Iron Ore", min=0, max=6},

@@ -1,7 +1,6 @@
 return function(weapons)
   local shipWeapons = {}
   for i, weapon in pairs(weapons) do
-    print("WEAPON: "..weapon)
     shipWeapons[i] = {
       def       = config.Weapons[weapon],
       capacitor = {

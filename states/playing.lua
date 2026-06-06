@@ -75,9 +75,9 @@ function Playing.update(dt)
 
   local ship_hash = config.SpatialHash.build(config.Entities.getByTag("ship"),rigidbody_pos,shape_radius,config.CELL_SIZE)
 
-  config.NpcAISystem.update(playerFlagShip, dt)
   config.ShipMovementSystem.update(playerFlagShip, dt)
-  config.GravityPullSystem.update(ast_hash, dt)
+  config.NpcAISystem.update(playerFlagShip, dt)
+  config.GravityPullSystem.update(dt)
   config.LandableMovementSystem.update(dt)
   config.EnergySystem.update(generatorEntities,dt)
   config.WeaponSystem.update(armedEntities, dt)
