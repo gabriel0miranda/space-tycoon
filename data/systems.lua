@@ -12,7 +12,7 @@ return {
     starColor    = {1,1,1},
     asteroidCount= 30,
     asteroidOres = {
-    populationDensity = 0.0001,
+    populationDensity = 0.001,
     {item="Iron Ore", min=0, max=10},
     {item="Silver Ore", min=0, max=6},
     },

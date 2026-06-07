@@ -120,8 +120,8 @@ local function applyIntent(ship, dt)
     end
 
     -- Angular dampening (RCS)
-    if intent.dampAngular and intent.targetAngle == nil then
-      applyAngularDamping(body,mov, intent.torque ~= 0)
+    if intent.dampAngular then
+      applyAngularDamping(body, mov, intent.torque ~= 0 or intent.targetAngle ~= nil)
     end
 end
 

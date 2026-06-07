@@ -16,29 +16,20 @@ local function set_npc_intent(npc, tx, ty)
   local nx, ny = npc.ship.rigidbody.body:getPosition()
   local dx, dy = tx - nx, ty - ny
 
-  -- Aponta pro alvo
   npc.ship.intent.targetAngle = math.atan2(dy, dx)
-
-  -- Empurra pra frente só quando já está razoavelmente alinhado
-  local currentAngle = npc.ship.rigidbody.body:getAngle()
-  local da = npc.ship.intent.targetAngle - currentAngle
-  da = ((da + math.pi) % (2 * math.pi)) - math.pi
-
-  if math.abs(da) < 0.3 then
-    npc.ship.intent.thrust = 1
-  else
-    npc.ship.intent.thrust = 0  -- para e gira primeiro
-  end
-
+  npc.ship.intent.dampAngular = true   -- deixa o damping estabilizar a rotação
   npc.ship.intent.dampLinear  = true
-  npc.ship.intent.dampAngular = false  -- o targetAngle já cuida da rotação
+
+  local da = npc.ship.intent.targetAngle - npc.ship.rigidbody.body:getAngle()
+  da = ((da + math.pi) % (2 * math.pi)) - math.pi
+  npc.ship.intent.thrust = math.abs(da) < 0.3 and 1 or 0
 end
 
 local function clear_weapon_intent(npc)
-  if npc.ship.weapons and npc.ship.weapons.intent then
-    npc.ship.weapons.intent.firing  = false
-    npc.ship.weapons.intent.targetX = nil
-    npc.ship.weapons.intent.targetY = nil
+  if npc.ship.weapons_intent then
+    npc.ship.weapons_intent.firing  = false
+    npc.ship.weapons_intent.targetX = nil
+    npc.ship.weapons_intent.targetY = nil
   end
 end
 
@@ -74,7 +65,7 @@ end
 
 local function state_chasing(npc, ai, dt, player)
   if not player then ai.state = "idle"; return end
-  local nx, ny = npc.rigidbody.body:getPosition()
+  local nx, ny = npc.ship.rigidbody.body:getPosition()  -- corrigido
   local px, py = player.rigidbody.body:getPosition()
 
   set_npc_intent(npc, px, py)
@@ -82,7 +73,6 @@ local function state_chasing(npc, ai, dt, player)
   if dist2(nx, ny, px, py) < ATTACK_RANGE*ATTACK_RANGE then
     ai.state = "attacking"
   elseif dist2(nx, ny, px, py) > DETECT_RANGE*DETECT_RANGE * 1.5 then
-    -- jogador escapou (1.5× o range de detecção como histerese)
     ai.state = "idle"
   end
 end

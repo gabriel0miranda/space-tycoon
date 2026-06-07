@@ -39,15 +39,17 @@ end
 
 local function fire_mine(owner, weapon, x, y, angle)
   config.Entities.create("mine", {
-    x        = x,
-    y        = y,
-    damage   = weapon.def,
-    range    = weapon.def.range,
-    color    = weapon.def.color,
-    owner    = owner,
+    x               = x,
+    y               = y,
+    damage          = weapon.def,
+    range           = weapon.def.range,
+    color           = weapon.def.color,
+    owner           = owner,
+    armTime         = weapon.def.armTime,
+    indicator       = {color = {0,0.3,0.7,0.2}}
   })
 
-  weapon.cooldown = weapon.def.cooldown
+  weapon.capacitor.current = 0
 end
 
 local function fire_pulse(owner, weapon, x, y, angle)

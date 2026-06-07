@@ -75,8 +75,8 @@ function Playing.update(dt)
 
   local ship_hash = config.SpatialHash.build(config.Entities.getByTag("ship"),rigidbody_pos,shape_radius,config.CELL_SIZE)
 
-  config.ShipMovementSystem.update(playerFlagShip, dt)
   config.NpcAISystem.update(playerFlagShip, dt)
+  config.ShipMovementSystem.update(playerFlagShip, dt)
   config.GravityPullSystem.update(dt)
   config.LandableMovementSystem.update(dt)
   config.EnergySystem.update(generatorEntities,dt)
@@ -85,6 +85,8 @@ function Playing.update(dt)
   config.ProjectileSystem.update(ship_hash,ast_hash,dt)
   config.LaserSystem.update(dt)
   config.PulseSystem.update(ship_hash,ast_hash,dt)
+  config.MineSystem.update(ship_hash,ast_hash,dt)
+  config.ExplosionSystem.update(dt)
 
   -- config.Camera follow
   config.Camera:follow(playerFlagShip.rigidbody.body:getX(), playerFlagShip.rigidbody.body:getY())

@@ -59,6 +59,34 @@ local function drawLaser()
   end
 end
 
+local function drawPulse()
+  for _, pulse in ipairs(config.Entities.getByTag("pulse")) do
+    love.graphics.setColor(pulse.color)
+    -- pulse: circle
+    love.graphics.circle('fill', pulse.x, pulse.y, pulse.range)
+  end
+end
+
+local function drawMine()
+  for _, mine in ipairs(config.Entities.getByTag("mine")) do
+    love.graphics.setColor(mine.color)
+    -- mine: square
+    love.graphics.rectangle('fill', mine.x, mine.y, 15,15,3,3)
+    -- range indicators
+    love.graphics.setColor(mine.indicator.color)
+    love.graphics.circle('line', mine.x, mine.y, mine.range)
+  end
+end
+
+local function drawExplosion()
+  for _, explosion in ipairs(config.Entities.getByTag("explosion")) do
+    love.graphics.setColor(explosion.color)
+    -- explosion: circle
+    love.graphics.circle('fill', explosion.x, explosion.y, explosion.radius)
+    explosion.radius = explosion.radius+explosion.duration
+  end
+end
+
 local function drawInventory()
   config.InventoryUI.draw()
 end
@@ -130,6 +158,17 @@ local function drawMinimap(playerFlagShip, camera)
         end
     end
 
+    -- Naves
+    for _, ship in ipairs(config.Entities.getByTag("ship")) do
+        if ship.rigidbody and ship.rigidbody.body then
+            local ax, ay = ship.rigidbody.body:getPosition()
+            local dx = (ax - playerX) * mapScale
+            local dy = (ay - playerY) * mapScale
+            love.graphics.setColor(0.3,1,0.5,0.7)
+            love.graphics.circle("fill", cx + dx, cy + dy, 2)
+        end
+    end
+
     -- Retângulo do campo de visão atual
     local fovW = (viewW / 2) * mapScale
     local fovH = (viewH / 2) * mapScale
@@ -167,9 +206,12 @@ end
 function Rendering.draw(playerFlagShip, armedEntities, camera)
     camera:attach()
         drawWorldLayer()
-        -- drawParallaxBackground()
+        drawExplosion()
+        drawPulse()
+        drawMine()
         drawProjectiles()
         drawLaser()
+        -- drawParallaxBackground()
     camera:detach()
     drawInventory()
     drawProperty()

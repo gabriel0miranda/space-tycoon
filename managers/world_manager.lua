@@ -93,14 +93,17 @@ function WorldManager.loadSystem(systemId)
 
   config.WormholeEntity(sys.wormholes)
 
-  local popDensity = sys.populationDensity or 0.0001
+  local popDensity = sys.populationDensity or 0.001
   local population = math.floor(popDensity*36000)
   local popMargin  = 12
-  for i=1, (math.random(population*(1-(popMargin/100)),population)), 1 do
-    local x, y = math.random(-6000,6000), math.random(-6000,6000)
-    local type = math.random(1,#config.NpcProfiles)
+  local rng = love.math.newRandomGenerator(os.time())
+  local npcCount = math.ceil(rng:random(population*(1-(popMargin/100)),population))
+  for i=1, npcCount, 1 do
+    local x, y = rng:random(-6000,6000), rng:random(-6000,6000)
+    local type = rng:random(1,#config.NpcProfiles)
     config.NpcEntity(x,y,config.NpcProfiles[type],config.NpcProfiles[type].ship,i)
   end
+  print("NPCs criados: "..npcCount)
 
   config.Entities.sortByLayer()
 

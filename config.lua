@@ -44,6 +44,8 @@ return {
   GravityPullSystem = require("systems.gravity_pull"),
   NpcAISystem = require("systems.npc_ai"),
   EnergySystem = require("systems.energy_system"),
+  MineSystem = require("systems.mine_system"),
+  ExplosionSystem = require("systems.explosion_system"),
   SpriteComponent = require("components.sprite"),
   CreditsComponent = require("components.credits"),
   InventoryComponent = require("components.inventory"),

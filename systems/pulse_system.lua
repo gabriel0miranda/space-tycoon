@@ -45,6 +45,7 @@ end
 function PulseSystem.update(ship_hash, ast_hash,dt)
   for _, pulse in ipairs(config.Entities.getByTag("pulse")) do
     pulse.lifetime = pulse.lifetime - dt
+    pulse.x, pulse.y = pulse.owner.rigidbody.body:getX(), pulse.owner.rigidbody.body:getY()
     if pulse.lifetime <= 0 then
       config.Entities.remove(pulse)
     else
