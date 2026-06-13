@@ -55,6 +55,8 @@ return {
   MovementComponent = require("components.movement"),
   PropertyComponent = require("components.property"),
   GeneratorComponent = require("components.generator"),
+  ShieldComponent = require("components.shield"),
+  HullComponent = require("components.hull"),
   Starts = require("data.starts"),
   Items = require("data.items"),
   Systems = require("data.systems"),

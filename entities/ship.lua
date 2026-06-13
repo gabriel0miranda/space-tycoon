@@ -35,6 +35,8 @@ return function(x, y, owner, flagShip, name, type, landedAt, weapons, cargo)
     weapons          = config.WeaponComponent(shipWeapons),
     currentWeapon    = 1,
     generator        = config.GeneratorComponent(def.generatorPower),
+    shields          = config.ShieldComponent(def.shields.capacity,def.shields.cooldown),
+    hull             = config.HullComponent(def.hull),
     inventory        = config.InventoryComponent(def.cargo,cargo or {}),
     layer            = 2,
     persistent       = true,

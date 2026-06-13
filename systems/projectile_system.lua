@@ -10,19 +10,21 @@ local function handle_hit(proj, target)
   config.Entities.remove(proj)
 end
 
-local function update_homing(proj, ast_hash, dt)
-  -- Míssil: busca o asteroide mais próximo
+local function update_homing(proj, ship_hash, dt)
+  -- Míssil: busca o alvo mais próximo
   local best, bestDist = nil, math.huge
-  local candidates = config.SpatialHash.query(ast_hash, config.CELL_SIZE, proj.x, proj.y, proj.size + proj.range)
-  for _, ast in ipairs(candidates) do
-    if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
-      local ax, ay = ast.rigidbody.body:getPosition()
+  local candidates = config.SpatialHash.query(ship_hash, config.CELL_SIZE, proj.x, proj.y, proj.size + proj.range)
+  for _, ship in ipairs(candidates) do
+    if ship.rigidbody and ship.rigidbody.body and not ship.rigidbody.body:isDestroyed() and ship ~= proj.owner then
+      local ax, ay = ship.rigidbody.body:getPosition()
       local d = (ax-proj.x)^2 + (ay-proj.y)^2
-      if d < bestDist then bestDist = d; best = ast end
+      print("d "..d.." bestDist "..bestDist)
+      if d < bestDist then bestDist = d; best = ship end
     end
   end
 
   if not best then return end
+  print("best: "..best.owner)
   local ax, ay = best.rigidbody.body:getPosition()
   local targetAngle = math.atan2(ay - proj.y, ax - proj.x)
   local currentAngle = math.atan2(proj.vy, proj.vx)
@@ -44,7 +46,7 @@ function ProjectileSystem.update(ship_hash, ast_hash, dt)
   for _, proj in ipairs(projectiles) do
     -- Homing
     if proj.homing then
-      update_homing(proj, ast_hash, dt)
+      update_homing(proj, ship_hash, dt)
     end
     -- Move (projéteis simples não têm rigidbody, só posição)
     proj.x = proj.x + proj.vx * dt

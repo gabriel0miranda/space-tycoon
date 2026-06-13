@@ -2,7 +2,7 @@ local PulseSystem = {}
 
 local function apply_emp(pulse, entity)
   if entity.generator then
-    entity.generator.impaired = true
+    entity.generator.disabled = true
   end
 end
 

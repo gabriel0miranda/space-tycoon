@@ -128,6 +128,7 @@ end
 function ShipMovement.update(playerFlagShip, dt)
     if not playerFlagShip.rigidbody or not playerFlagShip.rigidbody.body then return end
     if not playerFlagShip.intent then playerFlagShip.intent = ShipMovement.newIntent() end
+    if playerFlagShip.disabled then return end
 
     -- Player input writes to intent unless autopilot is active
     if not playerFlagShip.autopilot then
@@ -137,6 +138,7 @@ function ShipMovement.update(playerFlagShip, dt)
     applyIntent(playerFlagShip, dt)
     for _, npc in ipairs(config.Entities.getByTag("npc")) do
       if not npc.ship.intent then npc.ship.intent = ShipMovement.newIntent() end
+      if npc.ship.disabled then return end
       applyIntent(npc.ship, dt)
     end
 end

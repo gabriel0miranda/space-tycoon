@@ -103,6 +103,10 @@ end
 
 function NpcAI.update(playerFlagShip, dt)
   for _, npc in ipairs(config.Entities.getByTag("npc")) do
+    if not npc.ship or not npc.ship.rigidbody or not npc.ship.rigidbody.body or npc.ship.rigidbody.body:isDestroyed() then
+      config.Entities.remove(npc)
+      return
+    end
     local ai = npc.ai
     repeat
       if not ai then break end

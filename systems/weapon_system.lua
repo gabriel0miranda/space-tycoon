@@ -146,6 +146,7 @@ end
 
 -- Aplica o intent — executa o disparo se as condições batem
 local function applyIntent(e, dt)
+  if e.disabled then return end
   local weapon = e.weapons[e.currentWeapon]
   local intent = e.weapons_intent
 

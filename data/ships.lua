@@ -6,6 +6,8 @@ return {
     movement    = { linearAcceleration=800, strafeAcceleration=800, angularAcceleration=1200, linearDamping=0.8, angularDampingFactor=0.9 },
     weapons = {[1] = "Photon Cannon", [2] = "Vacuum Machinegun", [3] = "Predator Missile", [4] = "Proximity Mine", [5] = "EMP"},
     generatorPower = 300,
+    shields     = {capacity=100,cooldown=1},
+    hull        = 200,
     parts = {
       {
         points = {0, -25, 50, 0, 0, 25},
@@ -20,6 +22,8 @@ return {
     movement    = { linearAcceleration=1200, strafeAcceleration=800, angularAcceleration=1600, linearDamping=0.8, angularDampingFactor=0.8 },
     weapons = {[1] = "Photon Cannon", [2] = "Vacuum Machinegun", [3] = "Predator Missile", [4] = "Proximity Mine", [5] = "EMP"},
     generatorPower = 500,
+    shields     = {capacity=250,cooldown=0.8},
+    hull        = 350,
     parts = {
       {
         points = {50,0, 10,12, 0,20, -15,12, -25,0, -15,-12, 0,-20, 10,-12},
@@ -38,6 +42,8 @@ return {
     movement = { linearAcceleration=800, strafeAcceleration=500, angularAcceleration=900, linearDamping=0.6, angularDampingFactor=0.4 },
     weapons = {[1] = "Photon Cannon", [2] = "Vacuum Machinegun", [3] = "Predator Missile", [4] = "Proximity Mine", [5] = "EMP"},
     generatorPower = 1000,
+    shields     = {capacity=400,cooldown=0.6},
+    hull        = 450,
     parts = {
       {
         -- corpo principal: simplificado de 9 para 8 vértices
@@ -63,6 +69,8 @@ return {
     movement = { linearAcceleration=300, strafeAcceleration=200, angularAcceleration=300, linearDamping=0.3, angularDampingFactor=0.4 },
     weapons = {[1] = "Photon Cannon", [2] = "Vacuum Machinegun", [3] = "Predator Missile", [4] = "Proximity Mine", [5] = "EMP"},
     generatorPower = 4000,
+    shields     = {capacity=1500,cooldown=5},
+    hull         = 720,
     parts = {
       {
         -- corpo principal: simplificado de 10 para 8 vértices
