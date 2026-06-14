@@ -53,9 +53,43 @@ end
 
 local function drawLaser()
   for _, laser in ipairs(config.Entities.getByTag("laser")) do
-    love.graphics.setColor(laser.color)
-    -- Laser: line
+    local c = laser.color
+    local fadeT = laser.lifetime / (laser.maxLifetime or laser.lifetime)
+    local dirX = math.cos(laser.angle)
+    local dirY = math.sin(laser.angle)
+    local endX = laser.x + dirX * laser.range
+    local endY = laser.y + dirY * laser.range
+    if laser.hitX == nil then
+      laser.hitX = endX
+    end
+    if laser.hitY == nil then
+      laser.hitY = endY
+    end
+
+    -- Halo externo (largo, fraco)
+    love.graphics.setColor(c[1], c[2], c[3], 0.15 * fadeT)
+    love.graphics.setLineWidth(8)
     love.graphics.line(laser.x, laser.y, laser.hitX, laser.hitY)
+
+    -- Halo médio
+    love.graphics.setColor(c[1], c[2], c[3], 0.35 * fadeT)
+    love.graphics.setLineWidth(4)
+    love.graphics.line(laser.x, laser.y, laser.hitX, laser.hitY)
+
+    -- Núcleo brilhante (quase branco)
+    love.graphics.setColor(
+      math.min(1, c[1] + 0.5),
+      math.min(1, c[2] + 0.5),
+      math.min(1, c[3] + 0.5),
+      fadeT)
+    love.graphics.setLineWidth(1.5)
+    love.graphics.line(laser.x, laser.y, laser.hitX, laser.hitY)
+
+    love.graphics.setLineWidth(1)
+
+    -- Flash no ponto de impacto
+    love.graphics.setColor(c[1], c[2], c[3], 0.6 * fadeT)
+    love.graphics.circle("fill", laser.hitX, laser.hitY, 4 * fadeT)
   end
 end
 
@@ -80,10 +114,22 @@ end
 
 local function drawExplosion()
   for _, explosion in ipairs(config.Entities.getByTag("explosion")) do
-    love.graphics.setColor(explosion.color)
-    -- explosion: circle
-    love.graphics.circle('fill', explosion.x, explosion.y, explosion.radius)
-    explosion.radius = explosion.radius+explosion.duration
+    local t = 1 - (explosion.duration / (explosion.maxDuration or 1))  -- 0 → 1
+    local c = explosion.color
+
+    -- Núcleo: começa cheio, encolhe e esmaece
+    local coreAlpha  = (c[4] or 1) * (1 - t)
+    local coreRadius = explosion.radius * (1 - t * 0.6)
+    love.graphics.setColor(c[1], c[2], c[3], coreAlpha)
+    love.graphics.circle("fill", explosion.x, explosion.y, coreRadius)
+
+    -- Anel de choque: expande até o raio total e desaparece
+    local ringAlpha  = (1 - t) * 0.6
+    local ringRadius = explosion.radius * t
+    love.graphics.setColor(1, 0.9, 0.6, ringAlpha)
+    love.graphics.setLineWidth(3 * (1 - t) + 1)
+    love.graphics.circle("line", explosion.x, explosion.y, ringRadius)
+    love.graphics.setLineWidth(1)
   end
 end
 
@@ -213,6 +259,7 @@ function Rendering.draw(playerFlagShip, armedEntities, camera)
         drawLaser()
         -- drawParallaxBackground()
     camera:detach()
+    config.HudUI.draw(playerFlagShip)
     drawInventory()
     drawProperty()
     drawMinimap(playerFlagShip, camera)

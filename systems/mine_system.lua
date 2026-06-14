@@ -34,6 +34,7 @@ local function resolveHit(ship_hash, ast_hash, mine)
       y        = mine.y,
       radius   = mine.range,
       duration = 1,
+      maxDuration = 1,
     })
     for _, entity in ipairs(hitEntities) do
       if entity.mineable then

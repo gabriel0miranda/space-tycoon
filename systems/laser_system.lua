@@ -29,12 +29,6 @@ local function resolveHit(laser)
 
   laser.hitX = hitX
   laser.hitY = hitY
-  if laser.hitX == nil then
-    laser.hitX = endX
-  end
-  if laser.hitY == nil then
-    laser.hitY = endY
-  end
 
   local falloff = 1.0 - (closestFraction*0.8)
   if hitEntity then

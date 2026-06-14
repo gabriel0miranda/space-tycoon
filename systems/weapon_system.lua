@@ -24,6 +24,7 @@ local function fire_projectile(owner, weapon, x, y, angle)
     vx            = vx,
     vy            = vy,
     lifetime      = def.lifetime,
+    maxLifetime   = def.lifetime,
     damage        = def,
     size          = def.size or 3,
     color         = def.color,
