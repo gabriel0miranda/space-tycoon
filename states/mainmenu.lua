@@ -1,5 +1,14 @@
 local MainMenu = {}
 
+local controls = function()
+  local controlList = ""
+  for key, action in pairs(config.Input.getBindings().keyboard) do
+    controlList = controlList..key..": "..action.."\n"
+  end
+  return controlList
+end
+
+
 -- ─────────────────────────────────────────
 -- Cores  (tema marrom/âmbar — igual ao market_ui)
 -- ─────────────────────────────────────────
@@ -95,7 +104,11 @@ local function executeAction(action)
   elseif action == "cont" then
       -- TODO: implementar save/load
   elseif action == "control" then
-      -- TODO: implementar tela de controles
+      config.DialogueUI.open({
+        speaker = "Controles",
+        text = controls(),
+        onConfirm = function(option)end,
+      })
   elseif action == "quit" then
       love.event.quit()
   end

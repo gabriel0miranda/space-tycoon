@@ -1,5 +1,74 @@
 local Rendering = {}
 
+local STAR_LAYERS = {
+  { cellSize = 900, starsPerCell = 2, parallax = 0.05, sizeRange = {0.5, 1.0}, color = {0.55, 0.6, 0.75, 0.5} },
+  { cellSize = 1000, starsPerCell = 3, parallax = 0.15, sizeRange = {0.8, 1.6}, color = {0.7, 0.75, 0.9, 0.7} },
+  { cellSize = 1200, starsPerCell = 1, parallax = 0.35, sizeRange = {1.2, 2.4}, color = {0.9, 0.92, 1.0, 0.9} },
+}
+
+-- Hash determinístico simples — mesma célula sempre gera as mesmas estrelas.
+-- Usa apenas operações inteiras seguras em Lua 5.1+ (sem bitwise nativo).
+local function hashCell(cx, cy, salt)
+    -- love.math.noise é determinístico e bem distribuído,
+    -- sem problemas de overflow em coordenadas grandes
+    return love.math.noise(cx * 0.1 + salt * 17.0, cy * 0.1 + salt * 31.0)
+end
+
+local function drawParallaxBackground(camera)
+  local sw, sh = love.graphics.getWidth(), love.graphics.getHeight()
+  local camX = camera.x or 0
+  local camY = camera.y or 0
+  local scale = camera.scale or 1
+
+  for _, layer in ipairs(STAR_LAYERS) do
+    -- Posição "virtual" do mundo nesta camada, aplicando o fator de paralaxe.
+    -- Camadas com parallax baixo se movem menos que a câmera real,
+    -- dando a sensação de estarem mais distantes.
+    local layerX = camX * layer.parallax
+    local layerY = camY * layer.parallax
+
+    -- Área visível em coordenadas de mundo (ajustado pelo zoom)
+    local viewW = sw / scale
+    local viewH = sh / scale
+
+    local cell = layer.cellSize
+    local startCx = math.floor((layerX - viewW / 2) / cell) - 1
+    local endCx   = math.floor((layerX + viewW / 2) / cell) + 1
+    local startCy = math.floor((layerY - viewH / 2) / cell) - 1
+    local endCy   = math.floor((layerY + viewH / 2) / cell) + 1
+
+    love.graphics.setColor(layer.color)
+
+    for cx = startCx, endCx do
+      for cy = startCy, endCy do
+        for i = 1, layer.starsPerCell do
+          local salt = i * 97
+          local rx = hashCell(cx, cy, salt)
+          local ry = hashCell(cx, cy, salt + 1)
+          local rs = hashCell(cx, cy, salt + 2)
+
+          -- Posição da estrela dentro da célula (espaço da camada)
+          local worldX = cx * cell + rx * cell
+          local worldY = cy * cell + ry * cell
+
+          -- Converte para tela, relativo ao deslocamento desta camada
+          local screenX = (worldX - layerX) * scale + sw / 2
+          local screenY = (worldY - layerY) * scale + sh / 2
+
+          if screenX >= -10 and screenX <= sw + 10
+          and screenY >= -10 and screenY <= sh + 10 then
+            local size = layer.sizeRange[1]
+                + rs * (layer.sizeRange[2] - layer.sizeRange[1])
+            love.graphics.circle("fill", screenX, screenY, size)
+          end
+        end
+      end
+    end
+  end
+
+  love.graphics.setColor(1, 1, 1, 1)
+end
+
 local function drawWorldLayer()
   -- Draw all entities that have a draw method
   for _, entity in ipairs(config.Entities.all) do
@@ -141,98 +210,6 @@ local function drawProperty()
   config.PropertyUI.draw()
 end
 
-local function drawMinimap(playerFlagShip, camera)
-    if not playerFlagShip then return end
-
-    local sw = love.graphics.getWidth()
-    local sh = love.graphics.getHeight()
-
-    local size   = 160
-    local margin = 16
-    local cx     = sw - margin - size / 2
-    local cy     = sh - margin - size / 2
-
-    -- Campo de visão da câmera em unidades de mundo
-    local viewW  = sw / camera.scale
-    local viewH  = sh / camera.scale
-
-    -- Minimapa mostra um pouco além do que a câmera vê
-    local viewRange  = math.max(viewW, viewH) * 0.7
-    local mapScale   = (size / 2) / viewRange
-
-    -- Fundo
-    love.graphics.setColor(0.04, 0.05, 0.10, 0.85)
-    love.graphics.circle("fill", cx, cy, size / 2)
-    love.graphics.setColor(0.17, 0.21, 0.32)
-    love.graphics.circle("line", cx, cy, size / 2)
-
-    -- Stencil circular
-    love.graphics.stencil(function()
-        love.graphics.circle("fill", cx, cy, size / 2 - 1)
-    end, "replace", 1)
-    love.graphics.setStencilTest("greater", 0)
-
-    local playerX, playerY = playerFlagShip.rigidbody.body:getPosition()
-
-    -- Estrela central
-    for _, star in ipairs(config.Entities.getByTag("star")) do
-        local dx = (star.x - playerX) * mapScale
-        local dy = (star.y - playerY) * mapScale
-        love.graphics.setColor(0.91, 0.75, 0.37)
-        love.graphics.circle("fill", cx + dx, cy + dy, 5)
-    end
-
-    -- Planetas e estações
-    for _, e in ipairs(config.Entities.getByTag("landable")) do
-        local dx = (e.x - playerX) * mapScale
-        local dy = (e.y - playerY) * mapScale
-        local color = e.type == "station"
-            and {0.48, 0.67, 0.87}
-            or  {0.33, 0.55, 0.33}
-        love.graphics.setColor(color)
-        love.graphics.circle("fill", cx + dx, cy + dy, 4)
-    end
-
-    -- Asteroides
-    for _, ast in ipairs(config.Entities.getByTag("asteroid")) do
-        if ast.rigidbody and ast.rigidbody.body then
-            local ax, ay = ast.rigidbody.body:getPosition()
-            local dx = (ax - playerX) * mapScale
-            local dy = (ay - playerY) * mapScale
-            love.graphics.setColor(0.55, 0.45, 0.35, 0.7)
-            love.graphics.circle("fill", cx + dx, cy + dy, 1.5)
-        end
-    end
-
-    -- Naves
-    for _, ship in ipairs(config.Entities.getByTag("ship")) do
-        if ship.rigidbody and ship.rigidbody.body then
-            local ax, ay = ship.rigidbody.body:getPosition()
-            local dx = (ax - playerX) * mapScale
-            local dy = (ay - playerY) * mapScale
-            love.graphics.setColor(0.3,1,0.5,0.7)
-            love.graphics.circle("fill", cx + dx, cy + dy, 2)
-        end
-    end
-
-    -- Retângulo do campo de visão atual
-    local fovW = (viewW / 2) * mapScale
-    local fovH = (viewH / 2) * mapScale
-    love.graphics.setColor(0.78, 0.81, 0.88, 0.12)
-    love.graphics.rectangle("fill", cx - fovW, cy - fovH, fovW * 2, fovH * 2)
-    love.graphics.setColor(0.78, 0.81, 0.88, 0.25)
-    love.graphics.rectangle("line", cx - fovW, cy - fovH, fovW * 2, fovH * 2)
-
-    -- Nave (sempre no centro)
-    love.graphics.setColor(0.48, 0.87, 0.67)
-    love.graphics.circle("fill", cx, cy, 3)
-
-    love.graphics.setStencilTest()
-    love.graphics.setColor(0.17, 0.21, 0.32)
-    love.graphics.circle("line", cx, cy, size / 2)
-    love.graphics.setColor(1, 1, 1, 1)
-end
-
 local function drawDebugOverlay(playerFlagShip)
   if not config.Input.state.debugFlag then return end
   love.graphics.setColor(0, 1, 0)
@@ -250,6 +227,7 @@ local function drawDebugOverlay(playerFlagShip)
 end
 
 function Rendering.draw(playerFlagShip, armedEntities, camera)
+    drawParallaxBackground(camera)
     camera:attach()
         drawWorldLayer()
         drawExplosion()
@@ -259,10 +237,9 @@ function Rendering.draw(playerFlagShip, armedEntities, camera)
         drawLaser()
         -- drawParallaxBackground()
     camera:detach()
-    config.HudUI.draw(playerFlagShip)
+    config.HudUI.draw(playerFlagShip,camera)
     drawInventory()
     drawProperty()
-    drawMinimap(playerFlagShip, camera)
     drawDebugOverlay(playerFlagShip)
 end
 

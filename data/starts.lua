@@ -22,7 +22,7 @@ return {
       },
     },
   },
-  starting_credits = 500000,
+  starting_credits = 500,
   landedAt = false,
 },
 }

@@ -1,6 +1,4 @@
--- ─────────────────────────────────────────────────────────────────────────────
 -- hud_ui.lua  —  HUD do Playing state
--- ─────────────────────────────────────────────────────────────────────────────
 --
 -- Primeira versão: casco/escudo (canto inferior esquerdo) e energia/gerador
 -- (canto inferior direito). RCS, arma equipada e mira ficam para versões
@@ -14,13 +12,10 @@
 --   end
 --
 -- Não precisa de update/input — é só leitura dos componentes da entidade.
--- ─────────────────────────────────────────────────────────────────────────────
 
 local HudUI = {}
 
--- ─────────────────────────────────────────
 -- Cores (mesmo tema do projeto)
--- ─────────────────────────────────────────
 
 local C = {
   bg          = {0.06, 0.03, 0.01, 0.85},
@@ -42,9 +37,7 @@ local C = {
   cooldownTint= {0.30, 0.45, 0.55, 0.5}, -- overlay quando escudo em cooldown
 }
 
--- ─────────────────────────────────────────
 -- Layout
--- ─────────────────────────────────────────
 
 local MARGIN     = 16
 local PANEL_W    = 220
@@ -52,6 +45,37 @@ local PANEL_H    = 78
 local BAR_H      = 14
 local BAR_GAP    = 6
 local PADDING    = 10
+
+-- Cantos da tela
+
+HudUI.Corner = {
+  TOP_LEFT     = "top_left",
+  TOP_RIGHT    = "top_right",
+  BOTTOM_LEFT  = "bottom_left",
+  BOTTOM_RIGHT = "bottom_right",
+}
+
+-- Retorna x, y (canto superior-esquerdo do painel) para que um painel
+-- de tamanho (w, h) fique ancorado no `corner` escolhido, respeitando
+-- a margem padrão.
+local function getCornerPosition(corner, w, h)
+  local sw, sh = love.graphics.getWidth(), love.graphics.getHeight()
+
+  local x, y
+  if corner == HudUI.Corner.TOP_LEFT then
+      x, y = MARGIN, MARGIN
+  elseif corner == HudUI.Corner.TOP_RIGHT then
+      x, y = sw - MARGIN - w, MARGIN
+  elseif corner == HudUI.Corner.BOTTOM_LEFT then
+      x, y = MARGIN, sh - MARGIN - h
+  elseif corner == HudUI.Corner.BOTTOM_RIGHT then
+      x, y = sw - MARGIN - w, sh - MARGIN - h
+  else
+      x, y = MARGIN, MARGIN  -- fallback
+  end
+
+  return x, y
+end
 
 local fontLabel, fontValue
 
@@ -61,9 +85,7 @@ local function initFonts()
   fontValue = love.graphics.newFont(12)
 end
 
--- ─────────────────────────────────────────
 -- Helpers de desenho
--- ─────────────────────────────────────────
 
 local function sc(c)
   love.graphics.setColor(c[1], c[2], c[3], c[4] or 1)
@@ -100,14 +122,10 @@ local function drawBar(x, y, w, h, ratio, fillColor, backColor, label, valueStr)
   end
 end
 
--- ─────────────────────────────────────────
 -- Painel: Casco / Escudo (inferior esquerdo)
--- ─────────────────────────────────────────
 
-local function drawHullShieldPanel(ship)
-  local sw, sh = love.graphics.getWidth(), love.graphics.getHeight()
-  local x = MARGIN
-  local y = sh - MARGIN - PANEL_H
+local function drawHullShieldPanel(ship, corner)
+  local x, y = getCornerPosition(corner, PANEL_W, PANEL_H)
 
   -- Corpo do painel
   rect(x, y, PANEL_W, PANEL_H, C.bg, "fill", 4)
@@ -120,30 +138,30 @@ local function drawHullShieldPanel(ship)
   local barY = y + PADDING
 
   -- ── Escudo ──
-  local shield = ship.shield
+  local shield = ship.shields
   if shield then
-      local ratio = shield.totalCapacity > 0
-          and (shield.currentCapacity / shield.totalCapacity) or 0
-      local valueStr = math.floor(shield.currentCapacity) .. " / " .. math.floor(shield.totalCapacity)
+    local ratio = shield.totalCapacity > 0
+      and (shield.currentCapacity / shield.totalCapacity) or 0
+    local valueStr = math.floor(shield.currentCapacity) .. " / " .. math.floor(shield.totalCapacity)
 
-      drawBar(barX, barY, barW, BAR_H, ratio, C.shieldFill, C.shieldBack, "ESCUDO", valueStr)
+    drawBar(barX, barY, barW, BAR_H, ratio, C.shieldFill, C.shieldBack, "ESCUDO", valueStr)
 
-      -- Overlay de cooldown (escudo não recarrega ainda)
-      if shield.currentCooldown and shield.currentCooldown > 0 then
-          sc(C.cooldownTint)
-          love.graphics.rectangle("fill", barX + 1, barY + 1, barW - 2, BAR_H - 2, 1)
-      end
+    -- Overlay de cooldown (escudo não recarrega ainda)
+    if shield.currentCooldown and shield.currentCooldown > 0 then
+      sc(C.cooldownTint)
+      love.graphics.rectangle("fill", barX + 1, barY + 1, barW - 2, BAR_H - 2, 1)
+    end
 
-      -- Indicador "desativado"
-      if shield.active == false then
-          love.graphics.setFont(fontLabel)
-          sc({0.9, 0.3, 0.3, 1})
-          local label = "OFFLINE"
-          local tw = fontLabel:getWidth(label)
-          love.graphics.print(label, barX + barW / 2 - tw / 2, barY + math.floor(BAR_H / 2 - fontLabel:getHeight() / 2))
-      end
+    -- Indicador "desativado"
+    if shield.active == false then
+      love.graphics.setFont(fontLabel)
+      sc({0.9, 0.3, 0.3, 1})
+      local label = "OFFLINE"
+      local tw = fontLabel:getWidth(label)
+      love.graphics.print(label, barX + barW / 2 - tw / 2, barY + math.floor(BAR_H / 2 - fontLabel:getHeight() / 2))
+    end
   else
-      drawBar(barX, barY, barW, BAR_H, 0, C.shieldFill, C.shieldBack, "ESCUDO", "—")
+    drawBar(barX, barY, barW, BAR_H, 0, C.shieldFill, C.shieldBack, "ESCUDO", "—")
   end
 
   barY = barY + BAR_H + BAR_GAP
@@ -151,27 +169,27 @@ local function drawHullShieldPanel(ship)
   -- ── Casco ──
   local hull = ship.hull
   if hull then
-      local ratio = hull.health > 0
-          and (hull.currentHealth / hull.health) or 0
-      local valueStr = math.floor(hull.currentHealth) .. " / " .. math.floor(hull.health)
+    local ratio = hull.health > 0
+      and (hull.currentHealth / hull.health) or 0
+    local valueStr = math.floor(hull.currentHealth) .. " / " .. math.floor(hull.health)
 
-      local fillColor = ratio < 0.25 and C.hullCrit or C.hullFill
-      drawBar(barX, barY, barW, BAR_H, ratio, fillColor, C.hullBack, "CASCO", valueStr)
+    local fillColor = ratio < 0.25 and C.hullCrit or C.hullFill
+    drawBar(barX, barY, barW, BAR_H, ratio, fillColor, C.hullBack, "CASCO", valueStr)
 
-      -- Pulso de aviso quando crítico
-      if ratio < 0.25 then
-          local pulse = (math.sin(love.timer.getTime() * 6) + 1) / 2  -- 0..1
-          sc({1, 0.2, 0.2, 0.3 + pulse * 0.3})
-          love.graphics.rectangle("line", barX, barY, barW, BAR_H, 2)
-      end
+    -- Pulso de aviso quando crítico
+    if ratio < 0.25 then
+      local pulse = (math.sin(love.timer.getTime() * 6) + 1) / 2  -- 0..1
+      sc({1, 0.2, 0.2, 0.3 + pulse * 0.3})
+      love.graphics.rectangle("line", barX, barY, barW, BAR_H, 2)
+    end
 
-      if hull.breached then
-          love.graphics.setFont(fontLabel)
-          sc({1, 0.3, 0.1, 1})
-          love.graphics.print("BREACH", barX + barW + 6, barY + math.floor(BAR_H / 2 - fontLabel:getHeight() / 2) - PANEL_H)
-      end
+    if hull.breached then
+      love.graphics.setFont(fontLabel)
+      sc({1, 0.3, 0.1, 1})
+      love.graphics.print("BREACH", barX + barW + 6, barY + math.floor(BAR_H / 2 - fontLabel:getHeight() / 2))
+    end
   else
-      drawBar(barX, barY, barW, BAR_H, 0, C.hullFill, C.hullBack, "CASCO", "—")
+    drawBar(barX, barY, barW, BAR_H, 0, C.hullFill, C.hullBack, "CASCO", "—")
   end
 
   barY = barY + BAR_H + BAR_GAP
@@ -186,99 +204,196 @@ local function drawHullShieldPanel(ship)
   love.graphics.print(rcsLabel, barX + 32, barY)
 end
 
--- ─────────────────────────────────────────
 -- Painel: Gerador / Energia (inferior direito)
--- ─────────────────────────────────────────
 
-local function drawEnergyPanel(ship)
-  local sw, sh = love.graphics.getWidth(), love.graphics.getHeight()
-  local x = sw - MARGIN - PANEL_W
-  local y = sh - MARGIN - PANEL_H
+local function drawEnergyPanel(ship, corner)
+    local x, y = getCornerPosition(corner, PANEL_W, PANEL_H)
 
-  rect(x, y, PANEL_W, PANEL_H, C.bg, "fill", 4)
-  rect(x, y, PANEL_W, PANEL_H, C.border, "line", 4)
-  sc(C.borderAccent)
-  love.graphics.rectangle("fill", x + 1, y + 1, PANEL_W - 2, 2, 4)
+    rect(x, y, PANEL_W, PANEL_H, C.bg, "fill", 4)
+    rect(x, y, PANEL_W, PANEL_H, C.border, "line", 4)
+    sc(C.borderAccent)
+    love.graphics.rectangle("fill", x + 1, y + 1, PANEL_W - 2, 2, 4)
 
-  local barX = x + PADDING
-  local barW = PANEL_W - PADDING * 2
-  local barY = y + PADDING
+    local barX = x + PADDING
+    local barW = PANEL_W - PADDING * 2
+    local barY = y + PADDING
 
-  local gen = ship.generator
-  if gen then
-      -- "Output usado" = soma do que escudo + armas estão consumindo neste frame.
-      -- Se o seu EnergySystem expõe isso diretamente (ex: gen.currentOutput),
-      -- use esse valor; o cálculo abaixo é um fallback simples.
-      local used = gen.currentOutput or 0
-      local ratio = gen.maxOutput > 0 and (used / gen.maxOutput) or 0
-      local valueStr = math.floor(used) .. " / " .. math.floor(gen.maxOutput)
+    local gen = ship.generator
+    if gen then
+        -- "Output usado" = soma do que escudo + armas estão consumindo neste frame.
+        -- Se o seu EnergySystem expõe isso diretamente (ex: gen.currentOutput),
+        -- use esse valor; o cálculo abaixo é um fallback simples.
+        local used = gen.currentOutput or 0
+        local ratio = gen.maxOutput > 0 and (used / gen.maxOutput) or 0
+        local valueStr = math.floor(used) .. " / " .. math.floor(gen.maxOutput)
 
-      drawBar(barX, barY, barW, BAR_H, ratio, C.energyFill, C.energyBack, "ENERGIA", valueStr)
+        drawBar(barX, barY, barW, BAR_H, ratio, C.energyFill, C.energyBack, "ENERGIA", valueStr)
 
-      barY = barY + BAR_H + BAR_GAP
+        barY = barY + BAR_H + BAR_GAP
 
-      -- Modo de roteamento
-      love.graphics.setFont(fontLabel)
-      sc(C.textMuted)
-      love.graphics.print("MODO", barX, barY)
+        -- Modo de roteamento
+        love.graphics.setFont(fontLabel)
+        sc(C.textMuted)
+        love.graphics.print("MODO", barX, barY)
 
-      local modeLabels = {
-          balanced       = "Balanceado",
-          weaponPriority = "Prioridade: Armas",
-          shieldsOnly    = "Prioridade: Escudos",
-      }
-      sc(C.textBright)
-      local modeStr = modeLabels[gen.routingMode] or gen.routingMode or "—"
-      local tw = fontLabel:getWidth(modeStr)
-      love.graphics.print(modeStr, barX + barW - tw, barY)
+        local modeLabels = {
+            balanced       = "Balanceado",
+            weaponPriority = "Prioridade: Armas",
+            shieldsOnly    = "Prioridade: Escudos",
+        }
+        sc(C.textBright)
+        local modeStr = modeLabels[gen.routingMode] or gen.routingMode or "—"
+        local tw = fontLabel:getWidth(modeStr)
+        love.graphics.print(modeStr, barX + barW - tw, barY)
 
-      barY = barY + BAR_H + BAR_GAP
-  else
-      drawBar(barX, barY, barW, BAR_H, 0, C.energyFill, C.energyBack, "ENERGIA", "—")
-      barY = barY + BAR_H + BAR_GAP * 2
-  end
-
-  -- ── Arma equipada + capacitor ──
-  local weapon = ship.weapons and ship.weapons[ship.currentWeapon]
-  love.graphics.setFont(fontLabel)
-  if weapon then
-    sc(C.textMuted)
-    love.graphics.print("ARMA", barX, barY)
-    sc(C.textBright)
-    local nameStr = weapon.def.name or weapon.def.type or "?"
-    local tw = fontLabel:getWidth(nameStr)
-    love.graphics.print(nameStr, barX + barW - tw, barY)
-
-    -- Mini barra de capacitor abaixo
-    local capY = barY + fontLabel:getHeight() + 2
-    local cap = weapon.capacitor
-    if cap and cap.max and cap.max > 0 then
-      local capRatio = cap.current / cap.max
-      rect(barX, capY, barW, 4, C.energyBack, "fill", 1)
-      if capRatio > 0 then
-        local ready = capRatio >= 1
-        local fillC = ready and {0.5, 0.9, 0.4, 1} or C.energyFill
-        rect(barX, capY, barW * capRatio, 4, fillC, "fill", 1)
-      end
+        barY = barY + BAR_H + BAR_GAP
+    else
+        drawBar(barX, barY, barW, BAR_H, 0, C.energyFill, C.energyBack, "ENERGIA", "—")
+        barY = barY + BAR_H + BAR_GAP * 2
     end
-  else
-    sc(C.textMuted)
-    love.graphics.print("ARMA", barX, barY)
-    sc(C.textBright)
-    love.graphics.print("—", barX + barW - fontLabel:getWidth("—"), barY)
-  end
+
+    -- ── Arma equipada + capacitor ──
+    local weapon = ship.weapons and ship.weapons[ship.currentWeapon]
+    love.graphics.setFont(fontLabel)
+    if weapon then
+        sc(C.textMuted)
+        love.graphics.print("ARMA", barX, barY)
+        sc(C.textBright)
+        local nameStr = weapon.def.name or weapon.def.type or "?"
+        local tw = fontLabel:getWidth(nameStr)
+        love.graphics.print(nameStr, barX + barW - tw, barY)
+
+        -- Mini barra de capacitor abaixo
+        local capY = barY + fontLabel:getHeight() + 2
+        local cap = weapon.capacitor
+        if cap and cap.max and cap.max > 0 then
+            local capRatio = cap.current / cap.max
+            rect(barX, capY, barW, 4, C.energyBack, "fill", 1)
+            if capRatio > 0 then
+                local ready = capRatio >= 1
+                local fillC = ready and {0.5, 0.9, 0.4, 1} or C.energyFill
+                rect(barX, capY, barW * capRatio, 4, fillC, "fill", 1)
+            end
+        end
+    else
+        sc(C.textMuted)
+        love.graphics.print("ARMA", barX, barY)
+        sc(C.textBright)
+        love.graphics.print("—", barX + barW - fontLabel:getWidth("—"), barY)
+    end
 end
 
--- ─────────────────────────────────────────
--- API pública
--- ─────────────────────────────────────────
+-- Minimapa: Asteroides e naves
 
-function HudUI.draw(playerFlagShip)
+local function drawMinimap(ship, corner, camera)
+  if not ship then return end
+
+  local sw = love.graphics.getWidth()
+  local sh = love.graphics.getHeight()
+  local PANEL_W = 80
+  local PANEL_H = 80
+
+  local size   = 160
+  --local margin = 16
+  --local cx     = sw - margin - size / 2
+  --local cy     = sh - margin - size / 2
+  local cx, cy = getCornerPosition(corner, PANEL_W, PANEL_H)
+
+  -- Campo de visão da câmera em unidades de mundo
+  local viewW  = sw / camera.scale
+  local viewH  = sh / camera.scale
+
+  -- Minimapa mostra um pouco além do que a câmera vê
+  local viewRange  = math.max(viewW, viewH) * 0.7
+  local mapScale   = (size / 2) / viewRange
+
+  -- Fundo
+  love.graphics.setColor(0.04, 0.05, 0.10, 0.85)
+  love.graphics.circle("fill", cx, cy, size / 2)
+  love.graphics.setColor(0.17, 0.21, 0.32)
+  love.graphics.circle("line", cx, cy, size / 2)
+
+  -- Stencil circular
+  love.graphics.stencil(function()
+    love.graphics.circle("fill", cx, cy, size / 2 - 1)
+  end, "replace", 1)
+  love.graphics.setStencilTest("greater", 0)
+
+  local playerX, playerY = ship.rigidbody.body:getPosition()
+
+  -- Estrela central
+  for _, star in ipairs(config.Entities.getByTag("star")) do
+    local dx = (star.x - playerX) * mapScale
+    local dy = (star.y - playerY) * mapScale
+    love.graphics.setColor(0.91, 0.75, 0.37)
+    love.graphics.circle("fill", cx + dx, cy + dy, 5)
+  end
+
+  -- Planetas e estações
+  for _, e in ipairs(config.Entities.getByTag("landable")) do
+    local dx = (e.x - playerX) * mapScale
+    local dy = (e.y - playerY) * mapScale
+    local color = e.type == "station"
+      and {0.48, 0.67, 0.87}
+      or  {0.33, 0.55, 0.33}
+    love.graphics.setColor(color)
+    love.graphics.circle("fill", cx + dx, cy + dy, 4)
+  end
+
+  -- Asteroides
+  for _, ast in ipairs(config.Entities.getByTag("asteroid")) do
+    if ast.rigidbody and ast.rigidbody.body then
+      local ax, ay = ast.rigidbody.body:getPosition()
+      local dx = (ax - playerX) * mapScale
+      local dy = (ay - playerY) * mapScale
+      love.graphics.setColor(0.55, 0.45, 0.35, 0.7)
+      love.graphics.circle("fill", cx + dx, cy + dy, 1.5)
+    end
+  end
+
+  -- Naves
+  for _, ship in ipairs(config.Entities.getByTag("ship")) do
+    if ship.rigidbody and ship.rigidbody.body then
+      local ax, ay = ship.rigidbody.body:getPosition()
+      local dx = (ax - playerX) * mapScale
+      local dy = (ay - playerY) * mapScale
+      love.graphics.setColor(0.3,1,0.5,0.7)
+      love.graphics.circle("fill", cx + dx, cy + dy, 2)
+    end
+  end
+
+  -- Retângulo do campo de visão atual
+  local fovW = (viewW / 2) * mapScale
+  local fovH = (viewH / 2) * mapScale
+  love.graphics.setColor(0.78, 0.81, 0.88, 0.12)
+  love.graphics.rectangle("fill", cx - fovW, cy - fovH, fovW * 2, fovH * 2)
+  love.graphics.setColor(0.78, 0.81, 0.88, 0.25)
+  love.graphics.rectangle("line", cx - fovW, cy - fovH, fovW * 2, fovH * 2)
+
+  -- Nave (sempre no centro)
+  love.graphics.setColor(0.48, 0.87, 0.67)
+  love.graphics.circle("fill", cx, cy, 3)
+
+  love.graphics.setStencilTest()
+  love.graphics.setColor(0.17, 0.21, 0.32)
+  love.graphics.circle("line", cx, cy, size / 2)
+  love.graphics.setColor(1, 1, 1, 1)
+end
+
+-- API pública
+
+-- opts (opcional):
+--   opts.hullShieldCorner — HudUI.Corner, padrão BOTTOM_LEFT
+--   opts.energyCorner     — HudUI.Corner, padrão TOP_RIGHT
+--   opts.minimapCorner    - HudUI.Corner, padrão BOTTOM_RIGHT
+function HudUI.draw(playerFlagShip, camera, opts)
   if not playerFlagShip then return end
   initFonts()
+  opts = opts or {}
 
-  drawHullShieldPanel(playerFlagShip)
-  drawEnergyPanel(playerFlagShip)
+  drawHullShieldPanel(playerFlagShip, opts.hullShieldCorner or HudUI.Corner.BOTTOM_LEFT)
+  drawEnergyPanel(playerFlagShip, opts.energyCorner or HudUI.Corner.TOP_RIGHT)
+  drawMinimap(playerFlagShip, opts.minimapCorner or HudUI.Corner.BOTTOM_RIGHT, camera)
 
   love.graphics.setColor(1, 1, 1, 1)
 end

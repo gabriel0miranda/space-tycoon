@@ -12,13 +12,13 @@ return {
     bar       = { description = "Um bar bem chique e noir. A nobreza noobinobi aprecisa momentos de descontração calmos e elegantes." },
     bank      = { description = "Essa é uma agência bancária gigantesca, suas colunas brancas se impõem sobre você, e o peso do dinheiro é materializado na forma de uma estátua enorme de touro suspendida num pedestal grosso."},
     trade     = {},
-    shipyard  = {},
+--    shipyard  = {},
   },
-  shipyard = {
-    stock = {
-    "PP-2340","NN-Interceptor","NN-Gunship","NN-Dreadnought"
-    },
-  },
+--  shipyard = {
+--    stock = {
+--    "PP-2340","NN-Interceptor","NN-Gunship","NN-Dreadnought"
+--    },
+--  },
   market = {
     capacity = 20000,
     demanded = {

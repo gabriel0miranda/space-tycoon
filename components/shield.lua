@@ -4,6 +4,6 @@ return function(capacity, cooldown)
     currentCapacity = capacity,
     cooldown        = cooldown,
     currentCooldown = 0,
-    active          = true
+    disabled        = false
   }
 end
