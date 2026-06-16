@@ -366,47 +366,46 @@ function PropertyUI.draw()
 
     for _, row in ipairs(rows) do
         local rh = row.kind == "group" and GROUP_H or row.kind == "colhdr" and COL_HDR_H or ROW_H
-        if skipped < math.floor(scroll) then
+        if not (skipped < math.floor(scroll)) then
+          if curY >= listY + listH then break end
+
+          if row.kind == "group" then
+              rect(PX, curY, listW, GROUP_H, C.bgGroup)
+              rect(PX, curY, listW, 1, C.border)
+              rect(PX, curY + GROUP_H - 1, listW, 1, C.border)
+              sc(C.textBright); love.graphics.setFont(config.smallFont)
+              love.graphics.print(row.label, PX + 8, curY + 4)
+              sc(C.textMuted)
+              love.graphics.print(row.count .. " units", PX + 8 + config.smallFont:getWidth(row.label) + 8, curY + 4)
+
+          elseif row.kind == "colhdr" then
+              rect(PX, curY, listW, COL_HDR_H, C.bgDark)
+              rect(PX, curY + COL_HDR_H - 1, listW, 1, C.border)
+              txt("Name",          PX + 26,               curY + 3, C.textMuted)
+              txt("Location",      PX + 26 + COL1,        curY + 3, C.textMuted)
+              txt("Current Order", PX + 26 + COL1 + COL2, curY + 3, C.textMuted)
+
+          elseif row.kind == "item" then
+              local isSel = selectedKey == row.key
+              local isHov = pointIn(mx, my, PX, curY, listW, ROW_H)
+              local bg = isSel and C.bgRowSel or isHov and C.bgRowHover or C.bgRow
+              rect(PX, curY, listW, ROW_H, bg)
+              if isSel then rect(PX, curY, 2, ROW_H, C.borderAccent) end
+
+              local dotCol = C[DOT_COLOR[row.status] or "dotYellow"]
+              sc(dotCol); love.graphics.circle("fill", PX + 14, curY + ROW_H / 2, 3)
+
+              txt(clampStr(row.name, 22), PX + 26, curY + 4, row.flagship and C.textBright or C.textNormal)
+              txt(clampStr(row.loc or "—", 20), PX + 26 + COL1, curY + 4, C.textMuted)
+              txt(clampStr(row.order or "—", 24), PX + 26 + COL1 + COL2, curY + 4,
+                  row.flagship and C.textActive or C.textMuted)
+              rect(PX, curY + ROW_H - 1, listW, 1, C.bgGroup)
+          end
+
+          curY = curY + rh
+        else
             skipped = skipped + 1
-            goto continue
         end
-        if curY >= listY + listH then break end
-
-        if row.kind == "group" then
-            rect(PX, curY, listW, GROUP_H, C.bgGroup)
-            rect(PX, curY, listW, 1, C.border)
-            rect(PX, curY + GROUP_H - 1, listW, 1, C.border)
-            sc(C.textBright); love.graphics.setFont(config.smallFont)
-            love.graphics.print(row.label, PX + 8, curY + 4)
-            sc(C.textMuted)
-            love.graphics.print(row.count .. " units", PX + 8 + config.smallFont:getWidth(row.label) + 8, curY + 4)
-
-        elseif row.kind == "colhdr" then
-            rect(PX, curY, listW, COL_HDR_H, C.bgDark)
-            rect(PX, curY + COL_HDR_H - 1, listW, 1, C.border)
-            txt("Name",          PX + 26,               curY + 3, C.textMuted)
-            txt("Location",      PX + 26 + COL1,        curY + 3, C.textMuted)
-            txt("Current Order", PX + 26 + COL1 + COL2, curY + 3, C.textMuted)
-
-        elseif row.kind == "item" then
-            local isSel = selectedKey == row.key
-            local isHov = pointIn(mx, my, PX, curY, listW, ROW_H)
-            local bg = isSel and C.bgRowSel or isHov and C.bgRowHover or C.bgRow
-            rect(PX, curY, listW, ROW_H, bg)
-            if isSel then rect(PX, curY, 2, ROW_H, C.borderAccent) end
-
-            local dotCol = C[DOT_COLOR[row.status] or "dotYellow"]
-            sc(dotCol); love.graphics.circle("fill", PX + 14, curY + ROW_H / 2, 3)
-
-            txt(clampStr(row.name, 22), PX + 26, curY + 4, row.flagship and C.textBright or C.textNormal)
-            txt(clampStr(row.loc or "—", 20), PX + 26 + COL1, curY + 4, C.textMuted)
-            txt(clampStr(row.order or "—", 24), PX + 26 + COL1 + COL2, curY + 4,
-                row.flagship and C.textActive or C.textMuted)
-            rect(PX, curY + ROW_H - 1, listW, 1, C.bgGroup)
-        end
-
-        curY = curY + rh
-        ::continue::
     end
 
     love.graphics.setStencilTest()

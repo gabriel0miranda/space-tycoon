@@ -6,7 +6,7 @@ return {
     movement    = { linearAcceleration=800, strafeAcceleration=800, angularAcceleration=1200, linearDamping=0.8, angularDampingFactor=0.9 },
     weapons = {[1] = "Photon Cannon", [2] = "Vacuum Machinegun", [3] = "Predator Missile", [4] = "Proximity Mine", [5] = "EMP"},
     generatorPower = 300,
-    shields     = {capacity=100,cooldown=1},
+    shields     = {capacity=100,cooldown=3},
     hull        = 200,
     parts = {
       {

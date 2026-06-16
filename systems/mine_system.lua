@@ -16,7 +16,7 @@ local function resolveHit(ship_hash, ast_hash, mine)
   end
 
   for _, ship in ipairs(config.SpatialHash.query(ship_hash, config.CELL_SIZE, mine.x, mine.y, mine.range)) do
-    if ship ~= mine.owner and inRange(ship) then  -- continue em vez de break
+    if ship ~= mine.owner and inRange(ship) then
       table.insert(hitEntities, ship)
     end
   end
@@ -51,10 +51,9 @@ function MineSystem.update(ship_hash, ast_hash,dt)
   for _, mine in ipairs(config.Entities.getByTag("mine")) do
     if mine.armTime and mine.armTime > 0 then
       mine.armTime = mine.armTime - dt
-      goto continue
+    else
+      resolveHit(ship_hash, ast_hash, mine)
     end
-    resolveHit(ship_hash, ast_hash, mine)
-    ::continue::
   end
 end
 

@@ -18,13 +18,11 @@ local function update_homing(proj, ship_hash, dt)
     if ship.rigidbody and ship.rigidbody.body and not ship.rigidbody.body:isDestroyed() and ship ~= proj.owner then
       local ax, ay = ship.rigidbody.body:getPosition()
       local d = (ax-proj.x)^2 + (ay-proj.y)^2
-      print("d "..d.." bestDist "..bestDist)
       if d < bestDist then bestDist = d; best = ship end
     end
   end
 
   if not best then return end
-  print("best: "..best.owner)
   local ax, ay = best.rigidbody.body:getPosition()
   local targetAngle = math.atan2(ay - proj.y, ax - proj.x)
   local currentAngle = math.atan2(proj.vy, proj.vx)
