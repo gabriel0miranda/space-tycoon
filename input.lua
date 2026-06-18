@@ -98,10 +98,11 @@ local action_types = {
     ship_weapon_5       = "pulse",
 
     -- Sistemas da nave
-    ship_rcs_toggle     = "pulse",
-    ship_rcs_hold       = "hold",
-    ship_land           = "hold",
-    ship_launch         = "hold",
+    ship_rcs_toggle             = "pulse",
+    ship_rcs_hold               = "hold",
+    ship_land                   = "hold",
+    ship_launch                 = "hold",
+    ship_generator_switch_mode  = "pulse",
 
     -- Câmera
     camera_zoom_in      = "hold",
@@ -162,6 +163,7 @@ local default_bindings = {
         ["return"]      = "ship_land",
         ["kpenter"]     = "ship_land",
         ["l"]           = "ship_launch",
+        ["y"]           = "ship_generator_switch_mode",
 
         -- Câmera
         ["kp+"]         = "camera_zoom_in",
@@ -203,7 +205,7 @@ local default_bindings = {
 
         -- Stick press
         ["leftstick"]   = "ship_land",
-        ["rightstick"]  = "meta_debug",
+        ["rightstick"]  = "ship_generator_switch_mode",
     },
 
     -- Eixos analógicos do gamepad.
@@ -243,6 +245,7 @@ local context_defs = {
             camera_zoom_in=true, camera_zoom_out=true,
             ui_inventory=true, ui_properties=true, ui_mainmenu=true,
             meta_pause=true, meta_debug=true,
+            ship_generator_switch_mode=true,
         },
     },
 

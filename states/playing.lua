@@ -88,6 +88,7 @@ function Playing.update(dt)
   config.MineSystem.update(ship_hash,ast_hash,dt)
   config.ExplosionSystem.update(dt)
   config.DamageSystem.update(dt)
+  config.FloatsomeSystem.update(dt)
 
   -- config.Camera follow
   config.Camera:follow(playerFlagShip.rigidbody.body:getX(), playerFlagShip.rigidbody.body:getY())

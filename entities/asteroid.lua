@@ -41,7 +41,7 @@ return function(star,asteroidCount,asteroidOres)
       y = y or 0,
       rigidbody = config.RigidbodyComponent(rigidBody.body,rigidBody.fixture),
       sprite = config.SpriteComponent(color,rigidBody.shape,"Circle"),
-      mineable = config.MineableComponent(stages,rigidBody.body:getMass(),size, 100, asteroidOres),
+      mineable = config.MineableComponent(stages,rigidBody.body:getMass(),size, size, asteroidOres),
       glow = 0,
       layer = 1
     })

@@ -227,7 +227,7 @@ local function drawEnergyPanel(ship, corner)
         local ratio = gen.maxOutput > 0 and (used / gen.maxOutput) or 0
         local valueStr = math.floor(used) .. " / " .. math.floor(gen.maxOutput)
 
-        drawBar(barX, barY, barW, BAR_H, ratio, C.energyFill, C.energyBack, "ENERGIA", valueStr)
+        drawBar(barX, barY, barW, BAR_H, ratio, C.energyFill, C.energyBack, "USO DE ENERGIA", valueStr)
 
         barY = barY + BAR_H + BAR_GAP
 

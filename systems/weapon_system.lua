@@ -82,7 +82,7 @@ local function fire_laser(owner, weapon, x, y, angle)
     hitY     = nil,
   })
 
-  weapon.capacitor.current = weapon.capacitor.max - weapon.capacitor.drain
+  weapon.capacitor.current = weapon.capacitor.current - weapon.capacitor.drain
 end
 
 local fireFunctions = {
@@ -174,7 +174,8 @@ local function applyIntent(e, dt)
 
   weapon.angle = angle
 
-  if not intent.firing then return end
+  if not intent.firing then weapon.firing = intent.firing return end
+  weapon.firing = intent.firing
   if weapon.capacitor.current < weapon.capacitor.max then return end
 
   local fn = fireFunctions[weapon.def.type]

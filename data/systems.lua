@@ -15,6 +15,7 @@ return {
     populationDensity = 0.001,
     {item="Iron Ore", min=0, max=10},
     {item="Silver Ore", min=0, max=6},
+    {item="Gold Ore", min=0, max=1},
     },
     landables    = {
       "Trading Station",
@@ -35,6 +36,7 @@ return {
     populationDensity = 0.0001,
     asteroidOres = {
       {item="Sulfur", min=1, max=5},
+      {item="Iron Ore", min=0, max=3},
     },
     landables    = {
       "Shipyard",

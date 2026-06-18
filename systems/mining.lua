@@ -56,6 +56,7 @@ function Mining.drop_loot(asteroid, fraction)
           y = asteroid.rigidbody.body:getY() + math.sin(angle)*offset,
           vx = avx + math.cos(angle) * speed,
           vy = avy + math.sin(angle) * speed,
+          lifetime = 10,
           radius = radius,
           layer = 0,
           sprite = config.SpriteComponent(color,

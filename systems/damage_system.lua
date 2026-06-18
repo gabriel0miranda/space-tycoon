@@ -3,11 +3,9 @@ local DamageSystem = {}
 function DamageSystem.apply(entity, shieldDamage, hullDamage)
   if not entity.disabled and entity.shields and entity.shields.currentCapacity > 0 then
     entity.shields.currentCapacity = math.max(entity.shields.currentCapacity-shieldDamage, 0)
-    print("Current cap: "..entity.shields.currentCapacity)
     entity.shields.currentCooldown = entity.shields.cooldown
     return
   end
-    print("Current hull: "..entity.hull.currentHealth)
   if entity.hull then
     entity.hull.currentHealth = entity.hull.currentHealth-hullDamage
   end

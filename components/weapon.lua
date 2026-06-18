@@ -6,7 +6,7 @@ return function(weapons)
       capacitor = {
                    max = config.Weapons[weapon].capacitorCharge or 0,
                    current = 0,
-                   drain   = config.Weapons[weapon].capacitorDrain or 0
+                   drain   = config.Weapons[weapon].capacitorDrain or false
                    },
       angle = 0,
       cooldown = config.Weapons[weapon].cooldown or 0,

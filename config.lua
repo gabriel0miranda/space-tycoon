@@ -47,6 +47,7 @@ return {
   EnergySystem = require("systems.energy_system"),
   MineSystem = require("systems.mine_system"),
   ExplosionSystem = require("systems.explosion_system"),
+  FloatsomeSystem = require("systems.floatsome_system"),
   SpriteComponent = require("components.sprite"),
   CreditsComponent = require("components.credits"),
   InventoryComponent = require("components.inventory"),
