@@ -316,6 +316,15 @@ local context_defs = {
         },
     },
 
+    dead = {
+        bubble = false,
+        actions = {
+            ui_confirm=true, ui_cancel=true,
+            ui_up=true, ui_down=true,
+            meta_debug=true,
+        },
+    },
+
     select = {
         bubble = false,   -- modal dono total do teclado
         actions = {

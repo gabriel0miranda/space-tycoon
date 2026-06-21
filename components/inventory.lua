@@ -29,6 +29,10 @@ return function(capacity, items)
     end,
     has = function(self, item, quantity)
       return (self.items[item] or 0) >= (quantity or 1)
+    end,
+    clear = function(self)
+      self.items = {}
+      self.capacityUsed = 0
     end
   }
 end

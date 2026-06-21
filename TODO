@@ -1,0 +1,5 @@
+- Mudar npc_profiles para lista tipo ["Miliciano Noobi"] = {description="bla bla bla",ship="PP-2340"...}
+- Ajustar isso ^ no systems.lua, npc.lua, npc_ai.lua e world_manager (criação de npcs)
+- Decidir entre enriquecer a UI com seleção de naves e lock-in de misseis //ou//
+  enriquecer a IA com sistema de facções, emissões de mensagens SOS //ou//
+  criar sistema de mensagens robusto (mensagens privadas entre entidades, mensagens globais [broadcasting], etc) <-- provavelmente melhor escolha, pouca coisa e já ajuda o item acima

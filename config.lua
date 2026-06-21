@@ -19,6 +19,7 @@ return {
   PlayingState = require('states.playing'),
   LandedState = require('states.landed'),
   MainmenuState = require('states.mainmenu'),
+  DeadState = require('states.dead'),
   WorldManager = require("managers.world_manager"),
   SpatialHash = require("utils.spatial_hash"),
   TableConcat = require("utils.table_concat"),
