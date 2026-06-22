@@ -2,8 +2,12 @@ return {
 ["Merle's Refuge"] =  {
   name = "Refúgio de Merle",
   description = "Esse planeta serve como um paraíso tranquilo aos noobinianos ricos, aposentados e desocuptados. A segurança absoluta do sistema e o clima temperado do planeta criaram uma população verdadeiramente hedonista. Esse nível de bem estar só é possível por conta do mercado extremamente lucrativo de mineração.",
-  x =  200,
-  y =-1100,
+  -- Com orbitAngle e orbitRadius essas posições chumbadas deixam de ser necessárias
+  --x =  200,
+  --y =-1100,
+  orbitRadius = 4000,
+  orbitAngle  = 2,
+  orbitSpeed  = 0.005,
   radius = 300,
   type = "planet",
   color = {25/255, 134/255, 201/255},
@@ -31,8 +35,11 @@ return {
 ["Mother's Heart"] =  {
   name = "Coração de Mãe",
   description = "O planeta principal do Empério Noobi, um regime pretencioso que consolidou o povo Noobinobi. O Emperio tentou, por vários anos, invadir um sistemas livres que se estendem além da Parede, mas acabou falido e numa onda de fome que só se resolveu quando a Grande Frota Noobi (GNN) redirecionou suas tropas para tender os campos do Coração de Mãe",
-  x =  1200,
-  y = -1800,
+  --x =  1200,
+  --y = -1800,
+  orbitRadius = 1800,
+  orbitAngle  = 2,
+  orbitSpeed  = 0.005,
   radius = 300,
   type = "planet",
   color = {78/255, 183/255, 64/255},
