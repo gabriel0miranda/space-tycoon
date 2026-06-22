@@ -77,7 +77,7 @@ local function fire_laser(owner, weapon, x, y, angle)
     damage   = weapon.def,
     color    = weapon.def.color,
     owner    = owner,
-    lifetime = 0.03,
+    lifetime = 0.02,
     hitX     = nil,
     hitY     = nil,
   })

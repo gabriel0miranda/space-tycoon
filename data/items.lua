@@ -79,5 +79,4 @@ volume = 5,
 color = {1,1,1},
 basePrice = 250
 },
--- adicione seus itens aqui
 }

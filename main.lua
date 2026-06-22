@@ -5,17 +5,12 @@ love.load = function()
   config.GameState.register("mainmenu", config.MainmenuState)
   config.GameState.register("playing", config.PlayingState)
   config.GameState.register("landed", config.LandedState)
+  config.GameState.register("dead", config.DeadState)
 
   config.WorldManager.systems = config.Systems
 
   config.GameState.switch("mainmenu")
 
-end
-
-love.focus = function(focused)
-  if not focused then
-    config.Input.state.paused = true
-  end
 end
 
 love.keypressed = function(pressed_key)

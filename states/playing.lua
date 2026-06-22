@@ -75,8 +75,8 @@ function Playing.update(dt)
 
   local ship_hash = config.SpatialHash.build(config.Entities.getByTag("ship"),rigidbody_pos,shape_radius,config.CELL_SIZE)
 
-  config.NpcAISystem.update(playerFlagShip, dt)
   config.ShipMovementSystem.update(playerFlagShip, dt)
+  config.NpcAISystem.update(playerFlagShip, dt)
   config.GravityPullSystem.update(dt)
   config.LandableMovementSystem.update(dt)
   config.EnergySystem.update(generatorEntities,dt)
@@ -90,6 +90,10 @@ function Playing.update(dt)
   config.DamageSystem.update(dt)
   config.FloatsomeSystem.update(dt)
 
+  if not playerFlagShip or not playerFlagShip.rigidbody or not playerFlagShip.rigidbody.body or playerFlagShip.rigidbody.body:isDestroyed() then
+    config.GameState.switch("dead")
+    return
+  end
   -- config.Camera follow
   config.Camera:follow(playerFlagShip.rigidbody.body:getX(), playerFlagShip.rigidbody.body:getY())
   config.Camera:update(dt)
