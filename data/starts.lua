@@ -7,7 +7,7 @@ return {
   starting_place = "Merle's Refuge",
 -- Se não tiver starting place
 -- x = 400,
--- y = 300, 
+-- y = 300,
   dificulty = "standard",
   starting_property = {
     {

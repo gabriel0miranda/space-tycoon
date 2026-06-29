@@ -1,11 +1,13 @@
 local POPULATION_MARGIN = 12
 
 return function (population)
+  local totalNPCNumber = 0
   local popDensity = population or {["Hauler"]=0.001}
   for npc, pop in pairs(popDensity) do
     local npc_population = math.floor(pop*36000)
     local rng = love.math.newRandomGenerator(os.time())
     local npcCount = math.ceil(rng:random(npc_population*(1-(POPULATION_MARGIN/100)),npc_population))
+    totalNPCNumber = totalNPCNumber + npcCount
     local currentNPCNumber = #config.Entities.getByTag("npc")
     for i=currentNPCNumber+1, currentNPCNumber + npcCount, 1 do
       local x, y = rng:random(-6000,6000), rng:random(-6000,6000)
@@ -43,5 +45,8 @@ return function (population)
         ship = config.ShipEntity(x, y, id, false, shipName, shipType, nil, config.Ships[shipType].weapons, cargo())
       })
     end
+  end
+  if config.Input.state.debugFlag then
+    print("NPCs criados: "..totalNPCNumber)
   end
 end

@@ -5,7 +5,7 @@ local ATTACK_RANGE   = 1000
 local PATROL_RADIUS  = 8000
 local PATROL_TIMEOUT = 5  -- segundos em idle antes de escolher novo waypoint
 
--- ── helpers ────────────────────────────────────────────────────
+-- helpers 
 
 local function dist2(ax, ay, bx, by)
   local dx, dy = ax - bx, ay - by
@@ -27,7 +27,12 @@ local function set_npc_intent(npc, tx, ty)
 
   local da = npc.ship.intent.targetAngle - npc.ship.rigidbody.body:getAngle()
   da = ((da + math.pi) % (2 * math.pi)) - math.pi
-  npc.ship.intent.thrust = math.abs(da) < 0.3 and 1 or 0
+  if math.abs(da) < 0.3 then
+    npc.ship.intent.thrust = 1
+    npc.ship.intent.targetAngle = nil
+  else
+    npc.ship.intent.thrust = 0
+  end
 end
 
 local function clear_weapon_intent(npc)
@@ -38,7 +43,7 @@ local function clear_weapon_intent(npc)
   end
 end
 
--- ── estados passivos ───────────────────────────────────────────
+-- estados passivos
 
 local function state_idle(npc, ai, dt)
   clear_weapon_intent(npc)
@@ -153,11 +158,11 @@ local function state_mining(npc, ai, dt)
   end
 end
 
--- ── estados hostis ─────────────────────────────────────────────
+-- estados hostis
 
 local function state_chasing(npc, ai, dt, player)
   if not player then ai.state = "idle"; return end
-  local nx, ny = npc.ship.rigidbody.body:getPosition()  -- corrigido
+  local nx, ny = npc.ship.rigidbody.body:getPosition()
   local px, py = player.rigidbody.body:getPosition()
 
   set_npc_intent(npc, px, py)
@@ -172,7 +177,7 @@ local function state_chasing(npc, ai, dt, player)
 end
 
 local function state_attacking(npc, ai, dt, player)
-  if not ai.target then ai.state = "idle"; return end
+  if not ai.target or not ai.target.rigidbody or not ai.target.rigidbody.body or ai.target.rigidbody.body:isDestroyed() then ai.state = "idle"; return end
   local nx, ny = npc.ship.rigidbody.body:getPosition()
   local px, py = ai.target.rigidbody.body:getPosition()
   local ang = npc.ship.rigidbody.body:getAngle()
@@ -203,7 +208,7 @@ local function state_attacking(npc, ai, dt, player)
   end
 end
 
--- ── update principal ───────────────────────────────────────────
+-- update principal
 
 function NpcAI.update(playerFlagShip, dt)
   for _, npc in ipairs(config.Entities.getByTag("npc")) do

@@ -11,6 +11,7 @@ return function(start, playerName)
     credits          = config.CreditsComponent(start.starting_credits),
     x         = start.x or config.Landables[start.starting_place].x,
     y         = start.y or config.Landables[start.starting_place].y,
-    landedAt  = start.landedAt
+    landedAt  = start.landedAt,
+    startingScenario = start
   })
 end

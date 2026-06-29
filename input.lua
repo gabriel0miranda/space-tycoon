@@ -118,6 +118,9 @@ local action_types = {
     ui_inventory        = "pulse",
     ui_properties       = "pulse",
     ui_mainmenu         = "pulse",
+    target_next         = "pulse",
+    target_prev         = "pulse",
+    target_clear        = "pulse",
 
     -- Meta
     meta_pause          = "pulse",
@@ -176,6 +179,9 @@ local default_bindings = {
         ["o"]           = "ui_properties",
         ["escape"]      = "ui_cancel",
         ["f4"]          = "ui_mainmenu",
+        [">"]           = "target_next",
+        ["<"]           = "target_prev",
+        ["."]           = "target_clear",
 
         -- Meta
         ["p"]           = "meta_pause",

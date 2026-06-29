@@ -66,14 +66,6 @@ function WorldManager.loadSystem(systemId)
     config.Entities.remove(e)
   end
 
-  local player = config.Entities.getByTag("player")[1]
-
-  for _, property in pairs(player.property.properties) do
-    if property.ship and property.flagShip then
-      config.ShipEntity(player.x, player.y, player.name, true, property.name, property.type, player.landedAt, property.weapons, currentCargo)
-    end
-  end
-
   WorldManager.currentSystemId = systemId
 
   local sys = WorldManager.systems[systemId]
@@ -82,18 +74,30 @@ function WorldManager.loadSystem(systemId)
     return
   end
 
+  local player = config.Entities.getByTag("player")[1]
+
   config.StarEntity(sys.starX,sys.starY,sys.starMass,sys.starRadius,sys.starColor)
 
   local starList = config.Entities.getByTag("star")
   local star = starList[1]
 
-  config.AsteroidEntity(star,sys.asteroidCount,sys.asteroidOres)
-
   config.LandableEntity(star,sys.landables)
+
+  config.AsteroidEntity(star,sys.asteroidCount,sys.asteroidOres)
 
   config.WormholeEntity(sys.wormholes)
 
   config.NpcEntity(sys.populationDensity)
+
+  for _, property in pairs(player.property.properties) do
+    if property.ship and property.flagShip then
+      if player.x == nil or player.y == nil then
+        player.x = config.Landables[player.startingScenario.starting_place].x
+        player.y = config.Landables[player.startingScenario.starting_place].y
+      end
+      config.ShipEntity(player.x, player.y, player.name, true, property.name, property.type, player.landedAt, property.weapons, currentCargo)
+    end
+  end
 
   config.Entities.sortByLayer()
 

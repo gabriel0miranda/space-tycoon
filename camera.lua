@@ -35,6 +35,42 @@ return function()
     love.graphics.translate(-self.x,-self.y)
   end
 
+  camera.toWorld = function(self, sx, sy)
+    local w, h = love.graphics.getWidth(), love.graphics.getHeight()
+    -- 1. Remove a translação do centro da tela
+    local dx = sx - w / 2
+    local dy = sy - h / 2
+    -- 2. Remove o zoom
+    dx = dx / self.scale
+    dy = dy / self.scale
+    -- 3. Remove a rotação (se houver)
+    if self.rotation ~= 0 then
+      local cos = math.cos(-self.rotation)
+      local sin = math.sin(-self.rotation)
+      dx, dy = dx * cos - dy * sin, dx * sin + dy * cos
+    end
+    -- 4. Adiciona a posição da câmera no mundo
+    return dx + self.x, dy + self.y
+  end
+
+  camera.toScreen = function(self, wx, wy)
+    local w, h = love.graphics.getWidth(), love.graphics.getHeight()
+    -- 1. Remove posição da câmera
+    local dx = wx - self.x
+    local dy = wy - self.y
+    -- 2. Aplica rotação
+    if self.rotation ~= 0 then
+      local cos = math.cos(self.rotation)
+      local sin = math.sin(self.rotation)
+      dx, dy = dx * cos - dy * sin, dx * sin + dy * cos
+    end
+    -- 3. Aplica zoom
+    dx = dx * self.scale
+    dy = dy * self.scale
+    -- 4. Translada para o centro da tela
+    return dx + w / 2, dy + h / 2
+  end
+
   camera.detach = function(self)
     love.graphics.pop()
   end

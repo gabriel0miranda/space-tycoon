@@ -10,7 +10,6 @@ local function randomPointOnOrbit(cx, cy, r, orbit_angle)
   local x = lx * math.cos(orbit_angle) - ly * math.sin(orbit_angle)
   local y = lx * math.sin(orbit_angle) + ly * math.cos(orbit_angle)
 
-  print("Random point in orbit: "..cx+x.." and "..cy+y)
   return cx + x, cy + y
 end
 

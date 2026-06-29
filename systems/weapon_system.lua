@@ -18,6 +18,11 @@ local function fire_projectile(owner, weapon, x, y, angle)
     vy = vy + ovy
   end
 
+  local target = nil
+  if owner.owner == config.Entities.getByTag("player")[1].name then
+    target = config.TargetingSystem.current
+  end
+
   config.Entities.create("projectile", {
     x             = x,
     y             = y,
@@ -31,6 +36,7 @@ local function fire_projectile(owner, weapon, x, y, angle)
     projType      = def.type,
     owner         = owner,
     homing        = def.homing,
+    targetEntity  = def.homing and target or nil,
     turnSpeed     = def.turnSpeed,
     range         = def.range
   })

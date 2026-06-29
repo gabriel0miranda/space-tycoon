@@ -75,6 +75,7 @@ function Playing.update(dt)
 
   local ship_hash = config.SpatialHash.build(config.Entities.getByTag("ship"),rigidbody_pos,shape_radius,config.CELL_SIZE)
 
+  config.TargetingSystem.update(playerFlagShip,dt)
   config.ShipMovementSystem.update(playerFlagShip, dt)
   config.NpcAISystem.update(playerFlagShip, dt)
   config.GravityPullSystem.update(dt)
@@ -130,27 +131,29 @@ function Playing.update(dt)
 end
 
 function Playing.keypressed(key)
-    if config.PropertyUI.isOpen() then
-      config.PropertyUI.keypressed(key)
-      return
-    end
+  if config.PropertyUI.isOpen() then
+    config.PropertyUI.keypressed(key)
+    return
+  end
 
-    if config.InventoryUI.isOpen() then
-      config.InventoryUI.keypressed(key)
-      return
-    end
+  if config.InventoryUI.isOpen() then
+    config.InventoryUI.keypressed(key)
+    return
+  end
+  config.TargetingSystem.keypressed(key)
 end
 
 function Playing.mousepressed(mx, my, button)
-    if config.PropertyUI.isOpen() then
-      config.PropertyUI.mousepressed(mx, my, button)
-      return
-    end
+  if config.PropertyUI.isOpen() then
+    config.PropertyUI.mousepressed(mx, my, button)
+    return
+  end
 
-    if config.InventoryUI.isOpen() then
-      config.InventoryUI.mousepressed(mx, my, button)
-      return
-    end
+  if config.InventoryUI.isOpen() then
+    config.InventoryUI.mousepressed(mx, my, button)
+    return
+  end
+  config.TargetingSystem.mousepressed(mx, my, button)
 end
 
 function Playing.wheelmoved(dx, dy)
@@ -166,7 +169,7 @@ function Playing.wheelmoved(dx, dy)
 end
 
 function Playing.draw()
-  config.RenderingSystem.draw(playerFlagShip, armedEntities, config.Camera)
+  config.RenderingSystem.draw(playerFlagShip, config.Camera)
 end
 
 return Playing

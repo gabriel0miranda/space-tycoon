@@ -33,6 +33,7 @@ return {
   HudUI  = require("ui.hud_ui"),
   MiningSystem = require("systems.mining"),
   WeaponSystem = require("systems.weapon_system"),
+  TargetingSystem = require("systems.targeting_system"),
   ShipMovementSystem = require("systems.ship_movement"),
   RenderingSystem = require("systems.rendering"),
   ProjectileSystem = require("systems.projectile_system"),

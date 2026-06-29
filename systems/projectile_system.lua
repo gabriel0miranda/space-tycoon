@@ -10,20 +10,10 @@ local function handle_hit(proj, target)
   config.Entities.remove(proj)
 end
 
-local function update_homing(proj, ship_hash, dt)
-  -- Míssil: busca o alvo mais próximo
-  local best, bestDist = nil, math.huge
-  local candidates = config.SpatialHash.query(ship_hash, config.CELL_SIZE, proj.x, proj.y, proj.size + proj.range)
-  for _, ship in ipairs(candidates) do
-    if ship.rigidbody and ship.rigidbody.body and not ship.rigidbody.body:isDestroyed() and ship ~= proj.owner then
-      local ax, ay = ship.rigidbody.body:getPosition()
-      local d = (ax-proj.x)^2 + (ay-proj.y)^2
-      if d < bestDist then bestDist = d; best = ship end
-    end
-  end
-
-  if not best then return end
-  local ax, ay = best.rigidbody.body:getPosition()
+local function update_homing(proj, dt)
+  -- Míssil: busca o target se houver
+  if not proj.targetEntity then return end
+  local ax, ay = proj.targetEntity.rigidbody.body:getPosition()
   local targetAngle = math.atan2(ay - proj.y, ax - proj.x)
   local currentAngle = math.atan2(proj.vy, proj.vx)
   -- Rotaciona suavemente em direção ao alvo
@@ -44,7 +34,7 @@ function ProjectileSystem.update(ship_hash, ast_hash, dt)
   for _, proj in ipairs(projectiles) do
     -- Homing
     if proj.homing then
-      update_homing(proj, ship_hash, dt)
+      update_homing(proj, dt)
     end
     -- Move (projéteis simples não têm rigidbody, só posição)
     proj.x = proj.x + proj.vx * dt

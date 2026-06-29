@@ -210,6 +210,10 @@ local function drawProperty()
   config.PropertyUI.draw()
 end
 
+local function drawHUD(playerFlagShip,camera)
+  config.HudUI.draw(playerFlagShip,camera)
+end
+
 local function drawDebugOverlay(playerFlagShip)
   if not config.Input.state.debugFlag then return end
   love.graphics.setColor(0, 1, 0)
@@ -226,7 +230,51 @@ local function drawDebugOverlay(playerFlagShip)
   love.graphics.setColor(1,1,1)
 end
 
-function Rendering.draw(playerFlagShip, armedEntities, camera)
+local function getEntityRadius(e)
+  if e.sprite and e.sprite.shape then
+    return e.sprite.shape:getRadius() or 20
+  end
+  return 25
+end
+
+local function drawTargetReticule(camera)
+  local reticule = {0.99,0.8, 0.2,1}
+  local reticuleLocked = {0.9,0.5, 0.1, 1}
+  local target = config.TargetingSystem.current
+  if not target then return end
+  if not config.TargetingSystem.isValidTarget(target) then return end
+
+  local tx, ty = target.rigidbody.body:getPosition()
+  local radius = getEntityRadius(target) + 12
+
+  local color = config.TargetingSystem.locked and reticuleLocked or reticule
+  local pulse = (math.sin(love.timer.getTime() * 4) + 1) / 2  -- 0..1
+
+  -- Retículo: quatro arcos nos cantos
+  local segLen = math.pi / 5   -- comprimento de cada arco
+  local offsets = { 0, math.pi/2, math.pi, 3*math.pi/2 }
+
+  love.graphics.setLineWidth(1.5)
+  for _, base in ipairs(offsets) do
+    local a1 = base + math.pi/8
+    local a2 = base + math.pi/8 + segLen
+    love.graphics.setColor(color[1], color[2], color[3], color[4] * (0.7 + pulse * 0.3))
+    love.graphics.arc("line", "open", tx, ty, radius, a1, a2)
+  end
+
+  -- Ponto central piscando
+  love.graphics.setColor(color[1], color[2], color[3], pulse * 0.8)
+  love.graphics.circle("fill", tx, ty, 2)
+
+  -- Nome e distância (em coordenadas de mundo — o camera:attach já transforma)
+  -- Para texto legível independente do zoom, desenha em screen space
+  -- (veja drawHUD abaixo para a versão screen-space)
+
+  love.graphics.setLineWidth(1)
+  love.graphics.setColor(1, 1, 1, 1)
+end
+
+function Rendering.draw(playerFlagShip, camera)
     drawParallaxBackground(camera)
     camera:attach()
         drawWorldLayer()
@@ -235,9 +283,9 @@ function Rendering.draw(playerFlagShip, armedEntities, camera)
         drawMine()
         drawProjectiles()
         drawLaser()
-        -- drawParallaxBackground()
+        drawTargetReticule(camera)
     camera:detach()
-    config.HudUI.draw(playerFlagShip,camera)
+    drawHUD(playerFlagShip,camera)
     drawInventory()
     drawProperty()
     drawDebugOverlay(playerFlagShip)

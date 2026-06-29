@@ -35,6 +35,9 @@ local C = {
   energyFill  = {0.85, 0.65, 0.20, 1},
   energyBack  = {0.18, 0.13, 0.06, 1},
   cooldownTint= {0.30, 0.45, 0.55, 0.5}, -- overlay quando escudo em cooldown
+  -- Outros
+  reticule = {0.99,0.8, 0.2,1},
+  reticuleLocked = {0.9,0.5, 0.1, 1},
 }
 
 -- Layout
@@ -380,6 +383,70 @@ local function drawMinimap(ship, corner, camera)
   love.graphics.setColor(1, 1, 1, 1)
 end
 
+-- Targeting: retículo e info
+local function getEntityRadius(e)
+  if e.sprite and e.sprite.shape then
+    return e.sprite.shape:getRadius() or 20
+  end
+  return 25
+end
+
+local function drawTargetInfo(camera)
+  local target = config.TargetingSystem.current
+  if not target then return end
+  if not config.TargetingSystem.isValidTarget(target) then return end
+
+  local tx, ty = target.rigidbody.body:getPosition()
+  local sw, sh = love.graphics.getWidth(), love.graphics.getHeight()
+
+  -- Converte posição do alvo para tela
+  local sx, sy = camera:toScreen(tx, ty)
+
+  -- Linha pontilhada do centro da tela até o alvo (só se estiver na tela)
+  local onScreen = sx >= 0 and sx <= sw and sy >= 0 and sy <= sh
+  if not onScreen then
+      -- Indicador de fora da tela: seta na borda
+      local cx, cy = sw / 2, sh / 2
+      local dx, dy = sx - cx, sy - cy
+      local angle  = math.atan2(dy, dx)
+      local margin = 40
+      local bx = cx + math.cos(angle) * (sw / 2 - margin)
+      local by = cy + math.sin(angle) * (sh / 2 - margin)
+      bx = math.max(margin, math.min(sw - margin, bx))
+      by = math.max(margin, math.min(sh - margin, by))
+
+      local color = config.TargetingSystem.locked and C.reticuleLocked or C.reticule
+      love.graphics.setColor(color)
+      love.graphics.push()
+          love.graphics.translate(bx, by)
+          love.graphics.rotate(angle)
+          love.graphics.polygon("fill", 0, 0, -10, -5, -10, 5)
+      love.graphics.pop()
+  end
+
+  -- Label: nome + hull (se tiver)
+  local font = love.graphics.getFont()
+  local label = target.name or target.type or "?"
+  if target.hull then
+      local pct = math.floor(target.hull.currentHealth / target.hull.health * 100)
+      label = label .. "  " .. pct .. "%"
+  end
+  local lockStr = config.TargetingSystem.locked and " [LOCK]" or ""
+  label = label .. lockStr
+
+  local lx = math.max(4, math.min(sw - font:getWidth(label) - 4, sx - font:getWidth(label) / 2))
+  local ly = math.max(4, sy - getEntityRadius(target) / (camera.scale or 1) - 20)
+
+  love.graphics.setColor(0, 0, 0, 0.55)
+  love.graphics.rectangle("fill", lx - 4, ly - 2, font:getWidth(label) + 8, font:getHeight() + 4, 2)
+
+  local color = config.TargetingSystem.locked and C.reticuleLocked or C.reticule
+  love.graphics.setColor(color)
+  love.graphics.print(label, lx, ly)
+
+  love.graphics.setColor(1, 1, 1, 1)
+end
+
 -- API pública
 
 -- opts (opcional):
@@ -394,6 +461,7 @@ function HudUI.draw(playerFlagShip, camera, opts)
   drawHullShieldPanel(playerFlagShip, opts.hullShieldCorner or HudUI.Corner.BOTTOM_LEFT)
   drawEnergyPanel(playerFlagShip, opts.energyCorner or HudUI.Corner.TOP_RIGHT)
   drawMinimap(playerFlagShip, opts.minimapCorner or HudUI.Corner.BOTTOM_RIGHT, camera)
+  drawTargetInfo(camera)
 
   love.graphics.setColor(1, 1, 1, 1)
 end
