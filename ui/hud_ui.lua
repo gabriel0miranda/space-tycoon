@@ -385,8 +385,10 @@ end
 
 -- Targeting: retículo e info
 local function getEntityRadius(e)
-  if e.sprite and e.sprite.shape then
-    return e.sprite.shape:getRadius() or 20
+  if e.fixtures and e.fixtures[1] and e.fixtures[1].shape then
+    local radius = e.fixtures[1].shape:getRadius() and e.fixtures[1].shape:getRadius()*100 or 20
+    print("radius: "..radius)
+    return radius
   end
   return 25
 end
