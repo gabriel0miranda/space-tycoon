@@ -11,16 +11,26 @@ local TARGET_TAGS = {"ship", "asteroid", "landable", "star", "wormhole"}
 
 function Targeting.isValidTarget(entity)
   if not entity then return false end
-  if not entity.rigidbody or not entity.rigidbody.body then return false end
-  if entity.rigidbody.body:isDestroyed() then return false end
-  return true
+  if entity.tag == "ship" or entity.tag == "asteroid" then
+    if not entity.rigidbody or not entity.rigidbody.body then return false end
+    if entity.rigidbody.body:isDestroyed() then return false end
+    return true, "body"
+  elseif entity.tag == "landable" or entity.tag == "star" or entity.tag == "wormhole" then
+    if not entity.sprite or not entity.sprite.shape then return false end
+    return true, "nobody"
+  end
 end
 
 function Targeting.getTargetPosition()
-  if not Targeting.isValidTarget(Targeting.current) then
+  local validity, shapetype = Targeting.isValidTarget(Targeting.current)
+  if not validity then
     return nil, nil
   end
-  return Targeting.current.rigidbody.body:getPosition()
+  if shapetype == "body" then
+    return Targeting.current.rigidbody.body:getPosition()
+  elseif shapetype == "nobody" then
+    return Targeting.current.x, Targeting.current.y
+  end
 end
 
 local function clearTarget()
@@ -33,8 +43,10 @@ local function updateCandidates(player)
   candidates = {}
   for _, tag in ipairs(TARGET_TAGS) do
     for _, e in ipairs(config.Entities.getByTag(tag)) do
-      if e ~= player and Targeting.isValidTarget(e) then
-        table.insert(candidates,e)
+      local validity, shapetype = Targeting.isValidTarget(e)
+      --print("e.tag"..e.tag.."\ne.validity"..tostring(validity).."\ne.type"..type)
+      if e ~= player and validity then
+        table.insert(candidates,{e = e,shapetype = shapetype})
       end
     end
   end
@@ -42,8 +54,17 @@ local function updateCandidates(player)
   if player and player.rigidbody and player.rigidbody.body then
     local px, py = player.rigidbody.body:getPosition()
     table.sort(candidates,function(a,b)
-      local ax, ay = a.rigidbody.body:getPosition()
-      local bx, by = b.rigidbody.body:getPosition()
+      local ax, ay, bx, by = 0,0,0,0
+      if a.shapetype == "body" then
+        ax, ay = a.e.rigidbody.body:getPosition()
+      elseif a.shapetype == "nobody" then
+        ax, ay = a.e.x, a.e.y
+      end
+      if b.shapetype == "body" then
+        bx, by = b.e.rigidbody.body:getPosition()
+      elseif b.shapetype == "nobody" then
+        bx, by = b.e.x, b.e.y
+      end
       local da = (ax-px)^2 + (ay-py)^2
       local db = (bx-px)^2 + (by-py)^2
       return da < db
@@ -74,14 +95,19 @@ function Targeting.mousepressed(mx,my,button)
   local bestDist = math.huge
 
   for _, e in ipairs(candidates) do
-    local ex, ey = e.rigidbody.body:getPosition()
+    local ex,ey = 0,0
+    if e.shapetype == "body" then
+      ex, ey = e.e.rigidbody.body:getPosition()
+    elseif e.shapetype == "nobody" then
+      ex, ey = e.e.x, e.e.y
+    end
     local dx, dy = ex - wx, ey - wy
     local d2 = dx*dx + dy*dy
 
     local worldRadius = CLICK_RADIUS / (config.Camera.scale or 1)
     if d2 < worldRadius * worldRadius and d2 < bestDist then
       bestDist = d2
-      best = e
+      best = e.e
     end
   end
 
@@ -92,7 +118,7 @@ function Targeting.mousepressed(mx,my,button)
       Targeting.current = best
       Targeting.locked = false
       for i, e in ipairs(candidates) do
-        if e == best then cycleIndex = i; break end
+        if e.e == best then cycleIndex = i; break end
       end
     end
   else
@@ -103,14 +129,14 @@ end
 function Targeting.cycleNext()
   if #candidates == 0 then return end
   cycleIndex = (cycleIndex % #candidates) + 1
-  Targeting.current = candidates[cycleIndex]
+  Targeting.current = candidates[cycleIndex].e
   Targeting.locked  = false
 end
 
 function Targeting.cyclePrev()
   if #candidates == 0 then return end
   cycleIndex = ((cycleIndex - 2) % #candidates) + 1
-  Targeting.current = candidates[cycleIndex]
+  Targeting.current = candidates[cycleIndex].e
   Targeting.locked  = false
 end
 

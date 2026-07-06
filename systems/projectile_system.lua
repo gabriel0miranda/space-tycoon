@@ -13,6 +13,8 @@ end
 local function update_homing(proj, dt)
   -- Míssil: busca o target se houver
   if not proj.targetEntity then return end
+  local validity, shapetype = config.TargetingSystem.isValidTarget(proj.targetEntity)
+  if not validity or shapetype == "nobody" then return end
   local ax, ay = proj.targetEntity.rigidbody.body:getPosition()
   local targetAngle = math.atan2(ay - proj.y, ax - proj.x)
   local currentAngle = math.atan2(proj.vy, proj.vx)

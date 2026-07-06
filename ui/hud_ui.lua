@@ -385,10 +385,20 @@ end
 
 -- Targeting: retículo e info
 local function getEntityRadius(e)
+  local radius = 0
   if e.fixtures and e.fixtures[1] and e.fixtures[1].shape then
-    local radius = e.fixtures[1].shape:getRadius() and e.fixtures[1].shape:getRadius()*100 or 20
-    print("radius: "..radius)
-    return radius
+    local points = {e.fixtures[1].shape:getPoints()}
+    for i=1,#points -1, 2 do
+      local vx, vy = points[i], points[i+1]
+      local r2 = vx*vx + vy*vy
+      if r2 > radius then radius = r2 end
+    end
+    return math.sqrt(radius)
+  end
+
+  if e.sprite and e.sprite.shape then
+    local ok, r = pcall(function() return e.sprite.shape:getRadius() end)
+    if ok then return r+5 end
   end
   return 25
 end
@@ -396,9 +406,15 @@ end
 local function drawTargetInfo(camera)
   local target = config.TargetingSystem.current
   if not target then return end
-  if not config.TargetingSystem.isValidTarget(target) then return end
+  local validity, shapetype = config.TargetingSystem.isValidTarget(target)
+  if not validity then return end
 
-  local tx, ty = target.rigidbody.body:getPosition()
+  local tx, ty = 0,0
+  if shapetype == "body" then
+    tx, ty = target.rigidbody.body:getWorldCenter()
+  else
+    tx, ty = target.x, target.y
+  end
   local sw, sh = love.graphics.getWidth(), love.graphics.getHeight()
 
   -- Converte posição do alvo para tela
@@ -437,7 +453,7 @@ local function drawTargetInfo(camera)
   label = label .. lockStr
 
   local lx = math.max(4, math.min(sw - font:getWidth(label) - 4, sx - font:getWidth(label) / 2))
-  local ly = math.max(4, sy - getEntityRadius(target) / (camera.scale or 1) - 20)
+  local ly = math.max(4, sy - getEntityRadius(target) * (camera.scale or 1) - 20)
 
   love.graphics.setColor(0, 0, 0, 0.55)
   love.graphics.rectangle("fill", lx - 4, ly - 2, font:getWidth(label) + 8, font:getHeight() + 4, 2)

@@ -77,10 +77,10 @@ end
 
 function InventoryUI.close(entity, configuration)
     print("Closing inventory")
-    if configuration.state ~= "landed" then
-      love.mouse.setVisible(false)
-      love.mouse.setRelativeMode(true)
-    end
+    --if configuration.state ~= "landed" then
+    --  love.mouse.setVisible(false)
+    --  love.mouse.setRelativeMode(true)
+    --end
     config.Input.popContext("inventory")
     for i, p in ipairs(panels) do
         if p.entity == entity then

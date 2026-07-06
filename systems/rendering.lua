@@ -231,10 +231,20 @@ local function drawDebugOverlay(playerFlagShip)
 end
 
 local function getEntityRadius(e)
+  local radius = 0
   if e.fixtures and e.fixtures[1] and e.fixtures[1].shape then
-    local radius = e.fixtures[1].shape:getRadius() and e.fixtures[1].shape:getRadius()*100 or 20
-    print("radius: "..radius)
-    return radius
+    local points = {e.fixtures[1].shape:getPoints()}
+    for i=1,#points -1, 2 do
+      local vx, vy = points[i], points[i+1]
+      local r2 = vx*vx + vy*vy
+      if r2 > radius then radius = r2 end
+    end
+    return math.sqrt(radius)
+  end
+
+  if e.sprite and e.sprite.shape then
+    local ok, r = pcall(function() return e.sprite.shape:getRadius() end)
+    if ok then return r+5 end
   end
   return 25
 end
@@ -243,10 +253,16 @@ local function drawTargetReticule(camera)
   local reticule = {0.99,0.8, 0.2,1}
   local reticuleLocked = {0.9,0.5, 0.1, 1}
   local target = config.TargetingSystem.current
+  local validity, shapetype = config.TargetingSystem.isValidTarget(target)
   if not target then return end
-  if not config.TargetingSystem.isValidTarget(target) then return end
+  if not validity then return end
 
-  local tx, ty = target.rigidbody.body:getPosition()
+  local tx, ty = 0,0
+  if shapetype == "body" then
+    tx, ty = target.rigidbody.body:getWorldCenter()
+  else
+    tx, ty = target.x, target.y
+  end
   local radius = getEntityRadius(target) + 12
 
   local color = config.TargetingSystem.locked and reticuleLocked or reticule
