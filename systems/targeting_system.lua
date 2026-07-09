@@ -86,6 +86,21 @@ function Targeting.update(player,dt)
   if config.Input.state.target_clear then
     clearTarget()
   end
+  if config.Input.state.followTarget then
+    config.AutopilotSystem.engage(player,"follow",Targeting.current,{distance=200})
+  end
+  if config.Input.state.orbitTarget then
+    config.AutopilotSystem.engage(player,"orbit",Targeting.current,{distance=500,clockwise=1})
+  end
+  if config.Input.state.escortTarget then
+    config.AutopilotSystem.engage(player,"escort",Targeting.current,{offsetX=-200,offsetY=150})
+  end
+  if config.Input.state.fleeTarget then
+    config.AutopilotSystem.engage(player,"flee",Targeting.current,{fleeRadius=2000})
+  end
+  if config.Input.state.landOnTarget then
+    config.AutopilotSystem.engage(player,"land",Targeting.current)
+  end
 end
 
 function Targeting.mousepressed(mx,my,button)

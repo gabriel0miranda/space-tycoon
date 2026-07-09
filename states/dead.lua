@@ -117,8 +117,6 @@ end
 
 function Dead.onExit()
     config.Input.popContext("dead")
-    love.mouse.setVisible(false)
-    love.mouse.setRelativeMode(true)
 end
 
 function Dead.update(dt)

@@ -105,8 +105,6 @@ local function applyIntent(ship, dt)
         local da = intent.targetAngle - angle
         -- Wrap to [-pi, pi]
         da = ((da + math.pi) % (2 * math.pi)) - math.pi
-        local I       = body:getMass() * (5 * 5 / 2)
-        local maxStep = mov.angularAcceleration * dt
         -- Proportional control — slows down as it approaches target
         local torque  = math.max(-1, math.min(1, da / 0.3)) * mov.angularAcceleration
         body:applyTorque(torque)
@@ -131,8 +129,10 @@ function ShipMovement.update(playerFlagShip, dt)
     if playerFlagShip.disabled then return end
 
     -- Player input writes to intent unless autopilot is active
-    if not playerFlagShip.autopilot then
-        applyPlayerInput(playerFlagShip)
+    if playerFlagShip.autopilot and playerFlagShip.autopilot.active then
+      config.AutopilotSystem.update(playerFlagShip,dt)
+    else
+      applyPlayerInput(playerFlagShip)
     end
 
     applyIntent(playerFlagShip, dt)

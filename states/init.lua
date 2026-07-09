@@ -55,6 +55,13 @@ function GameState.mousepressed(x, y, button)
   end
 end
 
+function GameState.mousemoved(x,y,dx,dy,istouch)
+  local state = stateModules[GameState.current]
+  if state and state.mousemoved then
+    state.mousemoved(x,y,dx,dy,istouch)
+  end
+end
+
 function GameState.wheelmoved(dx, dy)
   local state = stateModules[GameState.current]
   if state and state.wheelmoved then

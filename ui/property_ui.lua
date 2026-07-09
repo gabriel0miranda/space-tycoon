@@ -167,8 +167,6 @@ end
 
 function PropertyUI.toggle()
     if PropertyUI.isOpen() then
-      love.mouse.setVisible(false)
-      love.mouse.setRelativeMode(true)
       PropertyUI.close()
     else
       love.mouse.setVisible(true)

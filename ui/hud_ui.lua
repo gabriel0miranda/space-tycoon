@@ -400,6 +400,7 @@ local function getEntityRadius(e)
     local ok, r = pcall(function() return e.sprite.shape:getRadius() end)
     if ok then return r+5 end
   end
+  print("returning 25")
   return 25
 end
 
@@ -444,16 +445,32 @@ local function drawTargetInfo(camera)
 
   -- Label: nome + hull (se tiver)
   local font = love.graphics.getFont()
-  local label = target.name or target.type or "?"
+  local label = target.name or target.tag or "?"
+  if target.shields then
+    local pct = math.floor(target.shields.currentCapacity / target.shields.totalCapacity * 100)
+    label = label .. " Shields: " .. pct .. "%"
+  end
   if target.hull then
-      local pct = math.floor(target.hull.currentHealth / target.hull.health * 100)
-      label = label .. "  " .. pct .. "%"
+    local pct = math.floor(target.hull.currentHealth / target.hull.health * 100)
+    label = label .. " Hull: " .. pct .. "%"
+  end
+  if target.mineable then
+    label = label.."\ncomposição {\n"
+    for _, item in ipairs(target.mineable.loot_table) do
+      local amount = item.min+item.max/item.max-item.min
+      label = label .. item.item..": " .. amount*target.sprite.shape:getRadius() .. "\n"
+    end
+    label = label.."}"
   end
   local lockStr = config.TargetingSystem.locked and " [LOCK]" or ""
   label = label .. lockStr
 
+  local numberOfLines = 0
+  for _ in string.gfind(label, "\n") do
+    numberOfLines = numberOfLines+1
+  end
   local lx = math.max(4, math.min(sw - font:getWidth(label) - 4, sx - font:getWidth(label) / 2))
-  local ly = math.max(4, sy - getEntityRadius(target) * (camera.scale or 1) - 20)
+  local ly = math.max(4, math.min(sh - (font:getHeight()*numberOfLines)-4, sy - getEntityRadius(target) * (camera.scale or 1) - 20 - (font:getHeight()*numberOfLines)))
 
   love.graphics.setColor(0, 0, 0, 0.55)
   love.graphics.rectangle("fill", lx - 4, ly - 2, font:getWidth(label) + 8, font:getHeight() + 4, 2)

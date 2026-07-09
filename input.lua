@@ -104,6 +104,14 @@ local action_types = {
     ship_launch                 = "hold",
     ship_generator_switch_mode  = "pulse",
 
+    -- Autopilot
+    followTarget                = "pulse",
+    orbitTarget                 = "pulse",
+    escortTarget                = "pulse",
+    fleeTarget                  = "pulse",
+    landOnTarget                = "pulse",
+
+
     -- Câmera
     camera_zoom_in      = "hold",
     camera_zoom_out     = "hold",
@@ -162,11 +170,18 @@ local default_bindings = {
         ["lshift"]      = "ship_rcs_hold",
         ["rctrl"]       = "ship_rcs_hold",
         ["kp0"]         = "ship_rcs_toggle",
-        ["0"]           = "ship_rcs_toggle",
+        ["r"]           = "ship_rcs_toggle",
         ["return"]      = "ship_land",
         ["kpenter"]     = "ship_land",
         ["l"]           = "ship_launch",
         ["y"]           = "ship_generator_switch_mode",
+
+        -- Autopilot
+        ["f"]            = "followTarget",
+        ["0"]            = "orbitTarget",
+        ["g"]            = "escortTarget",
+        ["9"]            = "fleeTarget",
+        ["h"]            = "landOnTarget",
 
         -- Câmera
         ["kp+"]         = "camera_zoom_in",
@@ -251,7 +266,9 @@ local context_defs = {
             camera_zoom_in=true, camera_zoom_out=true,
             ui_inventory=true, ui_properties=true, ui_mainmenu=true,
             meta_pause=true, meta_debug=true,
-            ship_generator_switch_mode=true,
+            ship_generator_switch_mode=true, followTarget=true,
+            orbitTarget=true, escortTarget=true, fleeTarget=true,
+            landOnTarget=true,
         },
     },
 

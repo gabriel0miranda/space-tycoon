@@ -475,8 +475,6 @@ end
 function Landed.onExit()
     activePanel = "none"
     config.Input.popContext("landed")
-    love.mouse.setVisible(false)
-    love.mouse.setRelativeMode(true)
     if playerFlagShip and playerFlagShip.rigidbody and playerFlagShip.rigidbody.body then
         local angle = playerFlagShip.rigidbody.body:getAngle()
         playerFlagShip.rigidbody.body:applyLinearImpulse(

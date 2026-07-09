@@ -167,8 +167,6 @@ end
 
 function MainMenu.onExit()
     config.Input.popContext("mainmenu")
-    love.mouse.setVisible(false)
-    love.mouse.setRelativeMode(true)
 end
 
 function MainMenu.update(dt)

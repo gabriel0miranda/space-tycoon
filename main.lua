@@ -31,6 +31,10 @@ function love.mousepressed(x, y, button)
     config.GameState.mousepressed(x, y, button)
 end
 
+function love.mousemoved(x,y,dx,dy,istouch)
+    config.GameState.mousemoved(x,y,dx,dy,istouch)
+end
+
 function love.wheelmoved(dx, dy)
     config.GameState.wheelmoved(dx, dy)
 end

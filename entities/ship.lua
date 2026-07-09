@@ -32,6 +32,7 @@ return function(x, y, owner, flagShip, name, type, landedAt, weapons, cargo)
                         def.movement.linearDamping,
                         def.movement.angularDampingFactor
                     ),
+    autopilot        = config.AutopilotComponent(),
     weapons          = config.WeaponComponent(shipWeapons),
     currentWeapon    = 1,
     generator        = config.GeneratorComponent(def.generatorPower),

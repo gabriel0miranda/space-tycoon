@@ -4,6 +4,7 @@ local playerFlagShip = nil
 local armedEntities = {}
 local generatorEntities = {}
 local landCooldown = 0
+local mouseFadeTimer = 5
 
 function Playing.onEnter(params)
   config.Input.pushContext("playing")
@@ -25,6 +26,7 @@ function Playing.onEnter(params)
         config.GameState.switch("landed")
     end
     print("Entered space")
+    mouseFadeTimer = config.MOUSE_FADE_TIMER
     config.Camera.x = playerFlagShip.rigidbody.body:getX()
     config.Camera.y = playerFlagShip.rigidbody.body:getY()
     config.Camera.scale = 0.2
@@ -60,16 +62,24 @@ function Playing.update(dt)
   if landCooldown > 0 then
       landCooldown = landCooldown - dt
   end
+
+  if mouseFadeTimer > 0 then
+    mouseFadeTimer = mouseFadeTimer - dt
+  elseif mouseFadeTimer <= 0 then
+    love.mouse.setVisible(false)
+    love.mouse.setRelativeMode(true)
+  end
+
   if config.Input.state.paused then return end
   if not playerFlagShip or not playerFlagShip.rigidbody or not playerFlagShip.rigidbody.body or playerFlagShip.rigidbody.body:isDestroyed() then return end
 
-  local valid_asteroids = {}
-  for _, ast in ipairs(config.Entities.getByTag("asteroid")) do
-    if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
-      valid_asteroids[#valid_asteroids+1] = ast
-    end
-  end
-  local ast_hash = config.SpatialHash.build(valid_asteroids,rigidbody_pos,shape_radius,config.CELL_SIZE)
+  --local valid_asteroids = {}
+  --for _, ast in ipairs(config.Entities.getByTag("asteroid")) do
+  --  if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
+  --    valid_asteroids[#valid_asteroids+1] = ast
+  --  end
+  --end
+  local ast_hash = config.SpatialHash.build(config.Entities.getByTag("asteroid"),rigidbody_pos,shape_radius,config.CELL_SIZE)
 
   local floatsome_hash = config.SpatialHash.build(config.Entities.getByTag("floatsome"),obj_pos,obj_radius,config.CELL_SIZE)
 
@@ -141,6 +151,12 @@ function Playing.keypressed(key)
     return
   end
   config.TargetingSystem.keypressed(key)
+end
+
+function Playing.mousemoved(x,y,dx,dy,istouch)
+  love.mouse.setVisible(true)
+  love.mouse.setRelativeMode(false)
+  mouseFadeTimer = config.MOUSE_FADE_TIMER
 end
 
 function Playing.mousepressed(mx, my, button)
