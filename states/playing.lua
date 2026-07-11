@@ -73,12 +73,6 @@ function Playing.update(dt)
   if config.Input.state.paused then return end
   if not playerFlagShip or not playerFlagShip.rigidbody or not playerFlagShip.rigidbody.body or playerFlagShip.rigidbody.body:isDestroyed() then return end
 
-  --local valid_asteroids = {}
-  --for _, ast in ipairs(config.Entities.getByTag("asteroid")) do
-  --  if ast.rigidbody and ast.rigidbody.body and not ast.rigidbody.body:isDestroyed() then
-  --    valid_asteroids[#valid_asteroids+1] = ast
-  --  end
-  --end
   local ast_hash = config.SpatialHash.build(config.Entities.getByTag("asteroid"),rigidbody_pos,shape_radius,config.CELL_SIZE)
 
   local floatsome_hash = config.SpatialHash.build(config.Entities.getByTag("floatsome"),obj_pos,obj_radius,config.CELL_SIZE)

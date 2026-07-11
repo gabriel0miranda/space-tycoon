@@ -194,8 +194,8 @@ local default_bindings = {
         ["o"]           = "ui_properties",
         ["escape"]      = "ui_cancel",
         ["f4"]          = "ui_mainmenu",
-        [">"]           = "target_next",
-        ["<"]           = "target_prev",
+        ["/"]           = "target_next",
+        ["\\"]           = "target_prev",
         ["."]           = "target_clear",
 
         -- Meta
@@ -268,7 +268,8 @@ local context_defs = {
             meta_pause=true, meta_debug=true,
             ship_generator_switch_mode=true, followTarget=true,
             orbitTarget=true, escortTarget=true, fleeTarget=true,
-            landOnTarget=true,
+            landOnTarget=true,target_next=true,target_prev=true,
+            target_clear=true,
         },
     },
 

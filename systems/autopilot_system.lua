@@ -163,29 +163,27 @@ local function behaviorLand(ship, ap, dt)
   local dist   = math.sqrt(dx*dx + dy*dy)
 
   local landRange = ap.params.landRange
-    or (target.radius and target.radius + 40)
+    or (target.sprite.shape and target.sprite.shape:getRadius() + 40)
     or 200
 
   ship.intent.targetAngle = math.atan2(dy, dx)
   ship.intent.dampLinear  = true
   ship.intent.dampAngular = true
 
-  if dist > landRange * 2 then
+  if dist > landRange * 5 then
     -- Longe: aproxima em velocidade máxima
-    if ship.intent.targetAngle == ship.rigidbody.body:getAngle() then
-      ship.intent.targetAngle = nil
-      ship.intent.thrust = math.min(1, (dist - landRange) / landRange)
-    end
+    ship.intent.thrust = math.min(1, (dist - landRange) / landRange)
   elseif dist > landRange then
     -- Perto: desacelera proporcionalmente
-    ship.intent.thrust = math.min(0.3, (dist - landRange) / landRange)
+    ship.intent.thrust = math.min(0.2, (dist - landRange) / landRange)
   else
     -- Dentro do range: aciona pouso
+    if target.tag == "star" then return end
     ship.intent.thrust = 0
     ship.landedAt = target
+    Autopilot.disengage(ship)
     config.WorldManager:freeze()
     config.GameState.switch("landed")
-    Autopilot.disengage(ship)
   end
 end
 
@@ -235,6 +233,13 @@ function Autopilot.disengage(ship)
     intent.strafe      = 0
     intent.strafeV     = 0
   end
+end
+
+function Autopilot.isEngaged(ship)
+  if ship.autopilot and ship.autopilot.active then
+    return true
+  end
+  return false
 end
 
 function Autopilot.update(ship, dt)

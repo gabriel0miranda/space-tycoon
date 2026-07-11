@@ -11,7 +11,7 @@ return {
     starMass     = 65000,
     starColor    = {1,1,1},
     asteroidCount= 30,
-    populationDensity = {["Hauler"]=0.00009,["Miner"]=0.0001,["Pirate"]=0.00001},
+    populationDensity = {["Hauler"]=0.00009,["Miner"]=0.0001,["Taxi"]=0.0001,["Pirate"]=0.00001},
     asteroidOres = {
     {item="Iron Ore", min=0, max=10},
     {item="Silver Ore", min=0, max=6},

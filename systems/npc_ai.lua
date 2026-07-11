@@ -1,9 +1,9 @@
 local NpcAI = {}
 
-local DETECT_RANGE   = 4000
 local ATTACK_RANGE   = 1000
 local PATROL_RADIUS  = 8000
-local PATROL_TIMEOUT = 5  -- segundos em idle antes de escolher novo waypoint
+local IDLE_TIMER = 15  -- segundos em idle antes de escolher novo waypoint
+local RNG = love.math.newRandomGenerator(os.time())
 
 -- helpers 
 
@@ -12,26 +12,23 @@ local function dist2(ax, ay, bx, by)
   return dx*dx + dy*dy
 end
 
-local function set_npc_intent(npc, tx, ty)
+local function set_npc_intent(npc, tx, ty,range)
   local nx, ny = npc.ship.rigidbody.body:getPosition()
   local dx, dy = tx - nx, ty - ny
-  if npc.ship.rigidbody.body:getAngularVelocity() > 4 then
-    npc.ship.intent.targetAngle = nil
-    npc.ship.intent.torque = 0
-    return
-  end
+  local dist   = math.sqrt(dx*dx + dy*dy)
 
   npc.ship.intent.targetAngle = math.atan2(dy, dx)
-  npc.ship.intent.dampAngular = true   -- deixa o damping estabilizar a rotação
+  npc.ship.intent.dampAngular = true
   npc.ship.intent.dampLinear  = true
 
-  local da = npc.ship.intent.targetAngle - npc.ship.rigidbody.body:getAngle()
-  da = ((da + math.pi) % (2 * math.pi)) - math.pi
-  if math.abs(da) < 0.3 then
-    npc.ship.intent.thrust = 1
-    npc.ship.intent.targetAngle = nil
+  if dist > (range and range*5 or 1000) then
+    -- Longe: aproxima em velocidade máxima
+    npc.ship.intent.thrust = math.min(1, (dist - (range or 500)) / (range or 500))
+  elseif dist > (range or 500) then
+    -- Perto: desacelera proporcionalmente
+    npc.ship.intent.thrust = math.min(0.2, (dist - (range or 500)) / (range or 500))
   else
-    npc.ship.intent.thrust = 0
+    npc.ship.rigidbody.body:setLinearVelocity(0,0)
   end
 end
 
@@ -49,12 +46,6 @@ local function state_idle(npc, ai, dt)
   clear_weapon_intent(npc)
   ai.timer = ai.timer - dt
   if ai.timer <= 0 then
-    -- escolhe um waypoint aleatório próximo
-    local nx, ny = npc.ship.rigidbody.body:getPosition()
-    ai.waypoint = {
-      x = nx + math.random(-PATROL_RADIUS, PATROL_RADIUS),
-      y = ny + math.random(-PATROL_RADIUS, PATROL_RADIUS),
-    }
     if npc.name == "Miner" then
       ai.state = "mining"
     elseif npc.name == "Hauler" then
@@ -69,12 +60,16 @@ end
 
 local function state_patrolling(npc, ai, dt)
   local nx, ny = npc.ship.rigidbody.body:getPosition()
+  ai.waypoint = {
+    x = nx + math.random(-PATROL_RADIUS, PATROL_RADIUS),
+    y = ny + math.random(-PATROL_RADIUS, PATROL_RADIUS),
+  }
   clear_weapon_intent(npc)
   set_npc_intent(npc, ai.waypoint.x, ai.waypoint.y)
 
   -- chegou perto o suficiente? volta pra idle
   if dist2(nx, ny, ai.waypoint.x, ai.waypoint.y) < 60*60 then
-    ai.timer = math.random(2, PATROL_TIMEOUT)
+    ai.timer = math.random(5, IDLE_TIMER)
     ai.state = "idle"
   end
 end
@@ -82,18 +77,22 @@ end
 local function state_hauling(npc, ai, dt)
   clear_weapon_intent(npc)
   local nx, ny = npc.ship.rigidbody.body:getPosition()
-  if not ai.target or ai.target.tag ~= "landable" then
-    local RNG = love.math.newRandomGenerator(os.time())
+  if not ai.target or ai.target.tag ~= "landable" or ai.target.wormhole == true then
     -- escolhe um planeta/estação aleatório próximo
-    local target = config.Systems[config.WorldManager.currentSystemId].landables[RNG:random(1,#config.Systems[config.WorldManager.currentSystemId].landables)]
+    local candidates = config.Entities.getByTag("landable")
+    local target = candidates[RNG:random(1,#candidates)]
+    ai.target = target
     ai.waypoint = {
-      x = config.Landables[target].x,
-      y = config.Landables[target].y,
+      x = target.x,
+      y = target.y,
     }
   end
-  set_npc_intent(npc, ai.waypoint.x, ai.waypoint.y)
-  if dist2(nx, ny, ai.waypoint.x, ai.waypoint.y) < 60*60 then
-    ai.timer = math.random(2, 10)
+  set_npc_intent(npc, ai.waypoint.x, ai.waypoint.y,ai.target.sprite.shape:getRadius() + 40)
+
+  -- chegou perto o suficiente? procura outro alvo
+  if dist2(nx, ny, ai.waypoint.x, ai.waypoint.y) <= ai.target.sprite.shape:getRadius() + 40 then
+    ai.timer = RNG:random(5, IDLE_TIMER)
+    ai.target = nil
     ai.state = "trading"
   end
 end
@@ -103,33 +102,30 @@ local function state_trading(npc, ai, dt)
   npc.ship.inventory:clear()
   ai.timer = ai.timer - dt
   if ai.timer <= 0 then
-    if npc.name == "Miner" then
-      ai.state = "mining"
-    elseif npc.name == "Hauler" then
-      ai.state = "hauling"
-    elseif npc.name == "Taxi" then
-      ai.state = "taxi"
-    end
+    ai.state = "hauling"
   end
 end
 
 local function state_taxi(npc, ai, dt)
   clear_weapon_intent(npc)
-  if not ai.target or ai.target.tag ~= "landable" then
-    local RNG = love.math.newRandomGenerator(os.time())
+  local nx, ny = npc.ship.rigidbody.body:getPosition()
+  if not ai.target or ai.target.tag ~= "landable" or ai.target.wormhole == true then
     -- escolhe um planeta/estação aleatório próximo
-    local target = config.Systems[config.WorldManager.currentSystem].landables[RNG:random(1,#config.Systems[config.WorldManager.currentSystem].landables)]
+    local candidates = config.Entities.getByTag("landable")
+    local target = candidates[RNG:random(1,#candidates)]
+    ai.target = target
     ai.waypoint = {
-      x = config.Landables[target].x,
-      y = config.Landables[target].y,
+      x = target.x,
+      y = target.y,
     }
   end
-  set_npc_intent(npc, ai.waypoint.x, ai.waypoint.y)
+  set_npc_intent(npc, ai.waypoint.x, ai.waypoint.y,ai.target.sprite.shape:getRadius() + 40)
 
   -- chegou perto o suficiente? procura outro alvo
-  if dist2(nx, ny, ai.waypoint.x, ai.waypoint.y) < 60*60 then
-    ai.timer = math.random(2, 5)
+  if dist2(nx, ny, ai.waypoint.x, ai.waypoint.y) <= ai.target.sprite.shape:getRadius() + 40 then
+    ai.timer = RNG:random(5, IDLE_TIMER)
     ai.target = nil
+    ai.state = "idle"
   end
 end
 
@@ -138,21 +134,22 @@ local function state_mining(npc, ai, dt)
   local nx, ny = npc.ship.rigidbody.body:getPosition()
   if not ai.target or ai.target.tag ~= "asteroid" or ai.target.rigidbody.body:isDestroyed() then
     local asteroids = config.Entities.getByTag("asteroid")
-    ai.timer = ai.timer - dt
-    if ai.timer <= 0 then
-      local RNG = love.math.newRandomGenerator(os.time())
-      -- escolhe um asteroide aleatório próximo
-      ai.target = asteroids[RNG:random(1,#asteroids)]
-      ai.waypoint = {
-        x = ai.target.rigidbody.body:getX(),
-        y = ai.target.rigidbody.body:getY(),
-      }
-    end
+    local RNG = love.math.newRandomGenerator(os.time())
+    -- escolhe um asteroide aleatório próximo
+    ai.target = asteroids[RNG:random(1,#asteroids)]
+    ai.waypoint = {
+      x = ai.target.rigidbody.body:getX(),
+      y = ai.target.rigidbody.body:getY(),
+    }
   end
-  local px, py = ai.target.rigidbody.body:getX(), ai.target.rigidbody.body:getY()
+  local px, py = ai.target.rigidbody.body:getPosition()
   set_npc_intent(npc, ai.waypoint.x, ai.waypoint.y)
   if dist2(nx, ny, px, py) < ATTACK_RANGE*ATTACK_RANGE then
-    ai.state = "attacking"
+
+    if npc.ship.weapons and npc.ship.weapons_intent then
+      npc.ship.weapons_intent.firing  = true
+      npc.ship.weapons_intent.angle = npc.ship.rigidbody.body:getAngle()
+    end
   elseif npc.ship.inventory.capacityUsed == npc.ship.inventory.capacity then
     ai.state = "hauling"
   end
@@ -171,7 +168,7 @@ local function state_chasing(npc, ai, dt, player)
   if dist2(nx, ny, px, py) < ATTACK_RANGE*ATTACK_RANGE then
     ai.target = player
     ai.state = "attacking"
-  elseif dist2(nx, ny, px, py) > DETECT_RANGE*DETECT_RANGE * 1.5 then
+  elseif dist2(nx, ny, px, py) > config.HOSTILE_DETECT_RANGE*config.HOSTILE_DETECT_RANGE * 1.5 then
     ai.state = "idle"
   end
 end
@@ -225,7 +222,7 @@ function NpcAI.update(playerFlagShip, dt)
         if playerFlagShip then
           local nx, ny = npc.ship.rigidbody.body:getPosition()
           local px, py = playerFlagShip.rigidbody.body:getPosition()
-          if dist2(nx, ny, px, py) < DETECT_RANGE*DETECT_RANGE then
+          if dist2(nx, ny, px, py) < config.HOSTILE_DETECT_RANGE*config.HOSTILE_DETECT_RANGE then
             ai.state = "chasing"
           end
         end

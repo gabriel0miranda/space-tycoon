@@ -462,6 +462,12 @@ local function drawTargetInfo(camera)
     end
     label = label.."}"
   end
+  if target.autopilot and target.autopilot.active and config.Input.state.debugFlag then
+    label = label.."\nAP: {\n"
+    label = label..target.autopilot.behavior.."\n"
+    label = label..target.autopilot.target.name.."\n"
+    label = label.."}"
+  end
   local lockStr = config.TargetingSystem.locked and " [LOCK]" or ""
   label = label .. lockStr
 

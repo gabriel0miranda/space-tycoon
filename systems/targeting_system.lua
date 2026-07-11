@@ -75,15 +75,25 @@ end
 function Targeting.update(player,dt)
   updateCandidates(player)
   if not Targeting.isValidTarget(Targeting.current) then
+    if config.AutopilotSystem.isEngaged(player) then
+      config.AutopilotSystem.disengage(player)
+    end
     clearTarget()
   end
   if config.Input.state.target_next then
+    if config.AutopilotSystem.isEngaged(player) then
+      config.AutopilotSystem.disengage(player)
+    end
     Targeting.cycleNext()
   end
   if config.Input.state.target_prev then
+    if config.AutopilotSystem.isEngaged(player) then
+      config.AutopilotSystem.disengage(player)
+    end
     Targeting.cyclePrev()
   end
   if config.Input.state.target_clear then
+    config.AutopilotSystem.disengage(player)
     clearTarget()
   end
   if config.Input.state.followTarget then

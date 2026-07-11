@@ -35,13 +35,13 @@ return function (population)
         profile = config.NpcProfiles[npc],
         name = npc,
         id = id,
-        ai = {
+        ai = config.AIComponent({
           state = "idle",           -- estado atual da FSM
           target = nil,             -- entidade alvo
           timer = 0,                -- timer genérico (patrol, cooldown)
           faction = config.NpcProfiles[npc].faction,
           aggressiveTowardsPlayer = config.NpcProfiles[npc].aggressiveTowardsPlayer
-        },
+        }),
         ship = config.ShipEntity(x, y, id, false, shipName, shipType, nil, config.Ships[shipType].weapons, cargo())
       })
     end
