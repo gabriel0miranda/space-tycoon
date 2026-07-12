@@ -25,6 +25,7 @@ return {
   WorldManager = require("managers.world_manager"),
   SpatialHash = require("utils.spatial_hash"),
   TableConcat = require("utils.table_concat"),
+  RandomChoice = require("utils.random_choice"),
   InventoryUI  = require("ui.inventory_ui"),
   MarketUI  = require("ui.market_ui"),
   TextInputUI = require("ui.textinput_ui"),

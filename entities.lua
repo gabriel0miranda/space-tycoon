@@ -14,6 +14,7 @@ function Entities.remove(entity)
       if entity.rigidbody and entity.rigidbody.body and not entity.rigidbody.body:isDestroyed() then
         entity.rigidbody.body:destroy()
       end
+      entity.removed = true
       table.remove(Entities.all, i)
       break
     end

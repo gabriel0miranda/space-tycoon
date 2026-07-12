@@ -81,7 +81,7 @@ function Playing.update(dt)
 
   config.TargetingSystem.update(playerFlagShip,dt)
   config.ShipMovementSystem.update(playerFlagShip, dt)
-  config.NpcAISystem.update(playerFlagShip, dt)
+  config.NpcAISystem.update(playerFlagShip, floatsome_hash, dt)
   config.GravityPullSystem.update(dt)
   config.LandableMovementSystem.update(dt)
   config.EnergySystem.update(generatorEntities,dt)

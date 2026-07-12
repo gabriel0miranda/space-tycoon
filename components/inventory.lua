@@ -1,8 +1,15 @@
 return function(capacity, items)
+  local function calculateCapacityUsed(t)
+    local capacityUsed = 0
+    for item, qty in pairs(t) do
+      capacityUsed = capacityUsed + (config.Items[item].volume * qty)
+    end
+    return capacityUsed
+  end
   return {
     capacity = capacity or 100,
     items = items or {},
-    capacityUsed = 0,
+    capacityUsed = items and calculateCapacityUsed(items) or 0,
     add = function(self, item, quantity)
       local item_volume = config.Items[item].volume or 1
       local total = item_volume * quantity

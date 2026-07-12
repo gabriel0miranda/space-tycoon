@@ -462,10 +462,16 @@ local function drawTargetInfo(camera)
     end
     label = label.."}"
   end
-  if target.autopilot and target.autopilot.active and config.Input.state.debugFlag then
-    label = label.."\nAP: {\n"
-    label = label..target.autopilot.behavior.."\n"
-    label = label..target.autopilot.target.name.."\n"
+  if target.ai_state and config.Input.state.debugFlag then
+    label = label.."ai_state: {"
+    label = label..target.ai_state
+    label = label.."}"
+  end
+  if target.inventory and config.Input.state.debugFlag then
+    label = label.."inventory("..target.inventory.capacityUsed.."/"..target.inventory.capacity.."): {\n"
+    for item, qty in pairs(target.inventory.items) do
+      label = label.."item:"..item.." qty:"..qty.."\n"
+    end
     label = label.."}"
   end
   local lockStr = config.TargetingSystem.locked and " [LOCK]" or ""
