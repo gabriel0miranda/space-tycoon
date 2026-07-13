@@ -192,12 +192,7 @@ local function state_harvesting(npc, ai, floatsome_hash, dt)
     y = ai.target.y,
   }
   set_npc_intent(npc, ai.waypoint.x, ai.waypoint.y)
-  if dist2(nx, ny, ai.waypoint.x, ai.waypoint.y) < math.pow(ai.target.radius + 50,2) then
-    npc.ship.rigidbody.body:setLinearVelocity(0,0)
-    npc.ship.inventory:add(ai.target.item, ai.target.qty)
-    config.Entities.remove(ai.target)
-    ai.target = nil
-  elseif npc.ship.inventory.capacityUsed == npc.ship.inventory.capacity then
+  if npc.ship.inventory.capacityUsed == npc.ship.inventory.capacity then
     ai.state = "hauling"
   end
 end
