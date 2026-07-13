@@ -295,7 +295,7 @@ end
 local function drawTitle()
     setColor(C.textBright)
     love.graphics.setFont(config.bigFont)
-    local title = "Space Tycoon"
+    local title = "Endless eXpanse"
     local tw    = config.bigFont:getWidth(title)
     love.graphics.print(title, G.titleX - tw / 2, G.titleY)
 
