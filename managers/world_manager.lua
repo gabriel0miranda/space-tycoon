@@ -87,7 +87,7 @@ function WorldManager.loadSystem(systemId)
 
   config.WormholeEntity(sys.wormholes)
 
-  config.NpcEntity(sys.populationDensity)
+  config.NpcEntity(sys.population)
 
   for _, property in pairs(player.property.properties) do
     if property.ship and property.flagShip then

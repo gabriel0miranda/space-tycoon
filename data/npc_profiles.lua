@@ -5,6 +5,7 @@ return {
   ship = "GHM-1",
   faction = "Pacifists",
   aggressiveTowardsPlayer = false,
+  baseDensity = 0.0001,
 },
 ["Taxi"] = {
   name = "Taxi",
@@ -12,6 +13,7 @@ return {
   ship = "O-lopa LTV-1",
   faction = "Pacifists",
   aggressiveTowardsPlayer = false,
+  baseDensity = 0.0001,
 },
 ["Miner"] = {
   name = "Mineirador",
@@ -19,6 +21,7 @@ return {
   ship = "GMT-1",
   faction = "Pacifists",
   aggressiveTowardsPlayer = false,
+  baseDensity = 0.0001,
 },
 ["Noobi Militia"] = {
   name = "Milicia Noobi",
@@ -26,6 +29,7 @@ return {
   ship = "PP-2340",
   faction = "Noobi Empire",
   aggressiveTowardsPlayer = false,
+  baseDensity = 0.0001,
 },
 ["Noobi Fleet"] = {
   name = "Frota Noobi",
@@ -33,6 +37,7 @@ return {
   ship = "NN-Interceptor",
   faction = "Noobi Empire",
   aggressiveTowardsPlayer = false,
+  baseDensity = 0.0001,
 },
 ["Noobi Flagship"] = {
   name = "Capitânia Noobi",
@@ -40,6 +45,7 @@ return {
   ship = "NN-Dreadnought",
   faction = "Noobi Empire",
   aggressiveTowardsPlayer = false,
+  baseDensity = 0.0002,
 },
 ["Iron Ball Mercenary"] = {
   name = "Mercenário Bola de Ferro",
@@ -47,6 +53,7 @@ return {
   ship = "BAL Gunship",
   faction = "Ballestra",
   aggressiveTowardsPlayer = false,
+  baseDensity = 0.0001,
 },
 ["Pirate"] = {
   name = "Pirata",
@@ -54,5 +61,6 @@ return {
   ship = "NN-Interceptor",
   faction = "Pirate",
   aggressiveTowardsPlayer = true,
+  baseDensity = 0.0003,
 }
 }

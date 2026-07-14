@@ -11,7 +11,17 @@ return {
     starMass     = 65000,
     starColor    = {1,1,1},
     asteroidCount= 30,
-    populationDensity = {["Hauler"]=0.00009,["Miner"]=0.0001,["Taxi"]=0.0001,["Pirate"]=0.00001},
+    population = {
+      weights = {
+        Miner = 2,
+        Pirate = 0.1,
+      },
+      categoryWeights = {
+        faction = {Pacifists = 1},
+
+      },
+      variance = 20,
+    },
     asteroidOres = {
     {item="Iron Ore", min=0, max=10},
     {item="Silver Ore", min=0, max=6},
@@ -26,6 +36,7 @@ return {
       { name = "To Softsky", x=EAST.x, y=EAST.y, toSystem = 2},
     },
   },
+
   [2] = {
     name         = "Softsky",
     starX        = 0,
@@ -33,7 +44,15 @@ return {
     starMass     = 80000,
     starColor    = {1,1,1},
     asteroidCount= 50,
-    populationDensity = {["Hauler"]=0.0001,["Miner"]=0.00001},
+    population = {
+      weights = {
+      },
+      categoryWeights = {
+        aggressive = 0,
+        faction = {Pacifists = 1}
+      },
+      variance = 20,
+    },
     asteroidOres = {
       {item="Sulfur", min=1, max=5},
       {item="Iron Ore", min=0, max=3},
@@ -49,13 +68,50 @@ return {
       { name = "To The Wall", x=EAST.x, y=EAST.y, toSystem = 3},
     },
   },
+
   [3] = {
     name         = "The Wall",
     starX        = -3000,
     starY        = 0,
     starMass     = 30000,
     starColor    = {1,1,1},
-    populationDensity = {["Hauler"]=0.0007,["Miner"]=0.0002,["Pirate"]=0.0001},
+    population = {
+      weights = {
+        ["Noobi Flagship"] = 0.3,
+      },
+      categoryWeights = {
+        faction = { ["Noobi Empire"] = 1.5 },
+      },
+      variance = 20,
+    },
+    asteroidCount= 5,
+    asteroidOres = {
+      {item="Iron Ore", min=0, max=6},
+    },
+    landables    = {
+      "Golden Fortress",
+    },
+    wormholes    = {
+      { name = "To Softsky", x=WEST.x, y=WEST.y, toSystem = 2},
+      { name = "To Bone Zone", x=EAST.x, y=EAST.y, toSystem = 4},
+    },
+  },
+
+  [4] = {
+    name         = "",
+    starX        = -3000,
+    starY        = 0,
+    starMass     = 30000,
+    starColor    = {1,1,1},
+    population = {
+      weights = {
+        ["Noobi Flagship"] = 0.3,
+      },
+      categoryWeights = {
+        faction = { ["Noobi Empire"] = 1.5 },
+      },
+      variance = 20,
+    },
     asteroidCount= 5,
     asteroidOres = {
       {item="Iron Ore", min=0, max=6},
