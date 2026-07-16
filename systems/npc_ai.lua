@@ -247,30 +247,74 @@ local function state_attacking(npc, ai, dt, player)
   end
 end
 
+NpcAI.signalHandlers = {
+  -- Aliado sob ataque: vai ao socorro se for da mesma facção
+  beingAttacked = function(npc, signal)
+    local ai = npc.ai
+    if not ai then return end
+    local sourceFaction = signal.source.profile and signal.source.profile.faction
+    local selfFaction   = npc.profile and npc.profile.faction
+    if sourceFaction and sourceFaction == selfFaction then
+      if ai.state == "idle" or ai.state == "patrolling" then
+        ai.target = signal.payload.attacker or signal.source
+        ai.state  = "chasing"
+      end
+    end
+  end,
+
+  -- Chamada de socorro genérica: registra para possível reação futura
+  distressCall = function(npc, signal)
+    local ai = npc.ai
+    if not ai then return end
+    -- TODO: implementar comportamento de socorro
+    -- Por ora só muda para "investigar" se estiver idle
+    if ai.state == "idle" then
+      ai.waypoint = { x = signal.x, y = signal.y }
+      ai.state    = "patrolling"
+    end
+  end,
+
+  -- Sinal de nave destruída: mineiros e haulers vão coletar floatsome
+  shipDestroyed = function(npc, signal)
+    local ai = npc.ai
+    if not ai then return end
+    if npc.name == "Miner" or npc.name == "Hauler" then
+      if ai.state == "idle" or ai.state == "patrolling" then
+        ai.waypoint = { x = signal.x, y = signal.y }
+        ai.state    = "harvesting"
+      end
+    end
+  end,
+}
+
 -- update principal
 
 function NpcAI.update(playerFlagShip, floatsome_hash, dt)
   for _, npc in ipairs(config.Entities.getByTag("npc")) do
-    if not npc.ship or not npc.ship.rigidbody or not npc.ship.rigidbody.body or npc.ship.rigidbody.body:isDestroyed() then
+    if not npc.ship or not npc.ship.rigidbody
+    or not npc.ship.rigidbody.body
+    or npc.ship.rigidbody.body:isDestroyed() then
       config.Entities.remove(npc)
       return
     end
     local ai = npc.ai
     repeat
       if not ai then break end
+      local interrupted = config.CommunicationSystem.drainInbox(npc, ai, dt)
+      if interrupted then break end
+      config.CommunicationSystem.processSignals(npc, NpcAI.signalHandlers, dt)
 
-      -- detecção de jogador (só hostis)
-      if ai.aggressiveTowardsPlayer == true and (ai.state == "idle" or ai.state == "patrolling") then
+      if ai.aggressiveTowardsPlayer == true
+      and (ai.state == "idle" or ai.state == "patrolling") then
         if playerFlagShip then
           local nx, ny = npc.ship.rigidbody.body:getPosition()
           local px, py = playerFlagShip.rigidbody.body:getPosition()
-          if dist2(nx, ny, px, py) < config.HOSTILE_DETECT_RANGE*config.HOSTILE_DETECT_RANGE then
+          if dist2(nx, ny, px, py) < config.HOSTILE_DETECT_RANGE^2 then
             ai.state = "chasing"
           end
         end
       end
 
-      -- despacha pro estado atual
       npc.ship.ai_state = ai.state
       if     ai.state == "idle"       then state_idle(npc, ai, dt)
       elseif ai.state == "patrolling" then state_patrolling(npc, ai, dt)
@@ -286,5 +330,6 @@ function NpcAI.update(playerFlagShip, floatsome_hash, dt)
     until true
   end
 end
+
 
 return NpcAI

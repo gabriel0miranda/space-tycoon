@@ -38,6 +38,7 @@ local C = {
   -- Outros
   reticule = {0.99,0.8, 0.2,1},
   reticuleLocked = {0.9,0.5, 0.1, 1},
+  feedBg       = {0.04, 0.02, 0.01, 0.80},
 }
 
 -- Layout
@@ -80,12 +81,12 @@ local function getCornerPosition(corner, w, h)
   return x, y
 end
 
-local fontLabel, fontValue
+local fontLabel, fontLog
 
 local function initFonts()
   if fontLabel then return end
   fontLabel = love.graphics.newFont(10)
-  fontValue = love.graphics.newFont(12)
+  fontLog  = love.graphics.newFont(11)
 end
 
 -- Helpers de desenho
@@ -494,6 +495,41 @@ local function drawTargetInfo(camera)
   love.graphics.setColor(1, 1, 1, 1)
 end
 
+local function drawFeed()
+  local feedMessages = config.CommunicationSystem.feedMessages
+  if #feedMessages == 0 then return end
+  initFonts()
+
+  local sw, sh = love.graphics.getWidth(), love.graphics.getHeight()
+  local margin  = 16
+  local lineH   = fontLog:getHeight() + 4
+  local padX    = 10
+  local padY    = 6
+  local maxW    = 340
+
+  -- Ancora no canto inferior esquerdo, acima do painel de casco/escudo (78+margin+16)
+  local baseY = sh - margin - 78 - margin - padY
+
+  for i = #feedMessages, 1, -1 do
+    local msg   = feedMessages[i]
+    local alpha = math.min(1, msg.ttl / (msg.maxTtl * 0.3))  -- fade nos últimos 30%
+    local y     = baseY - (#feedMessages - i) * (lineH + padY * 2 + 2)
+
+    -- Fundo
+    love.graphics.setColor(C.feedBg[1], C.feedBg[2], C.feedBg[3], C.feedBg[4] * alpha)
+    local tw = fontLog:getWidth(msg.text)
+    local w  = math.min(tw + padX * 2, maxW)
+    love.graphics.rectangle("fill", margin, y - padY, w, lineH + padY * 2, 3)
+
+    -- Texto
+    love.graphics.setFont(fontLog)
+    love.graphics.setColor(msg.color[1], msg.color[2], msg.color[3], alpha)
+    love.graphics.print(msg.text, margin + padX, y)
+  end
+
+  love.graphics.setColor(1, 1, 1, 1)
+end
+
 -- API pública
 
 -- opts (opcional):
@@ -508,6 +544,7 @@ function HudUI.draw(playerFlagShip, camera, opts)
   drawHullShieldPanel(playerFlagShip, opts.hullShieldCorner or HudUI.Corner.BOTTOM_LEFT)
   drawEnergyPanel(playerFlagShip, opts.energyCorner or HudUI.Corner.TOP_RIGHT)
   drawMinimap(playerFlagShip, opts.minimapCorner or HudUI.Corner.BOTTOM_RIGHT, camera)
+  drawFeed()
   drawTargetInfo(camera)
 
   love.graphics.setColor(1, 1, 1, 1)

@@ -34,6 +34,8 @@ return {
   PropertyUI  = require("ui.property_ui"),
   DialogueUI  = require("ui.dialogue_ui"),
   HudUI  = require("ui.hud_ui"),
+  CommunicationUI  = require("ui.communication_ui"),
+  CommunicationSystem = require("systems.communication_system"),
   MiningSystem = require("systems.mining"),
   WeaponSystem = require("systems.weapon_system"),
   TargetingSystem = require("systems.targeting_system"),

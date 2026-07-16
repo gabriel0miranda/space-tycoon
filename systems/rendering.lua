@@ -210,6 +210,10 @@ local function drawProperty()
   config.PropertyUI.draw()
 end
 
+local function drawCommunication()
+  config.CommunicationUI.draw()
+end
+
 local function drawHUD(playerFlagShip,camera)
   config.HudUI.draw(playerFlagShip,camera)
 end
@@ -307,6 +311,7 @@ function Rendering.draw(playerFlagShip, camera)
     drawHUD(playerFlagShip,camera)
     drawInventory()
     drawProperty()
+    drawCommunication()
     drawDebugOverlay(playerFlagShip)
 end
 

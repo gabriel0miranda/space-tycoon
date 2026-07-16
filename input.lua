@@ -126,6 +126,7 @@ local action_types = {
     ui_inventory        = "pulse",
     ui_properties       = "pulse",
     ui_mainmenu         = "pulse",
+    ui_comm             = "pulse",
     target_next         = "pulse",
     target_prev         = "pulse",
     target_clear        = "pulse",
@@ -194,8 +195,9 @@ local default_bindings = {
         ["o"]           = "ui_properties",
         ["escape"]      = "ui_cancel",
         ["f4"]          = "ui_mainmenu",
+        ["t"]           = "ui_comm",
         ["/"]           = "target_next",
-        ["\\"]           = "target_prev",
+        ["\\"]          = "target_prev",
         ["."]           = "target_clear",
 
         -- Meta
@@ -269,7 +271,7 @@ local context_defs = {
             ship_generator_switch_mode=true, followTarget=true,
             orbitTarget=true, escortTarget=true, fleeTarget=true,
             landOnTarget=true,target_next=true,target_prev=true,
-            target_clear=true,
+            target_clear=true, ui_comm=true
         },
     },
 
@@ -367,6 +369,11 @@ local context_defs = {
         ui_up = true,
         ui_down = true,
       },
+    },
+
+    comm = {
+      bubble = false,
+      actions = { ui_cancel = true, ui_confirm = true },
     },
 
     -- Tela de remapeamento de controles: consome TUDO para capturar qualquer tecla
@@ -868,44 +875,11 @@ input.action_labels = {
     { "ui_inventory",      "Inventário",           "Interface" },
     { "ui_properties",     "Propriedades",         "Interface" },
     { "ui_mainmenu",       "Menu principal",       "Interface" },
+    { "ui_comm",           "Abrir canal de comunicação com o alvo",       "Interface" },
     { "meta_pause",        "Pausar",               "Sistema" },
     { "meta_debug",        "Debug",                "Sistema" },
 }
 
--- ─────────────────────────────────────────
--- 14. INTEGRAÇÃO COM LOVE2D  (main.lua)
--- ─────────────────────────────────────────
---
--- No main.lua, adicione/ajuste:
---
---   love.update = function(dt)
---     input.beginFrame()          -- <-- NOVO: antes de tudo no update
---     config.GameState.update(dt)
---   end
---
---   love.keypressed = function(key)
---     config.GameState.keypressed(key)
---     config.Input.press(key)
---   end
---
---   love.keyreleased = function(released_key)
---     config.GameState.keyreleased(released_key)
---     config.Input.release(released_key)
---   end
---
---   -- NOVO: suporte a gamepad
---   function love.gamepadpressed(joystick, button)
---     config.Input.gamepadpress(button)
---   end
---
---   function love.gamepadreleased(joystick, button)
---     config.Input.gamepadrelease(button)
---   end
---
---   function love.gamepadaxis(joystick, axis, value)
---     config.Input.gamepadaxis(axis, value)
---   end
---
 -- ─────────────────────────────────────────
 -- 15. INTEGRAÇÃO COM OS GAME STATES
 -- ─────────────────────────────────────────
@@ -939,18 +913,6 @@ input.action_labels = {
 --
 -- market_ui.lua — close():
 --   config.Input.popContext("market")
---
--- ─────────────────────────────────────────
--- 16. LEITURA DAS ACTIONS NOS SISTEMAS
--- ─────────────────────────────────────────
---
--- Código ANTIGO (ainda funciona via aliases legados):
---   if config.Input.state.thrust then ... end
---   if config.Input.state.inventory then ... end
---
--- Código NOVO (preferível em código novo):
---   if config.Input.state.ship_thrust then ... end
---   if config.Input.state.ui_inventory then ... end
 --
 -- Para movimento analógico suave (ex: no ShipMovementSystem):
 --   local ax = config.Input.getAxis("leftx")   -- [-1, 1]

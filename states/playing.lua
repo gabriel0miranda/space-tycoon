@@ -131,6 +131,11 @@ function Playing.update(dt)
   end
   config.PropertyUI.update(dt)
 
+  if config.Input.state.ui_comm and config.TargetingSystem.current then
+    config.CommunicationUI.openComm(playerFlagShip)
+  end
+  config.CommunicationSystem.update(playerFlagShip,dt)
+
   config.World:update(dt)
 end
 
@@ -142,6 +147,11 @@ function Playing.keypressed(key)
 
   if config.InventoryUI.isOpen() then
     config.InventoryUI.keypressed(key)
+    return
+  end
+
+  if config.CommunicationUI.isOpen() then
+    config.CommunicationSystem.keypressed(key)
     return
   end
   config.TargetingSystem.keypressed(key)
@@ -161,6 +171,11 @@ function Playing.mousepressed(mx, my, button)
 
   if config.InventoryUI.isOpen() then
     config.InventoryUI.mousepressed(mx, my, button)
+    return
+  end
+
+  if config.CommunicationUI.isOpen() then
+    config.CommunicationSystem.mousepressed(mx, my, button)
     return
   end
   config.TargetingSystem.mousepressed(mx, my, button)
