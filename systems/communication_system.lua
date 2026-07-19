@@ -238,16 +238,21 @@ end
 -- ─────────────────────────────────────────
 
 local function actionTrade(player, target, targetType)
-  -- TODO: abrir MarketUI com o market do target
   table.insert(Comm.dialogue.log, {
-    text = "[Player]: \"Quero ver o que você tem pra oferecer.\"",
+    text = "[Player]: \"Vamos fazer negócios.\"",
     side = "player",
   })
   table.insert(Comm.dialogue.log, {
-    text = entityName(target) .. ": \"Veja à vontade.\"",
+    text = entityName(target) .. ": \"Eu tenho isso aqui pra vender.\"",
     side = "target",
   })
-  -- config.MarketUI.open(target)
+  if target.ship then
+    config.MarketSystem.generateStock(target.ship)
+    config.MarketUI.open(player,target.ship)
+  else
+    config.MarketSystem.generateStock(target)
+    config.MarketUI.open(player,target)
+  end
 end
 
 local function actionRecruit(player, target)
@@ -297,23 +302,27 @@ local function actionTribute(player, target)
     })
     Comm.pushFeed("Tributo recusado. " .. entityName(target) .. " ficou hostil!", C.textSystem)
     -- TODO: marcar target como hostil
-    config.CommunicationUI.closeDialogue()
+    Comm.closeDialogue()
   end
 end
 
-local actionHandlers = {
+function Comm.closeDialogue()
+  if not config.CommunicationSystem.dialogue.open then return end
+  config.CommunicationSystem.dialogue.open = false
+  config.Input.popContext("comm")
+end
+
+function Comm.isOpen()
+  return config.CommunicationSystem.dialogue.open
+end
+
+Comm.actionHandlers = {
   trade   = actionTrade,
   recruit = actionRecruit,
   tribute = actionTribute,
-  close   = function() config.CommunicationUI.closeDialogue() end,
+  close   = function() Comm.closeDialogue() end,
 }
 
-local function handleButtonAction(action)
-  local fn = actionHandlers[action]
-  if fn then
-    fn(Comm.dialogue.player, Comm.dialogue.target, Comm.dialogue.targetType)
-  end
-end
 
 -- ─────────────────────────────────────────
 -- 6. UPDATE
@@ -340,58 +349,7 @@ function Comm.update(player, dt)
   end
   activeSignals = keepSignals
 
-  -- Fecha diálogo com ui_cancel
-  if Comm.dialogue.open and config.Input.state.ui_cancel then
-    config.CommunicationUI.closeDialogue()
-  end
 end
 
--- ─────────────────────────────────────────
--- 7. INPUT
--- ─────────────────────────────────────────
-
-function Comm.keypressed(key)
-  if not Comm.dialogue.open then return end
-  if key == "escape" then config.CommunicationUI.closeDialogue() end
-end
-
-function Comm.mousepressed(mx, my, button)
-  if not Comm.dialogue.open then return end
-  if button ~= 1 then return end
-
-  local sw, sh = love.graphics.getWidth(), love.graphics.getHeight()
-
-  -- Geometria dos botões (calculada igual ao draw)
-  local panelW = 480
-  local btnH   = 32
-  local btnPad = 8
-  local px     = math.floor(sw / 2 - panelW / 2)
-  local numBtn = #Comm.dialogue.buttons
-  local btnsH  = numBtn * (btnH + btnPad) - btnPad + 16
-  local panelH = 420
-  local py     = math.floor(sh / 2 - panelH / 2)
-  local footerY = py + panelH - btnsH - 12
-
-  for i, btn in ipairs(Comm.dialogue.buttons) do
-    local bx = px + 12
-    local by = footerY + (i - 1) * (btnH + btnPad)
-    local bw = panelW - 24
-    if mx >= bx and mx <= bx + bw and my >= by and my <= by + btnH then
-      handleButtonAction(btn.action)
-      return
-    end
-  end
-
-  -- Clique fora do painel fecha
-  if mx < px or mx > px + panelW or my < py or my > py + panelH then
-    config.CommunicationUI.closeDialogue()
-  end
-end
-
-function Comm.wheelmoved(dx, dy)
-  if not Comm.dialogue.open then return end
-  Comm.dialogue.scrollY = Comm.dialogue.scrollY - dy * 20
-  if Comm.dialogue.scrollY < 0 then Comm.dialogue.scrollY = 0 end
-end
 
 return Comm

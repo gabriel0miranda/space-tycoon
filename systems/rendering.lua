@@ -214,6 +214,10 @@ local function drawCommunication()
   config.CommunicationUI.draw()
 end
 
+local function drawMarket()
+  config.MarketUI.draw()
+end
+
 local function drawHUD(playerFlagShip,camera)
   config.HudUI.draw(playerFlagShip,camera)
 end
@@ -223,7 +227,8 @@ local function drawDebugOverlay(playerFlagShip)
   love.graphics.setColor(0, 1, 0)
   love.graphics.setFont(config.smallFont)
   love.graphics.print(
-    "Ship X:"..playerFlagShip.rigidbody.body:getX()..
+    "FPS: "..love.timer.getFPS()..
+    "\nShip X:"..playerFlagShip.rigidbody.body:getX()..
     "\nShip Y:"..playerFlagShip.rigidbody.body:getY()..
     "\nShip angle:"..playerFlagShip.rigidbody.body:getAngle()..
     "\nShip angular velocity:"..playerFlagShip.rigidbody.body:getAngularVelocity()..
@@ -312,6 +317,7 @@ function Rendering.draw(playerFlagShip, camera)
     drawInventory()
     drawProperty()
     drawCommunication()
+    drawMarket()
     drawDebugOverlay(playerFlagShip)
 end
 

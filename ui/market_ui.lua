@@ -12,7 +12,7 @@ local MarketUI = {}
 
 local open      = false
 local ship      = nil
-local station   = nil
+local trader   = nil
 local selected  = nil       -- item selecionado
 local offering  = {}        -- { [item] = qty } — jogador vende
 local requesting= {}        -- { [item] = qty } — jogador compra
@@ -71,12 +71,12 @@ local PX, PY = 0, 0
 local function sc(c) love.graphics.setColor(c[1],c[2],c[3],c[4] or 1) end
 local function rect(x,y,w,h,col,mode) sc(col); love.graphics.rectangle(mode or "fill",x,y,w,h,2) end
 
-local function getStationItems()
-    if not station or not station.inventory then return {} end
+local function getTraderItems()
+    if not trader or not trader.inventory then return {} end
     local list = {}
-    local demanded = station.market and station.market.demanded or {}
-    for item, qty in pairs(station.inventory.items) do
-        local price = station.market.prices and station.market.prices[item]
+    local demanded = trader.market and trader.market.demanded or {}
+    for item, qty in pairs(trader.inventory.items) do
+        local price = trader.market.prices and trader.market.prices[item]
         table.insert(list, {
             item     = item,
             qty      = qty,
@@ -96,7 +96,7 @@ local function getShipItems()
     if not ship or not ship.inventory then return {} end
     local list = {}
     for item, qty in pairs(ship.inventory.items) do
-        local price = station.market.prices and station.market.prices[item]
+        local price = trader.market.prices and trader.market.prices[item]
         table.insert(list, {
             item = item,
             qty  = qty,
@@ -112,7 +112,7 @@ local function calcBalance()
   local requestingList = {}
   for item, qty in pairs(offering)   do offeringList[#offeringList+1]     = {item=item, qty=qty} end
   for item, qty in pairs(requesting) do requestingList[#requestingList+1] = {item=item, qty=qty} end
-  return config.MarketSystem.calculateBalance(station, offeringList, requestingList)
+  return config.MarketSystem.calculateBalance(trader, offeringList, requestingList)
 end
 
 local function showMsg(text, color)
@@ -125,10 +125,10 @@ end
 -- API pública
 -- ─────────────────────────────────────────
 
-function MarketUI.open(shipEntity, stationEntity)
+function MarketUI.open(shipEntity, traderEntity)
     config.Input.pushContext("market")
     ship      = shipEntity
-    station   = stationEntity
+    trader   = traderEntity
     open      = true
     selected  = nil
     offering  = {}
@@ -147,7 +147,7 @@ function MarketUI.close()
     config.Input.popContext("market")
     open = false
     ship = nil
-    station = nil
+    trader = nil
 end
 
 function MarketUI.isOpen() return open end
@@ -158,9 +158,6 @@ function MarketUI.isOpen() return open end
 
 function MarketUI.update(dt)
     if not open then return end
-    if config.Input.state.ui_cancel then
-      MarketUI.close()
-    end
     if msgTimer > 0 then msgTimer = msgTimer - dt end
 end
 
@@ -173,6 +170,10 @@ end
 local btnRects = {}  -- populado no draw
 
 function MarketUI.keypressed(key)
+  if config.Input.state.ui_cancel or key == "escape" then
+    MarketUI.close()
+    config.Input.consume("ui_cancel")
+  end
 end
 
 function MarketUI.mousepressed(mx, my, button)
@@ -212,7 +213,7 @@ end
 
 function MarketUI.wheelmoved(dx, dy)
     if not open then return end
-    local items = getStationItems()
+    local items = getTraderItems()
     local maxScroll = math.max(0, #items - MAX_VISIBLE)
     scroll = math.max(0, math.min(maxScroll, scroll - dy))
 end
@@ -227,7 +228,7 @@ function MarketUI.executeTrade()
   for item, qty in pairs(offering)   do offeringList[#offeringList+1]     = {item=item, qty=qty} end
   for item, qty in pairs(requesting) do requestingList[#requestingList+1] = {item=item, qty=qty} end
 
-  local ok, result = config.MarketSystem.executeTrade(station, ship, offeringList, requestingList)
+  local ok, result = config.MarketSystem.executeTrade(trader, ship, offeringList, requestingList)
   if ok then
     local sign = result >= 0 and "+" or ""
     showMsg("Trade complete! " .. sign .. result .. " cr", result >= 0 and C.balPos or C.textBright)
@@ -252,7 +253,7 @@ local function drawQtyBtn(x, y, label, action)
 end
 
 local function drawRow(x, y, w, rowData, side, isHovered)
-    -- side: "station" | "ship"
+    -- side: "trader" | "ship"
     local item     = rowData.item
     local stQty    = rowData.qty
     local offerQty = offering[item]   or 0
@@ -272,7 +273,7 @@ local function drawRow(x, y, w, rowData, side, isHovered)
     sc(C.textMuted)
     love.graphics.printf(tostring(stQty), x + w - COL_SELL - COL_BUY - COL_QTY, y + 4, COL_QTY, "right")
 
-    if side == "station" then
+    if side == "trader" then
         -- Preço compra (estação paga ao jogador)
         sc(C.textBuy)
         love.graphics.printf(rowData.buy .. "cr", x + w - COL_SELL - COL_BUY, y + 4, COL_BUY - 4, "right")
@@ -347,7 +348,7 @@ function MarketUI.draw()
     rect(PX, PY, W, HEADER_H, C.bgDark)
     sc(C.textActive)
     love.graphics.setFont(config.normalFont)
-    love.graphics.print("Market · " .. (station and station.name or "?"), PX + PAD, PY + 4)
+    love.graphics.print("Market · " .. (trader and trader.name or "?"), PX + PAD, PY + 4)
 
     -- Botão fechar
     rect(PX + W - 22, PY + 4, 18, 16, C.bgRow)
@@ -367,7 +368,7 @@ function MarketUI.draw()
     rect(listX, curY, listW, SECTION_H, C.bgDark)
     sc(C.textMuted)
     love.graphics.setFont(config.smallFont)
-    love.graphics.print("STATION STOCK", listX + 4, curY + 3)
+    love.graphics.print("TRADER STOCK", listX + 4, curY + 3)
     love.graphics.printf("QTY",  listX + listW - COL_SELL - COL_BUY - COL_QTY, curY + 3, COL_QTY,  "right")
     sc(C.textBuy)
     love.graphics.printf("BUYS", listX + listW - COL_SELL - COL_BUY, curY + 3, COL_BUY - 4, "right")
@@ -376,7 +377,9 @@ function MarketUI.draw()
     curY = curY + SECTION_H
 
     -- ── Lista da estação ──
-    local stItems = getStationItems()
+    local stItems = getTraderItems()
+    config.DumpTable(stItems)
+    print(stItems[1])
     local mx, my  = love.mouse.getPosition()
 
     for i = 1, math.min(MAX_VISIBLE, #stItems) do
@@ -385,7 +388,7 @@ function MarketUI.draw()
         if not item then break end
         local ry   = curY + (i - 1) * ROW_H
         local hov  = mx >= listX and mx <= listX + listW and my >= ry and my < ry + ROW_H
-        drawRow(listX, ry, listW, item, "station", hov)
+        drawRow(listX, ry, listW, item, "trader", hov)
     end
 
     -- Scrollbar da estação

@@ -124,12 +124,29 @@ function Playing.update(dt)
   if config.Input.state.ui_inventory then
     config.InventoryUI.toggle(playerFlagShip,{title = "Your Ship"} )
   end
-  config.InventoryUI.update(dt)
 
   if config.Input.state.ui_properties then
     config.PropertyUI.toggle()
   end
-  config.PropertyUI.update(dt)
+
+  if config.InventoryUI.isOpen() then
+    config.InventoryUI.update(dt)
+  end
+  if config.MarketUI.isOpen() then
+    config.MarketUI.update(dt)
+  end
+  if config.SelectUI.isOpen() then
+    config.SelectUI.update(dt)
+  end
+  if config.DialogueUI.isOpen() then
+    config.DialogueUI.update(dt)
+  end
+  if config.PropertyUI.isOpen() then
+    config.PropertyUI.update(dt)
+  end
+  if config.CommunicationSystem.isOpen() then
+    config.CommunicationUI.update(dt)
+  end
 
   if config.Input.state.ui_comm and config.TargetingSystem.current then
     config.CommunicationUI.openComm(playerFlagShip)
@@ -150,8 +167,12 @@ function Playing.keypressed(key)
     return
   end
 
-  if config.CommunicationUI.isOpen() then
-    config.CommunicationSystem.keypressed(key)
+  if config.CommunicationSystem.isOpen() then
+    config.CommunicationUI.keypressed(key)
+    return
+  end
+  if config.MarketUI.isOpen() then
+    config.MarketUI.keypressed(key)
     return
   end
   config.TargetingSystem.keypressed(key)
@@ -174,23 +195,38 @@ function Playing.mousepressed(mx, my, button)
     return
   end
 
-  if config.CommunicationUI.isOpen() then
-    config.CommunicationSystem.mousepressed(mx, my, button)
+  if config.CommunicationSystem.isOpen() then
+    config.CommunicationUI.mousepressed(mx, my, button)
+    return
+  end
+
+  if config.MarketUI.isOpen() then
+    config.MarketUI.mousepressed(mx, my, button)
     return
   end
   config.TargetingSystem.mousepressed(mx, my, button)
 end
 
 function Playing.wheelmoved(dx, dy)
-    if config.PropertyUI.isOpen() then
-      config.PropertyUI.wheelmoved(dx, dy)
-      return
-    end
+  if config.PropertyUI.isOpen() then
+    config.PropertyUI.wheelmoved(dx, dy)
+    return
+  end
 
-    if config.InventoryUI.isOpen() then
-      config.InventoryUI.wheelmoved(dx, dy)
-      return
-    end
+  if config.InventoryUI.isOpen() then
+    config.InventoryUI.wheelmoved(dx, dy)
+    return
+  end
+
+  if config.CommunicationSystem.isOpen() then
+    config.CommunicationUI.wheelmoved(dx, dy)
+    return
+  end
+
+  if config.MarketUI.isOpen() then
+    config.MarketUI.wheelmoved(dx, dy)
+    return
+  end
 end
 
 function Playing.draw()

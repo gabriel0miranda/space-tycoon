@@ -315,6 +315,11 @@ local context_defs = {
         },
     },
 
+    comm = {
+      bubble = false,
+      actions = { ui_cancel = true, ui_confirm = true },
+    },
+
     textinput = {
         bubble = false,   -- bloqueia tudo: o modal é dono total do teclado
         actions = {
@@ -369,11 +374,6 @@ local context_defs = {
         ui_up = true,
         ui_down = true,
       },
-    },
-
-    comm = {
-      bubble = false,
-      actions = { ui_cancel = true, ui_confirm = true },
     },
 
     -- Tela de remapeamento de controles: consome TUDO para capturar qualquer tecla

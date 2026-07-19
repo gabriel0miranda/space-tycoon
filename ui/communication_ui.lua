@@ -58,6 +58,14 @@ local function buildButtons(targetType)
   end
 end
 
+
+local function handleButtonAction(action)
+  local fn = config.CommunicationSystem.actionHandlers[action]
+  if fn then
+    fn(config.CommunicationSystem.dialogue.player, config.CommunicationSystem.dialogue.target, config.CommunicationSystem.dialogue.targetType)
+  end
+end
+
 -- Texto inicial de saudação do alvo
 local function greetingText(target, targetType)
   local name = entityName(target)
@@ -123,15 +131,7 @@ function CommUI.openComm(player)
   end
 end
 
-function CommUI.closeDialogue()
-  if not config.CommunicationSystem.dialogue.open then return end
-  config.CommunicationSystem.dialogue.open = false
-  config.Input.popContext("comm")
-end
 
-function CommUI.isOpen()
-  return config.CommunicationSystem.dialogue.open
-end
 
 local function drawDialogue()
   if not config.CommunicationSystem.dialogue.open then return end
@@ -219,7 +219,9 @@ local function drawDialogue()
 
   -- Auto-scroll para o final
   local maxScroll = math.max(0, totalLogH - logH)
-  if config.CommunicationSystem.dialogue.scrollY > maxScroll then config.CommunicationSystem.dialogue.scrollY = maxScroll end
+  if config.CommunicationSystem.dialogue.scrollY < maxScroll then
+    config.CommunicationSystem.dialogue.scrollY = maxScroll
+  end
 
   local drawY = logY - config.CommunicationSystem.dialogue.scrollY
   for _, entry in ipairs(wrappedLines) do
@@ -289,4 +291,66 @@ end
 function CommUI.draw()
   drawDialogue()
 end
+
+function CommUI.keypressed(key)
+  if not config.CommunicationSystem.dialogue.open then return end
+  if config.MarketUI.isOpen() then
+    config.MarketUI.keypressed(key)
+    return
+  end
+  if config.CommunicationSystem.dialogue.open or key == "escape" and config.Input.state.ui_cancel then
+    config.CommunicationSystem.closeDialogue()
+  end
+end
+
+function CommUI.mousepressed(mx, my, button)
+  if not config.CommunicationSystem.dialogue.open then return end
+  if config.MarketUI.isOpen() then
+    config.MarketUI.mousepressed(mx, my, button)
+    return
+  end
+  if button ~= 1 then return end
+
+  local sw, sh = love.graphics.getWidth(), love.graphics.getHeight()
+
+  -- Geometria dos botões (calculada igual ao draw)
+  local panelW = 480
+  local btnH   = 32
+  local btnPad = 8
+  local px     = math.floor(sw / 2 - panelW / 2)
+  local numBtn = #config.CommunicationSystem.dialogue.buttons
+  local btnsH  = numBtn * (btnH + btnPad) - btnPad + 16
+  local panelH = 420
+  local py     = math.floor(sh / 2 - panelH / 2)
+  local footerY = py + panelH - btnsH - 12
+
+  for i, btn in ipairs(config.CommunicationSystem.dialogue.buttons) do
+    local bx = px + 12
+    local by = footerY + (i - 1) * (btnH + btnPad)
+    local bw = panelW - 24
+    if mx >= bx and mx <= bx + bw and my >= by and my <= by + btnH then
+      handleButtonAction(btn.action)
+      return
+    end
+  end
+
+  -- Clique fora do painel fecha
+  if mx < px or mx > px + panelW or my < py or my > py + panelH then
+    config.CommunicationSystem.closeDialogue()
+  end
+end
+
+function CommUI.wheelmoved(dx, dy)
+  if not config.CommunicationSystem.dialogue.open then return end
+  if config.MarketUI.isOpen() then
+    config.MarketUI.wheelmoved(dx, dy)
+    return
+  end
+  config.CommunicationSystem.dialogue.scrollY = config.CommunicationSystem.dialogue.scrollY - dy * 20
+  if config.CommunicationSystem.dialogue.scrollY < 0 then config.CommunicationSystem.dialogue.scrollY = 0 end
+end
+
+function CommUI.update()
+end
+
 return CommUI
