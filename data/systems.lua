@@ -93,35 +93,38 @@ return {
     },
     wormholes    = {
       { name = "To Softsky", x=WEST.x, y=WEST.y, toSystem = 2},
-      { name = "To Bone Zone", x=EAST.x, y=EAST.y, toSystem = 4},
+      { name = "To Flag's Peak", x=EAST.x, y=EAST.y, toSystem = 4},
     },
   },
 
   [4] = {
-    name         = "",
-    starX        = -3000,
-    starY        = 0,
+    name         = "Flag's Peak",
+    starX        = 6000,
+    starY        = -3000,
     starMass     = 30000,
-    starColor    = {1,1,1},
+    starColor    = {1,0.2,0.1},
     population = {
       weights = {
-        ["Noobi Flagship"] = 0.3,
+        ["Pirate"] = 2.2
       },
       categoryWeights = {
-        faction = { ["Noobi Empire"] = 1.5 },
+        faction = { ["Ballestra"] = 1.5 },
       },
-      variance = 20,
+      variance = 50,
     },
-    asteroidCount= 5,
+    asteroidCount=22,
     asteroidOres = {
-      {item="Iron Ore", min=0, max=6},
+      {item="Titanium Ore", min=0, max=4},
+      {item="Carbon", min=3,max=10},
+      {item="Debris", min=4, max=10},
     },
     landables    = {
-      "Golden Fortress",
+      "Iron Ball",
+      "Flutura",
     },
     wormholes    = {
-      { name = "To Softsky", x=WEST.x, y=WEST.y, toSystem = 2},
-      { name = "To Bone Zone", x=EAST.x, y=EAST.y, toSystem = 4},
+      { name = "To The Wall", x=WEST.x, y=WEST.y, toSystem = 3},
+      --{ name = "To Bone Zone", x=EAST.x, y=EAST.y, toSystem = 5},
     },
   },
 }

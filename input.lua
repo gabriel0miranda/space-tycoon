@@ -127,6 +127,7 @@ local action_types = {
     ui_properties       = "pulse",
     ui_mainmenu         = "pulse",
     ui_comm             = "pulse",
+    ui_search           = "pulse",
     target_next         = "pulse",
     target_prev         = "pulse",
     target_clear        = "pulse",
@@ -194,6 +195,7 @@ local default_bindings = {
         ["i"]           = "ui_inventory",
         ["o"]           = "ui_properties",
         ["escape"]      = "ui_cancel",
+        ["x"]           = "ui_search",
         ["f4"]          = "ui_mainmenu",
         ["t"]           = "ui_comm",
         ["/"]           = "target_next",
@@ -271,7 +273,7 @@ local context_defs = {
             ship_generator_switch_mode=true, followTarget=true,
             orbitTarget=true, escortTarget=true, fleeTarget=true,
             landOnTarget=true,target_next=true,target_prev=true,
-            target_clear=true, ui_comm=true
+            target_clear=true, ui_comm=true, ui_search=true,
         },
     },
 
@@ -281,6 +283,7 @@ local context_defs = {
         bubble = true,
         actions = {
             ui_confirm=true, ui_cancel=true,
+            ui_search=true,
             ui_up=true, ui_down=true, ui_left=true, ui_right=true,
             ui_inventory=true,
             meta_debug=true,
@@ -290,7 +293,7 @@ local context_defs = {
     property = {
         bubble = true,
         actions = {
-            ui_confirm=true, ui_cancel=true,
+            ui_confirm=true, ui_cancel=true,ui_search=true,
             ui_up=true, ui_down=true, ui_left=true, ui_right=true,
             ui_inventory=true,
             meta_debug=true,
@@ -300,7 +303,7 @@ local context_defs = {
     market = {
         bubble = true,
         actions = {
-            ui_confirm=true, ui_cancel=true,
+            ui_confirm=true, ui_cancel=true,ui_search=true,
             ui_up=true, ui_down=true, ui_left=true, ui_right=true,
             meta_debug=true,
         },
@@ -309,7 +312,7 @@ local context_defs = {
     shipyard = {
         bubble = true,
         actions = {
-            ui_confirm=true, ui_cancel=true,
+            ui_confirm=true, ui_cancel=true,ui_search=true,
             ui_up=true, ui_down=true,
             meta_debug=true,
         },
@@ -363,6 +366,7 @@ local context_defs = {
             ui_cancel  = true,
             ui_up      = true,
             ui_down    = true,
+            ui_search=true,
         },
     },
 

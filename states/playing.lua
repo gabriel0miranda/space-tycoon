@@ -145,7 +145,7 @@ function Playing.update(dt)
     config.PropertyUI.update(dt)
   end
   if config.CommunicationSystem.isOpen() then
-    config.CommunicationUI.update(dt)
+    config.CommunicationUI.update()
   end
 
   if config.Input.state.ui_comm and config.TargetingSystem.current then
@@ -156,7 +156,25 @@ function Playing.update(dt)
   config.World:update(dt)
 end
 
+function Playing.textinput(t)
+    if config.TextInputUI.isOpen()then
+        config.TextInputUI.textinput(t)
+    end
+end
+
 function Playing.keypressed(key)
+  if config.TextInputUI.isOpen() then
+    config.TextInputUI.keypressed(key)
+    return
+  end
+  if config.SelectUI.isOpen() then
+    config.SelectUI.keypressed(key)
+    return
+  end
+  if config.DialogueUI.isOpen() then
+    config.DialogueUI.keypressed(key);
+    return
+  end
   if config.PropertyUI.isOpen() then
     config.PropertyUI.keypressed(key)
     return
@@ -185,6 +203,18 @@ function Playing.mousemoved(x,y,dx,dy,istouch)
 end
 
 function Playing.mousepressed(mx, my, button)
+  if config.TextInputUI.isOpen() then
+    config.TextInputUI.mousepressed(mx, my, button)
+    return
+  end
+  if config.SelectUI.isOpen() then
+    config.SelectUI.mousepressed(mx, my, button)
+    return
+  end
+  if config.DialogueUI.isOpen() then
+    config.DialogueUI.mousepressed(mx, my, button);
+    return
+  end
   if config.PropertyUI.isOpen() then
     config.PropertyUI.mousepressed(mx, my, button)
     return
@@ -208,6 +238,14 @@ function Playing.mousepressed(mx, my, button)
 end
 
 function Playing.wheelmoved(dx, dy)
+  if config.SelectUI.isOpen() then
+    config.SelectUI.wheelmoved(dx, dy)
+    return
+  end
+  if config.DialogueUI.isOpen() then
+    config.DialogueUI.wheelmoved(dx, dy);
+    return
+  end
   if config.PropertyUI.isOpen() then
     config.PropertyUI.wheelmoved(dx, dy)
     return

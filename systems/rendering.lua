@@ -210,6 +210,18 @@ local function drawProperty()
   config.PropertyUI.draw()
 end
 
+local function drawTextInput()
+  config.TextInputUI.draw()
+end
+
+local function drawSelect()
+  config.SelectUI.draw()
+end
+
+local function drawDialogue()
+  config.DialogueUI.draw()
+end
+
 local function drawCommunication()
   config.CommunicationUI.draw()
 end
@@ -318,6 +330,9 @@ function Rendering.draw(playerFlagShip, camera)
     drawProperty()
     drawCommunication()
     drawMarket()
+    drawTextInput()
+    drawSelect()
+    drawDialogue()
     drawDebugOverlay(playerFlagShip)
 end
 

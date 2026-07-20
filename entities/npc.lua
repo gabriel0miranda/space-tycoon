@@ -84,7 +84,7 @@ return function (populationConfig)
               target = nil,
               timer = 0,
               faction = profile.faction,
-              aggressiveTowardsPlayer = profile.aggressiveTowardsPlayer
+              aggressive = profile.aggressive
             }),
             ship = config.ShipEntity(x, y, id, false, shipType, shipType, nil, def.weapons, cargo())
           })

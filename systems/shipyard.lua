@@ -73,7 +73,7 @@ function Shipyard.sellShip(player, shipEntity)
   --    return false, "Can't sell flag ship."
   --end
 
-  local price = Shipyard.getSellPrice(shipEntity.sprite.shipType)
+  local price = Shipyard.getSellPrice(shipEntity.type)
   player.credits.amount = player.credits.amount + price
   player.property:remove(shipEntity)
 

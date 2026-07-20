@@ -1,9 +1,9 @@
-return function(faction,aggressiveTowardsPlayer)
+return function(faction,aggressive)
   return {
     state                   = "idle",
     target                  = nil,
     timer                   = 0,
     faction                 = faction,
-    aggressiveTowardsPlayer = aggressiveTowardsPlayer,
+    aggressive = aggressive,
   }
 end

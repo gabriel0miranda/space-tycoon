@@ -72,6 +72,16 @@ local function updateCandidates(player)
   end
 end
 
+function Targeting.searchTarget(text)
+  local results = {}
+  for _, c in ipairs(candidates) do
+    if c.e.name and string.find(c.e.name,text) then
+      table.insert(results,{label=c.e.name,value=c.e})
+    end
+  end
+  return results
+end
+
 function Targeting.update(player,dt)
   updateCandidates(player)
   if not Targeting.isValidTarget(Targeting.current) then
@@ -95,6 +105,31 @@ function Targeting.update(player,dt)
   if config.Input.state.target_clear then
     config.AutopilotSystem.disengage(player)
     clearTarget()
+  end
+  if config.Input.state.ui_search then
+    config.TextInputUI.open({
+      title       = "Pesquisa de alvos",
+      placeholder = "Pirate...",
+      maxLength   = 32,
+      onConfirm   = function(text)
+        local results = Targeting.searchTarget(text)
+        if #results > 0 then
+          config.SelectUI.open({
+            title   = "Resultados da busca",
+            options = results,
+            onConfirm = function(option)
+              if Targeting.isValidTarget(option.value) then
+                Targeting.current = option.value
+              end
+            end,
+            onCancel = function() end,
+          })
+        else
+          config.DialogueUI.open({speaker="Busca",text="Sem resultados!"})
+        end
+      end,
+      onCancel    = function() end,
+    })
   end
   if config.Input.state.followTarget then
     config.AutopilotSystem.engage(player,"follow",Targeting.current,{distance=200})

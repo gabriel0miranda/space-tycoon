@@ -25,4 +25,30 @@ return {
   starting_credits = 500,
   landedAt = false,
 },
+["Iron Baller"] =  {
+  name = "Boleiro de Ferro",
+  description = "Após 16 longos anos trabalhando na Bola de Ferro, você finalmente juntou dinheiro suficiente para mudar de profissão e deixar a Ballestra Inc. Sua vida agora é incerta e solitária, mas a galáxia inteira está ao seu alcance.",
+  starting_system = "Flag's Peak",
+  starting_systemId = 4,
+  starting_place = "Iron Ball",
+-- Se não tiver starting place
+-- x = 400,
+-- y = 300,
+  dificulty = "standard",
+  starting_property = {
+    {
+      ship = true,
+      flagShip = true,
+      name = "Rastro de Ferrugem",
+      type = "NN-Interceptor",
+      weapons = {[1] = "Photon Cannon", [2] = "Vacuum Machinegun", [3] = "Predator Missile", [4] = "Proximity Mine", [5] = "EMP"},
+      cargo = {
+        ["Iron Ore"] = 12,
+        ["Water"] = 21,
+      },
+    },
+  },
+  starting_credits = 800,
+  landedAt = false,
+},
 }

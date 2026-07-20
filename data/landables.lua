@@ -161,11 +161,70 @@ return {
   orbitAngle  = 1,
   orbitSpeed  = 0.009,
   radius = 180,
-  type = "station",
+  type = "planet",
   color = {239/255, 221/255, 59/255},
   buttons = {
     spaceport = { description = "O Porto Espacial da Fortaleza Dourada é militarizado por natureza, milhares de soldados noobinobi se locomovem com velocidade e precisão por entre as naves." },
     bank      = { description = "Uma agência comum do Banco Galático. O banheiro está em reformas."},
+  },
+},
+["Iron Ball"] = {
+  name = "Bola de Ferro",
+  description = "Um planeta rochoso rico em óxido de ferro. Serve como prisão militar e ponto de abastecimento da corporação militar privada Ballestra Inc. Todo o planeta é coberto de ferrugem e poeira, a respiração só é possível com máscaras de filtragem pesada e sair na superfície sem um traje adequado pode levar à morte em minutos.",
+  --x = -2000,
+  --y = 0,
+  orbitRadius = 3500,
+  orbitAngle  = 1,
+  orbitSpeed  = 0.009,
+  radius = 1800,
+  type = "planet",
+  color = {0.6,0.2,0.2,1},
+  buttons = {
+    spaceport = { description = "O porto de Bola de Ferro é um local de vigilância constante, guardas e robôs armados checam constantemente a identidade e a carga de todas as naves que pousam aqui. É um péssimo lugar para ser pego com um fugitivo." },
+    bank      = { description = "Uma agência comum do Banco Galático. Neste planeta uma construção como essa é um alívio para os olhos."},
+    bar       = { description = "Atrás do porto espacial, este boteco é frequentado principalmente por mercenários de folga e prisoneiros recém libertos. O clima que paira é pesado e silencioso, as pessoas bebem sozinhas ou em pequenos grupos." },
+    trade     = {}
+  },
+  market = {
+  capacity = 20000,
+  demanded = {
+  ["Steel Sheets"] = 4.0,
+  ["Titanium Alloy"] = 6.0,
+  ["Gold Ore"] = 2.0,
+  },
+  stock = {
+  { item = "Iron Ore",   min = 500,   max = 1000  },
+  },
+  },
+},
+["Flutura"] = {
+  name = "Flutura",
+  description = "Um planeta rochoso com uma atmosfera extremamente densa. A colonização aqui ocorreu nas nuvens, evitando a pressão e temperatura elevadas na superfície. Flutura foi a capital galática do Califado Hermético do Sol Amarelo por muitos anos, porém depois da invasão noobiniana de 755 E.G. a ordem religiosa desapareceu, muitos ainda os culpam pelo início do conflito.",
+  --x = -2000,
+  --y = 0,
+  orbitRadius = 9000,
+  orbitAngle  = 1,
+  orbitSpeed  = 0.01,
+  radius = 650,
+  type = "planet",
+  color = {0.5,0.4,0.01,1},
+  buttons = {
+    spaceport = { description = "Uma enorme plataforma flutuante serve como porto espacial em Flutura. O espaço para naves estacionadas é pequeno, mas é sempre possível planar em volta do porto gastanto pouquíssimo combustível." },
+    bar       = { description = "Flutura possui um dos maiores centros de divertimento adulto da galáxia, apesar de um pouco depredado atualmente. Uma formação de prédios flutuantes constitui uma verdadeira ilha de bebederia, jogos e sexo nas alturas." },
+    trade     = {}
+  },
+  market = {
+  capacity = 20000,
+  demanded = {
+  ["Cocaine"]     = 2.0,
+  ["Carbon"]      = 1.5,
+  ["Steel Sheets"] = 2.0,
+  },
+  stock = {
+  { item = "Cocaine",   min = 30, max = 500 },
+  { item = "Sulfur",   min = 500, max = 800 },
+  { item = "Water",   min = 30,   max = 100  },
+  },
   },
   },
 }

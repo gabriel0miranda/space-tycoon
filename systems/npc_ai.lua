@@ -199,24 +199,24 @@ end
 
 -- estados hostis
 
-local function state_chasing(npc, ai, dt, player)
-  if not player then ai.state = "idle"; return end
+local function state_chasing(npc, ai, dt, target)
+  if not target or not target == ai.target then ai.state = "idle"; return end
   local nx, ny = npc.ship.rigidbody.body:getPosition()
-  local px, py = player.rigidbody.body:getPosition()
+  local px, py = target.rigidbody.body:getPosition()
 
   set_npc_intent(npc, px, py)
 
   local ATTACK_RANGE = npc.ship.weapons[npc.ship.currentWeapon].range or 1000
   if dist2(nx, ny, px, py) < ATTACK_RANGE*ATTACK_RANGE then
-    ai.target = player
+    ai.target = target
     ai.state = "attacking"
   elseif dist2(nx, ny, px, py) > config.HOSTILE_DETECT_RANGE*config.HOSTILE_DETECT_RANGE * 1.5 then
     ai.state = "idle"
   end
 end
 
-local function state_attacking(npc, ai, dt, player)
-  if not ai.target or not ai.target.rigidbody or not ai.target.rigidbody.body or ai.target.rigidbody.body:isDestroyed() then ai.state = "idle"; return end
+local function state_attacking(npc, ai, dt, target)
+  if not target or not target == ai.target or not target.rigidbody or not target.rigidbody.body or target.rigidbody.body:isDestroyed() then ai.state = "idle"; return end
   local nx, ny = npc.ship.rigidbody.body:getPosition()
   local px, py = ai.target.rigidbody.body:getPosition()
   local ang = npc.ship.rigidbody.body:getAngle()
@@ -233,7 +233,7 @@ local function state_attacking(npc, ai, dt, player)
 
   -- saiu do range de ataque? volta a perseguir
   if dist2(nx, ny, px, py) > ATTACK_RANGE*ATTACK_RANGE * 1.2 then
-    if npc.aggressiveTowardsPlayer then
+    if npc.aggressive then
       ai.state = "chasing"
     elseif npc.name == "Miner" then
       ai.state = "mining"
@@ -304,7 +304,7 @@ function NpcAI.update(playerFlagShip, floatsome_hash, dt)
       if interrupted then break end
       config.CommunicationSystem.processSignals(npc, NpcAI.signalHandlers, dt)
 
-      if ai.aggressiveTowardsPlayer == true
+      if ai.aggressive == true
       and (ai.state == "idle" or ai.state == "patrolling") then
         if playerFlagShip then
           local nx, ny = npc.ship.rigidbody.body:getPosition()
@@ -323,8 +323,8 @@ function NpcAI.update(playerFlagShip, floatsome_hash, dt)
       elseif ai.state == "taxi"       then state_taxi(npc, ai, dt)
       elseif ai.state == "mining"     then state_mining(npc, ai, dt)
       elseif ai.state == "harvesting" then state_harvesting(npc, ai, floatsome_hash, dt)
-      elseif ai.state == "chasing"    then state_chasing(npc, ai, dt, playerFlagShip)
-      elseif ai.state == "attacking"  then state_attacking(npc, ai, dt, playerFlagShip)
+      elseif ai.state == "chasing"    then state_chasing(npc, ai, dt, ai.target)
+      elseif ai.state == "attacking"  then state_attacking(npc, ai, dt, ai.target)
       end
 
     until true

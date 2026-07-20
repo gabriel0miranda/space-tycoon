@@ -237,7 +237,7 @@ end
 -- 5. AÇÕES DOS BOTÕES (stubs)
 -- ─────────────────────────────────────────
 
-local function actionTrade(player, target, targetType)
+local function actionTrade(player, target)
   table.insert(Comm.dialogue.log, {
     text = "[Player]: \"Vamos fazer negócios.\"",
     side = "player",

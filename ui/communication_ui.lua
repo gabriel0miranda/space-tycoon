@@ -62,7 +62,7 @@ end
 local function handleButtonAction(action)
   local fn = config.CommunicationSystem.actionHandlers[action]
   if fn then
-    fn(config.CommunicationSystem.dialogue.player, config.CommunicationSystem.dialogue.target, config.CommunicationSystem.dialogue.targetType)
+    fn(config.CommunicationSystem.dialogue.player, config.CommunicationSystem.dialogue.target)
   end
 end
 
@@ -113,10 +113,12 @@ function CommUI.openComm(player)
   end
 
   if shapetype == "nobody" then
+    if target.wormhole or target.tag == "star" then return end
     -- Landable: aceita sempre
     CommUI._openDialogue(player, target, "landable")
   else
     -- NPC: envia mensagem para a inbox, o NPC decide no próximo frame
+    if target.tag == "asteroid" then return end
     local npc = nil
     for _, n in ipairs(config.Entities.getByTag("npc")) do
       if n.ship == target or n == target then npc = n; break end

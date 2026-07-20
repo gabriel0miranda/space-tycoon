@@ -4,7 +4,7 @@ return {
   description = "Transportadores de carga e correspondência.",
   ship = "GHM-1",
   faction = "Pacifists",
-  aggressiveTowardsPlayer = false,
+  aggressive = false,
   baseDensity = 0.0001,
 },
 ["Taxi"] = {
@@ -12,7 +12,7 @@ return {
   description = "Transportadores de pessoas e pets.",
   ship = "O-lopa LTV-1",
   faction = "Pacifists",
-  aggressiveTowardsPlayer = false,
+  aggressive = false,
   baseDensity = 0.0001,
 },
 ["Miner"] = {
@@ -20,7 +20,7 @@ return {
   description = "Transformadores de pedras espaciais em dinheiro.",
   ship = "GMT-1",
   faction = "Pacifists",
-  aggressiveTowardsPlayer = false,
+  aggressive = false,
   baseDensity = 0.0001,
 },
 ["Noobi Militia"] = {
@@ -28,7 +28,7 @@ return {
   description = "Ferozes protetores do grande Muro.",
   ship = "PP-2340",
   faction = "Noobi Empire",
-  aggressiveTowardsPlayer = false,
+  aggressive = false,
   baseDensity = 0.0001,
 },
 ["Noobi Fleet"] = {
@@ -36,7 +36,7 @@ return {
   description = "Elegantes conduítes da vontade de Merle.",
   ship = "NN-Interceptor",
   faction = "Noobi Empire",
-  aggressiveTowardsPlayer = false,
+  aggressive = false,
   baseDensity = 0.0001,
 },
 ["Noobi Flagship"] = {
@@ -44,7 +44,7 @@ return {
   description = "Terríveis comandantes do Coração de Mãe.",
   ship = "NN-Dreadnought",
   faction = "Noobi Empire",
-  aggressiveTowardsPlayer = false,
+  aggressive = false,
   baseDensity = 0.0002,
 },
 ["Iron Ball Mercenary"] = {
@@ -52,7 +52,7 @@ return {
   description = "Soldado empregado pela corporação Ballestra Inc. e residente no planeta Bola de Ferro. Grandes duelistas espaciais, duros como ferro.",
   ship = "BAL Gunship",
   faction = "Ballestra",
-  aggressiveTowardsPlayer = false,
+  aggressive = false,
   baseDensity = 0.0001,
 },
 ["Pirate"] = {
@@ -60,7 +60,7 @@ return {
   description = "Cão do espaço. Você compra, ele toma.",
   ship = "NN-Interceptor",
   faction = "Pirate",
-  aggressiveTowardsPlayer = true,
+  aggressive = true,
   baseDensity = 0.0003,
 }
 }

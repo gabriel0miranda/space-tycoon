@@ -95,12 +95,14 @@ end
 local function getShipItems()
     if not ship or not ship.inventory then return {} end
     local list = {}
+    local demanded = trader.market and trader.market.demanded or {}
     for item, qty in pairs(ship.inventory.items) do
         local price = trader.market.prices and trader.market.prices[item]
         table.insert(list, {
             item = item,
             qty  = qty,
             buy  = price and price.buy or 0,
+            demanded = demanded[item] ~= nil,
         })
     end
     table.sort(list, function(a,b) return a.item < b.item end)
@@ -292,6 +294,10 @@ local function drawRow(x, y, w, rowData, side, isHovered)
                 requesting[item] = math.max(0, (requesting[item] or 0) - 1)
                 if requesting[item] == 0 then requesting[item] = nil end
             end)
+            drawQtyBtn(btnX + 36, y + 3, "*", function()
+                requesting[item] = stQty or 0
+                if requesting[item] == 0 then requesting[item] = nil end
+            end)
             if reqQty > 0 then
                 sc(C.textActive)
                 love.graphics.print("→" .. reqQty, btnX + 36, y + 4)
@@ -312,6 +318,10 @@ local function drawRow(x, y, w, rowData, side, isHovered)
         end)
         drawQtyBtn(btnX + 18, y + 3, "-", function()
             offering[item] = math.max(0, (offering[item] or 0) - 1)
+            if offering[item] == 0 then offering[item] = nil end
+        end)
+        drawQtyBtn(btnX + 36, y + 3, "*", function()
+            offering[item] = stQty or 0
             if offering[item] == 0 then offering[item] = nil end
         end)
         if offerQty > 0 then
@@ -378,8 +388,6 @@ function MarketUI.draw()
 
     -- ── Lista da estação ──
     local stItems = getTraderItems()
-    config.DumpTable(stItems)
-    print(stItems[1])
     local mx, my  = love.mouse.getPosition()
 
     for i = 1, math.min(MAX_VISIBLE, #stItems) do

@@ -562,60 +562,60 @@ function Landed.textinput(t)
 end
 
 function Landed.keypressed(key)
-    -- Se a UI estiver aberta, ela domina o input
-    if config.TextInputUI.isOpen() then
-      config.TextInputUI.keypressed(key)
+  -- Se a UI estiver aberta, ela domina o input
+  if config.TextInputUI.isOpen() then
+    config.TextInputUI.keypressed(key)
+    return
+  end
+  if config.SelectUI.isOpen() then
+      config.SelectUI.keypressed(key)
       return
-    end
-    if config.SelectUI.isOpen() then
-        config.SelectUI.keypressed(key)
-        return
-    end
-    if config.DialogueUI.isOpen() then
-      config.DialogueUI.keypressed(k);
+  end
+  if config.DialogueUI.isOpen() then
+    config.DialogueUI.keypressed(k);
+    return
+  end
+  if config.MarketUI.isOpen() then
+    config.MarketUI.keypressed(key)
+    return
+  end
+  if config.ShipyardUI.isOpen() then
+    if config.ShipyardUI.keypressed(key) then return end -- Se consumiu o input, para aqui
+  end
+  -- Encontra o índice atual do hoveredBtn
+  local currentIndex = 1
+  for i, btn in ipairs(allButtonsFlat) do
+      if btn.key == hoveredBtn then
+          currentIndex = i
+          break
+      end
+  end
+
+  local nextIndex = currentIndex
+
+  if key == "up" then
+      nextIndex = currentIndex - 2
+  elseif key == "down" then
+      nextIndex = currentIndex + 2
+  elseif key == "left" then
+      -- Se for par (direita), vai para a esquerda (-1)
+      if currentIndex % 2 == 0 then nextIndex = currentIndex - 1 end
+  elseif key == "right" then
+      -- Se for ímpar (esquerda), vai para a direita (+1)
+      if currentIndex % 2 ~= 0 then nextIndex = currentIndex + 1 end
+  elseif key == "return" or key == "kpenter" or key == "space" then
+      activateButton(hoveredBtn)
       return
-    end
-    if config.MarketUI.isOpen() then
-      config.MarketUI.keypressed(key)
+  elseif key == "escape" then
+      config.GameState.switch("playing", { resuming = true })
       return
-    end
-    if config.ShipyardUI.isOpen() then
-      if config.ShipyardUI.keypressed(key) then return end -- Se consumiu o input, para aqui
-    end
-    -- Encontra o índice atual do hoveredBtn
-    local currentIndex = 1
-    for i, btn in ipairs(allButtonsFlat) do
-        if btn.key == hoveredBtn then
-            currentIndex = i
-            break
-        end
-    end
+  end
 
-    local nextIndex = currentIndex
+  -- Clamp: não deixa sair dos limites da lista
+  if nextIndex < 1 then nextIndex = 1 end
+  if nextIndex > #allButtonsFlat then nextIndex = #allButtonsFlat end
 
-    if key == "up" then
-        nextIndex = currentIndex - 2
-    elseif key == "down" then
-        nextIndex = currentIndex + 2
-    elseif key == "left" then
-        -- Se for par (direita), vai para a esquerda (-1)
-        if currentIndex % 2 == 0 then nextIndex = currentIndex - 1 end
-    elseif key == "right" then
-        -- Se for ímpar (esquerda), vai para a direita (+1)
-        if currentIndex % 2 ~= 0 then nextIndex = currentIndex + 1 end
-    elseif key == "return" or key == "kpenter" or key == "space" then
-        activateButton(hoveredBtn)
-        return
-    elseif key == "escape" then
-        config.GameState.switch("playing", { resuming = true })
-        return
-    end
-
-    -- Clamp: não deixa sair dos limites da lista
-    if nextIndex < 1 then nextIndex = 1 end
-    if nextIndex > #allButtonsFlat then nextIndex = #allButtonsFlat end
-
-    hoveredBtn = allButtonsFlat[nextIndex].key
+  hoveredBtn = allButtonsFlat[nextIndex].key
 end
 
 function Landed.mousepressed(mx, my, button)
