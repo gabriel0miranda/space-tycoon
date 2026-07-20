@@ -52,6 +52,7 @@ function WorldManager.unfreeze()
 end
 
 function WorldManager.loadSystem(systemId)
+  local player = config.Entities.getByTag("player")[1]
   local toRemove = {}
   local currentCargo = {}
   for _, e in ipairs(config.Entities.all) do
@@ -60,6 +61,11 @@ function WorldManager.loadSystem(systemId)
     end
     if e.tag == "ship" and e.isFlagShip then
       currentCargo = e.inventory.items
+      for _, property in pairs(player.property.properties) do
+        if property.ship and property.name == e.name then
+          property.cargo = currentCargo
+        end
+      end
     end
   end
   for _, e in ipairs(toRemove) do
@@ -73,8 +79,6 @@ function WorldManager.loadSystem(systemId)
     print("WARNING: System "..systemId.." not defined!")
     return
   end
-
-  local player = config.Entities.getByTag("player")[1]
 
   config.StarEntity(sys.starX,sys.starY,sys.starMass,sys.starRadius,sys.starColor)
 
@@ -95,7 +99,7 @@ function WorldManager.loadSystem(systemId)
         player.x = config.Landables[player.startingScenario.starting_place].x
         player.y = config.Landables[player.startingScenario.starting_place].y
       end
-      config.ShipEntity(player.x, player.y, player.name, true, property.name, property.type, player.landedAt, property.weapons, currentCargo)
+      config.ShipEntity(player.x, player.y, player.name, true, property.name, property.type, player.landedAt, property.weapons, property.cargo)
     end
   end
 

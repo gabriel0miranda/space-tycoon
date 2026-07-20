@@ -27,7 +27,7 @@ return {
 },
 ["Iron Baller"] =  {
   name = "Boleiro de Ferro",
-  description = "Após 16 longos anos trabalhando na Bola de Ferro, você finalmente juntou dinheiro suficiente para mudar de profissão e deixar a Ballestra Inc. Sua vida agora é incerta e solitária, mas a galáxia inteira está ao seu alcance.",
+  description = "Após 16 longos anos trabalhando na Bola de Ferro, você finalmente juntou dinheiro suficiente para mudar de profissão e deixar a Ballestra Inc.\nSua vida agora é incerta e solitária, mas a galáxia inteira está ao seu alcance.",
   starting_system = "Flag's Peak",
   starting_systemId = 4,
   starting_place = "Iron Ball",
