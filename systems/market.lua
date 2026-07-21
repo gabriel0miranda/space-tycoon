@@ -3,8 +3,8 @@ local Market = {}
 -- Preço base global por item (fallback)
 local function getBasePrices()
   local basePrices = {}
-  for _, item in pairs(config.Items) do
-    basePrices[item.name] = item.basePrice
+  for item, data in pairs(config.Items) do
+    basePrices[item] = data.basePrice
   end
   return basePrices
 end
@@ -47,6 +47,9 @@ function Market.generateStock(trader)
 
   trader.market.prices = prices
   trader.market.generated = true
+  if config.Input.state.debugFlag then
+    config.DumpTable(market)
+  end
 end
 
 -- Calcula o balanço de uma troca
@@ -62,6 +65,9 @@ function Market.calculateBalance(trader, offering, requesting)
     for _, r in ipairs(requesting) do
         local price = trader.market.prices and trader.market.prices[r.item]
         balance = balance - (price and price.sell or 0) * r.qty
+    end
+    if config.Input.state.debugFlag then
+      print("BALANCE: "..balance)
     end
     return balance
 end
